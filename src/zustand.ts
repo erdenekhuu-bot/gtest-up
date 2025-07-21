@@ -1,0 +1,35 @@
+import { create } from "zustand";
+
+type GlobalStore = {
+  checkout: number;
+  getCheckout: (value: number) => void;
+  id: number;
+  takeID: (value: number) => void;
+  title: string;
+  getTitle: (value: string) => void;
+  documentid: number;
+  getDocumentId: (value: number) => void;
+  bread: string;
+  getBread: (value: string) => void;
+  memberid: number;
+  getMember: (value: number) => void;
+};
+
+export const ZUSTAND = create<GlobalStore>((set) => ({
+  id: 0,
+  takeID: (value: number) => set({ id: value }),
+  checkout: 0,
+  getCheckout: (value: number) => set({ checkout: value }),
+  title: "",
+  getTitle: (value: string) => set({ title: value }),
+  documentid: 0,
+  getDocumentId: (value: number) => {
+    set({ documentid: value });
+  },
+  bread: "",
+  getBread: (value: string) => {
+    set({ bread: value });
+  },
+  memberid: 0,
+  getMember: (value: number) => set({ memberid: value }),
+}));
