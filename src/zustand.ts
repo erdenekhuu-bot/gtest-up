@@ -13,6 +13,10 @@ type GlobalStore = {
   getBread: (value: string) => void;
   memberid: number;
   getMember: (value: number) => void;
+  papercount: number;
+  getPaperCount: (value: number) => void;
+  sharecount: number;
+  getShareCount: (value: number) => void;
 };
 
 export const ZUSTAND = create<GlobalStore>((set) => ({
@@ -32,4 +36,10 @@ export const ZUSTAND = create<GlobalStore>((set) => ({
   },
   memberid: 0,
   getMember: (value: number) => set({ memberid: value }),
+  papercount: 0,
+  getPaperCount: (value: number) => set({ papercount: value }),
+  sharecount: 0,
+  getShareCount(value: number) {
+    set({ sharecount: value });
+  },
 }));

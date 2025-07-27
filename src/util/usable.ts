@@ -1,3 +1,5 @@
+import { prisma } from "@/util/prisma";
+
 export const convertUtil = (data: any[]) => {
   const converting = data.map((index: any, key: number) => {
     return {
@@ -110,4 +112,33 @@ export const formatHumanReadable = (arg: string) => {
   return (
     arg.substring(0, 4) + "/" + arg.substring(5, 7) + "/" + arg.substring(8, 10)
   );
+};
+
+export const filterEmployee = async (id: any): Promise<number | undefined> => {
+  if (typeof id !== "string" || id.split(" ").length < 2) {
+    return undefined;
+  }
+
+  try {
+    const result = await prisma.employee.findFirst({
+      where: {
+        AND: [{ firstname: id.split(" ")[0] }, { lastname: id.split(" ")[1] }],
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!result) {
+      return undefined;
+    }
+
+    return result.id;
+  } catch (error) {
+    return undefined;
+  }
+};
+
+export const subLetter = (arg: string) => {
+  return arg.substring(0, 2).toUpperCase();
 };

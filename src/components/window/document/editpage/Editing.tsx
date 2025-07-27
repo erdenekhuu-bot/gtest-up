@@ -15,6 +15,8 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { ZUSTAND } from "@/zustand";
+import { PaperWindow } from "../../paperwindow";
 
 dayjs.extend(customParseFormat);
 
@@ -27,6 +29,7 @@ export function EditPage({ document, id }: any) {
   const [search, setSearch] = useState("");
   const router = useRouter();
   const { data: session } = useSession();
+  const { getCheckout, getDocumentId } = ZUSTAND();
   // convert department employee
   const updatedData = document.departmentEmployeeRole.map((data: any) => ({
     key: uuidv4(),
@@ -475,7 +478,17 @@ export function EditPage({ document, id }: any) {
           </Flex>
         </div>
         <TestCase />
-        <Flex justify="end" gap={20} style={{ marginTop: 40 }}>
+        <Flex justify="space-between" gap={20} style={{ marginTop: 40 }}>
+          <Button
+            type="dashed"
+            size="large"
+            onClick={() => {
+              getDocumentId(Number(id));
+              getCheckout(5);
+            }}
+          >
+            Батлах хуудас
+          </Button>
           {document.state === "DENY" && (
             <Button
               size="large"
@@ -503,6 +516,7 @@ export function EditPage({ document, id }: any) {
           </Button>
         </Flex>
       </Form>
+      <PaperWindow />
     </section>
   );
 }

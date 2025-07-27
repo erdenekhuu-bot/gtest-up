@@ -28,16 +28,8 @@ export const ActionDetail = createContext<any | null>(null);
 export function MemberPlanDetail({ document, steps }: any) {
   const [attributeForm] = Form.useForm();
   const reference = useRef<HTMLDivElement>(null);
-  const [otp, setOtp] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
   const { data: session } = useSession();
-  const showOTP = () => {
-    setOtp(true);
-  };
-
-  const cancelOTP = () => {
-    setOtp(false);
-  };
 
   const transformStyle = useMemo(
     () => ({

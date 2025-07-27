@@ -15,7 +15,6 @@ export default function ViewPlan(id: any) {
   useEffect(() => {
     const fetchData = async () => {
       const response = await axios.post("/api/member", { tm: id.id });
-
       if (response.data.success) {
         setDocument(response.data.data);
       }

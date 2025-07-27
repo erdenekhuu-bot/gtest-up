@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -14,13 +14,26 @@ import {
   AliwangwangOutlined,
   PieChartOutlined,
   DesktopOutlined,
+  DatabaseTwoTone,
+  PieChartTwoTone,
 } from "@ant-design/icons";
-import { Button, Layout, Menu, theme, Breadcrumb } from "antd";
-import { redirect, useRouter } from "next/navigation";
+import {
+  Button,
+  Layout,
+  Menu,
+  theme,
+  Breadcrumb,
+  Flex,
+  Popover,
+  Badge,
+  Avatar,
+} from "antd";
+import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import type { MenuProps } from "antd";
 import { ZUSTAND } from "@/zustand";
-import Link from "next/link";
+import { subLetter } from "@/util/usable";
+import axios from "axios";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -32,11 +45,11 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   const router = useRouter();
-  const { bread, getBread } = ZUSTAND();
+  const { getBread, papercount, getPaperCount } = ZUSTAND();
   const { data: session } = useSession();
-
   const chekcout = session?.user.permission.kind?.length;
   const manager = session?.user.name;
+  const [sharecount, setSharecount] = useState(0);
 
   const items: MenuItem[] = [
     chekcout > 1
@@ -75,7 +88,20 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
                 getBread("Төлөвлөгөө үүсгэх");
               },
             },
-            { key: "s3", icon: <PieChartOutlined />, label: "Батлах хуудас" },
+            {
+              key: "s3",
+              icon: <PieChartOutlined />,
+              label: "Батлах хуудас",
+              onClick: () => router.push("/paper"),
+            },
+            {
+              key: "s7",
+              icon: <PieChartOutlined />,
+              label: "Ирсэн хуудас",
+              onClick: () => {
+                router.push("/paper/" + session?.user.id);
+              },
+            },
             { key: "s4", icon: <HighlightOutlined />, label: "Тайлан" },
             {
               key: "s5",
@@ -125,6 +151,35 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
     },
   ];
 
+  const fetch = async function () {
+    const response = await axios.post("/api/sharenotification", {
+      authId: session?.user.id,
+    });
+    if (response.data.success) {
+      setSharecount(response.data.data.length);
+    }
+  };
+  const fetchpaper = async function () {
+    const response = await axios.post("/api/document/confirm", {
+      authId: session?.user.id,
+    });
+    if (response.data.success) {
+      console.log(response.data.data);
+      getPaperCount(response.data.data);
+    }
+  };
+
+  const content = (
+    <div>
+      <p>Ирсэн батлах хуудас: {papercount}</p>
+    </div>
+  );
+
+  useEffect(() => {
+    // session?.user.id && fetch();
+    session?.user.id && fetchpaper();
+  }, [session?.user.id]);
+
   return (
     <Layout>
       <Sider width={300} trigger={null} collapsible collapsed={collapsed}>
@@ -137,17 +192,59 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }}>
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            style={{
-              fontSize: "16px",
-              width: 64,
-              height: 64,
-            }}
-          />
+        <Header className="px-1" style={{ background: colorBgContainer }}>
+          <Flex justify="space-between" gap={20} align="center">
+            <Button
+              type="text"
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={() => setCollapsed(!collapsed)}
+              style={{
+                fontSize: "16px",
+                width: 64,
+                height: 64,
+              }}
+            />
+            <Flex gap={10}>
+              <Popover content={content}>
+                <Badge
+                  count={papercount}
+                  // onClick={() => {
+                  //   redirect("/home/shared");
+                  // }}
+                >
+                  <Avatar
+                    shape="square"
+                    size="large"
+                    icon={<PieChartTwoTone className="text-3xl" />}
+                  />
+                </Badge>
+              </Popover>
+              <Popover content={1}>
+                <Badge
+                  count={0}
+                  className="hover:cursor-pointer"
+                  // onClick={() => {
+                  //   redirect("/home/shared");
+                  // }}
+                >
+                  <Avatar
+                    shape="square"
+                    size="large"
+                    icon={<DatabaseTwoTone className="text-3xl" />}
+                  />
+                </Badge>
+              </Popover>
+              <Avatar
+                shape="square"
+                size="large"
+                style={{ backgroundColor: "#00569E" }}
+              >
+                <span className="text-2xl">
+                  {subLetter(String(session?.user.username))}
+                </span>
+              </Avatar>
+            </Flex>
+          </Flex>
         </Header>
         <Content
           style={{

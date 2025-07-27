@@ -51,7 +51,6 @@ export default async function Page(props: {
       }));
     return document;
   });
-  console.log(record);
 
   return <ShareComp document={record} />;
 }
