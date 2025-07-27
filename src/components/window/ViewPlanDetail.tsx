@@ -1,14 +1,14 @@
 "use client";
 
 import { Form, Input, Table, Flex, Steps, Button, Badge } from "antd";
-import { useState, createContext, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { useSession } from "next-auth/react";
+import { ActionDetail } from "./MemberPlanDetail";
 import { ReadDepartmentEmployee } from "./table/ReadDepartmentEmployee";
 import { ReadTestSchedule } from "./table/ReadTestSchedule";
 import { ReadTestRisk } from "./table/ReadTestRisk";
 import { ReadTestEnv } from "./table/ReadTestEnv";
 import { ReadTestCase } from "./table/ReadTestCase";
-import { convertName } from "@/util/usable";
-import { useSession } from "next-auth/react";
 
 const columns = [
   {
@@ -23,21 +23,11 @@ const columns = [
   },
 ];
 
-export const ActionDetail = createContext<any | null>(null);
-
-export function MemberPlanDetail({ document, steps }: any) {
+export function ViewPlanDetail({ document, steps }: any) {
   const [attributeForm] = Form.useForm();
   const reference = useRef<HTMLDivElement>(null);
-  const [otp, setOtp] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
   const { data: session } = useSession();
-  const showOTP = () => {
-    setOtp(true);
-  };
-
-  const cancelOTP = () => {
-    setOtp(false);
-  };
 
   const transformStyle = useMemo(
     () => ({
@@ -258,47 +248,6 @@ export function MemberPlanDetail({ document, steps }: any) {
           <ReadTestCase />
         </section>
       </ActionDetail.Provider>
-      <div
-        className="w-1/4 p-4 mt-8 h-[700px] overflow-auto scrollbar"
-        ref={reference}
-        style={transformStyle}
-      >
-        <Steps
-          current={steps.findIndex((item: any) => item.state === "ACCESS")}
-          direction="vertical"
-          items={steps.map((item: any, index: number) => ({
-            title: `${
-              item.state === "ACCESS" ? "Баталгаажсан" : "Хүлээгдэж байгаа"
-            }`,
-            description: (
-              <section key={index} className="text-[12px] mb-12">
-                <p className="opacity-50">{item.employee.jobPosition?.name}</p>
-                <p className="opacity-50">{convertName(item.employee)}</p>
-                <p className="opacity-50">
-                  {new Date(item.startedDate).toLocaleString()}
-                </p>
-                <div className="mt-4">
-                  {item.state === "ACCESS" ? (
-                    <Badge>Баталгаажсан</Badge>
-                  ) : (
-                    <Button
-                      type="primary"
-                      disabled={
-                        session?.user.id === item.employee.authUser?.id
-                          ? false
-                          : true
-                      }
-                    >
-                      Баталгаажуулах
-                    </Button>
-                  )}
-                </div>
-              </section>
-            ),
-            status: item.state === "ACCESS" ? "process" : "wait",
-          }))}
-        />
-      </div>
     </Form>
   );
 }

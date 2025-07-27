@@ -55,19 +55,17 @@ export function TeamPlanPage({ data, total, page, pageSize }: any) {
     },
   ];
   return (
-    <section>
-      <Flex gap="middle" vertical>
-        <Table<DataType>
-          columns={columns}
-          dataSource={dataWithKeys}
-          pagination={{
-            current: page,
-            pageSize: pageSize,
-            total: total,
-          }}
-          onChange={handleTableChange}
-        />
-      </Flex>
-    </section>
+    <Flex gap="middle" vertical>
+      <Table<DataType>
+        columns={columns}
+        dataSource={dataWithKeys}
+        pagination={{
+          current: page,
+          pageSize: pageSize,
+          total: total,
+        }}
+        onChange={handleTableChange}
+      />
+    </Flex>
   );
 }

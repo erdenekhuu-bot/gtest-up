@@ -20,6 +20,7 @@ import { redirect, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import type { MenuProps } from "antd";
 import { ZUSTAND } from "@/zustand";
+import Link from "next/link";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -155,14 +156,14 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
             minHeight: 280,
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
+            userSelect: "none",
           }}
         >
-          <Breadcrumb style={{ margin: "16px 0" }}>
-            <Breadcrumb.Item onClick={() => redirect("/")}>
-              Home
+          {/* <Breadcrumb style={{ margin: "16px 0" }}>
+            <Breadcrumb.Item>
+              <Link href={"/"}>Нүүр хуудас</Link>
             </Breadcrumb.Item>
-            <Breadcrumb.Item>{bread}</Breadcrumb.Item>
-          </Breadcrumb>
+          </Breadcrumb> */}
           {children}
         </Content>
       </Layout>

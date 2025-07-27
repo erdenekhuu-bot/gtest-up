@@ -12,7 +12,6 @@ export default async function Page(props: {
   }>;
 }) {
   const searchParams = await props.searchParams;
-  const search = searchParams?.search || "";
   const page = Number(searchParams?.page) || 1;
   const pageSize = Number(searchParams?.pageSize) || 10;
   const session = await getServerSession(authOptions);
@@ -45,7 +44,13 @@ export default async function Page(props: {
         authUser: {
           select: {
             id: true,
-            Document: true,
+            Document: {
+              where: {
+                state: {
+                  not: "DENY",
+                },
+              },
+            },
           },
         },
       },

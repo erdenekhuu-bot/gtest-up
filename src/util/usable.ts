@@ -105,3 +105,9 @@ export const mongollabel = (label: string) => {
       return "Хянаагүй";
   }
 };
+
+export const formatHumanReadable = (arg: string) => {
+  return (
+    arg.substring(0, 4) + "/" + arg.substring(5, 7) + "/" + arg.substring(8, 10)
+  );
+};

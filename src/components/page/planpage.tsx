@@ -6,24 +6,13 @@ import { ZUSTAND } from "@/zustand";
 import { FirstDocument } from "../window/firstdocument";
 import { SecondDocument } from "../window/seconddocument";
 import { ThirdDocument } from "../window/thirddocument";
-import { convertName } from "@/util/usable";
+import { convertName, formatHumanReadable } from "@/util/usable";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { DeleteAll } from "@/util/action";
 import { ShareWindow } from "../window/sharewindow";
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
-
-interface DataType {
-  key: React.Key;
-  id: number;
-  generate: string;
-  user: object;
-  title: string;
-  statement: string;
-  timeCreated: string;
-  state: string;
-}
 
 export function PlanPage({ data, total, page, pageSize }: any) {
   const searchParams = useSearchParams();
@@ -81,7 +70,6 @@ export function PlanPage({ data, total, page, pageSize }: any) {
   const columns = [
     { title: "Тоот", dataIndex: "generate" },
     { title: "Тестийн нэр", dataIndex: "title" },
-    { title: "Тушаал", dataIndex: "statement" },
     {
       title: "Үүсгэсэн ажилтан",
       dataIndex: "user",
@@ -92,32 +80,41 @@ export function PlanPage({ data, total, page, pageSize }: any) {
     {
       title: "Огноо",
       dataIndex: "timeCreated",
+      sorter: (a: any, b: any) =>
+        new Date(a.timeCreated).getTime() - new Date(b.timeCreated).getTime(),
+      render: (timeCreated: string) =>
+        formatHumanReadable(new Date(timeCreated).toISOString()),
     },
     {
       title: "Төлөв",
       dataIndex: "state",
-
-      render: (state: string) => (
-        <Badge
-          status={state !== "DENY" ? "processing" : "warning"}
-          text={state}
-        />
-      ),
+      render: (state: string) => {
+        return state !== "REJECTED" ? (
+          <Badge
+            status={state !== "DENY" ? "processing" : "warning"}
+            text={state}
+          />
+        ) : (
+          <Button>Cause</Button>
+        );
+      },
     },
-
     {
       title: "Засах",
       dataIndex: "id",
-      render: (id: number) => (
-        <Button
-          type="primary"
-          onClick={() => {
-            router.push("plan/" + id);
-          }}
-        >
-          Хянах
-        </Button>
-      ),
+      render: (id: number, record: any) => {
+        return (
+          <Button
+            type="primary"
+            onClick={() => {
+              router.push("plan/" + id);
+            }}
+            disabled={record.state !== "DENY" ? true : false}
+          >
+            Хянах
+          </Button>
+        );
+      },
     },
     {
       title: "Хуваалцах",

@@ -1,60 +1,17 @@
 "use client";
 import { Table, Flex, Input, Button } from "antd";
-import { useState } from "react";
-import type { TableProps } from "antd";
-import { ZUSTAND } from "@/zustand";
-import { convertName } from "@/util/usable";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
-import { DeleteAll } from "@/util/action";
-
-type TableRowSelection<T extends object = object> =
-  TableProps<T>["rowSelection"];
-
-interface DataType {
-  key: React.Key;
-  id: number;
-  generate: string;
-  user: object;
-  title: string;
-  statement: string;
-  timeCreated: string;
-  state: string;
-}
+import { convertName, formatHumanReadable } from "@/util/usable";
 
 export function ListPage({ data, total, page, pageSize }: any) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [loading, setLoading] = useState(false);
-  const { getCheckout, getDocumentId } = ZUSTAND();
   const dataWithKeys = data.map((item: any) => ({
     ...item,
     key: item.id,
   }));
   const router = useRouter();
-
-  const start = async () => {
-    setLoading(true);
-    const record = await DeleteAll(selectedRowKeys);
-    record > 0 &&
-      setTimeout(() => {
-        setSelectedRowKeys([]);
-        router.refresh();
-        setLoading(false);
-      }, 1000);
-  };
-
-  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
-
-  const rowSelection: TableRowSelection<DataType> = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-  };
-
-  const hasSelected = selectedRowKeys.length > 0;
 
   const generateSearch = (term: string) => {
     const params = new URLSearchParams(searchParams);
@@ -75,53 +32,41 @@ export function ListPage({ data, total, page, pageSize }: any) {
   };
 
   const columns = [
-    { title: "Тоот", dataIndex: "generate" },
-    { title: "Тестийн нэр", dataIndex: "title" },
-    { title: "Тушаал", dataIndex: "statement" },
+    {
+      title: "Тоот",
+      dataIndex: "document",
+      render: (record: any) => <span>{record.generate}</span>,
+    },
+    {
+      title: "Тестийн нэр",
+      dataIndex: "document",
+      render: (record: any) => <span>{record.title}</span>,
+    },
+    // { title: "Тушаал", dataIndex: "statement" },
     {
       title: "Үүсгэсэн ажилтан",
-      dataIndex: "user",
-      render: (record: any) => {
-        return <span>{convertName(record.employee)}</span>;
-      },
+      dataIndex: "document",
+      render: (record: any) => convertName(record.user.employee),
     },
     {
       title: "Огноо",
-      dataIndex: "timeCreated",
+      dataIndex: "startedDate",
+      sorter: (a: any, b: any) =>
+        new Date(a.startedDate).getTime() - new Date(b.startedDate).getTime(),
+      render: (startedDate: string) =>
+        formatHumanReadable(new Date(startedDate).toISOString()),
     },
     {
-      title: "Төлөв",
-      dataIndex: "state",
-    },
-    {
-      title: "Устгах",
-      dataIndex: "id",
-    },
-    {
-      title: "Засах",
-      dataIndex: "id",
-      render: (id: number) => (
+      title: "Шалгах",
+      dataIndex: "document",
+      render: (record: any) => (
         <Button
           type="primary"
           onClick={() => {
-            router.push("plan/" + id);
+            router.push("listplan/" + record.id);
           }}
         >
-          Edit
-        </Button>
-      ),
-    },
-    {
-      title: "Хуваалцах",
-      dataIndex: "id",
-      render: (id: number) => (
-        <Button
-          onClick={() => {
-            getDocumentId(id);
-            getCheckout(4);
-          }}
-        >
-          SHARE
+          View
         </Button>
       ),
     },
@@ -141,30 +86,16 @@ export function ListPage({ data, total, page, pageSize }: any) {
         </Flex>
       </div>
 
-      <Flex gap="middle" vertical>
-        <Flex align="center" gap="middle">
-          <Button
-            type="primary"
-            onClick={start}
-            disabled={!hasSelected}
-            loading={loading}
-          >
-            Устгах
-          </Button>
-          {hasSelected ? `Selected ${selectedRowKeys.length} items` : null}
-        </Flex>
-        <Table<DataType>
-          rowSelection={rowSelection}
-          columns={columns}
-          dataSource={dataWithKeys}
-          pagination={{
-            current: page,
-            pageSize: pageSize,
-            total: total,
-          }}
-          onChange={handleTableChange}
-        />
-      </Flex>
+      <Table<DataType>
+        columns={columns}
+        dataSource={dataWithKeys}
+        pagination={{
+          current: page,
+          pageSize: pageSize,
+          total: total,
+        }}
+        onChange={handleTableChange}
+      />
     </section>
   );
 }
