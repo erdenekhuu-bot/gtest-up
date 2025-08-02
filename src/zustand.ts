@@ -20,6 +20,8 @@ type GlobalStore = {
   getShareCount: (value: number) => void;
   notificationCount: number;
   getNotification: (slug: number) => Promise<void>;
+  caseid: number;
+  getCaseId: (value: number) => void;
 };
 
 export const ZUSTAND = create<GlobalStore>((set) => ({
@@ -51,5 +53,9 @@ export const ZUSTAND = create<GlobalStore>((set) => ({
     if (res.data.success) {
       set({ notificationCount: res.data.data.length });
     }
+  },
+  caseid: 0,
+  getCaseId: (value: number) => {
+    set({ caseid: value });
   },
 }));
