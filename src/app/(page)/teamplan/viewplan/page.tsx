@@ -12,13 +12,14 @@ export default function ViewPlan(id: any) {
   const { data: session } = useSession();
   const [document, setDocument] = useState<any>([]);
 
+  const fetchData = async () => {
+    const response = await axios.post("/api/member", { tm: id.id });
+    if (response.data.success) {
+      setDocument(response.data.data);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      const response = await axios.post("/api/member", { tm: id.id });
-      if (response.data.success) {
-        setDocument(response.data.data);
-      }
-    };
     fetchData();
   }, [Number(id.id)]);
 
@@ -85,11 +86,17 @@ export default function ViewPlan(id: any) {
               type="primary"
               disabled={item.state !== "PENDING"}
               onClick={async () => {
-                await axios.patch("/api/final", {
+                await axios.put(`/api/final/`, {
+                  authuserId: session?.user.id,
+                  reject: 2,
+                  documentId: item.id,
+                });
+                await axios.patch(`/api/final`, {
                   authuserId: session?.user.id,
                   reject: 3,
                   documentId: item.id,
                 });
+                fetchData();
               }}
             >
               Зөвшөөрөх

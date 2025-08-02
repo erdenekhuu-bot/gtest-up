@@ -1,5 +1,5 @@
 "use client";
-import { Table, Flex, Input, Button, Badge } from "antd";
+import { Table, Flex, Input, Button } from "antd";
 import { useState } from "react";
 import type { TableProps } from "antd";
 import { ZUSTAND } from "@/zustand";
@@ -10,6 +10,7 @@ import { convertName, formatHumanReadable } from "@/util/usable";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { DeleteAll } from "@/util/action";
 import { ShareWindow } from "../window/sharewindow";
+import { Badge } from "@/components/ui/badge";
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
@@ -90,10 +91,7 @@ export function PlanPage({ data, total, page, pageSize }: any) {
       dataIndex: "state",
       render: (state: string) => {
         return state !== "REJECTED" ? (
-          <Badge
-            status={state !== "DENY" ? "processing" : "warning"}
-            text={state}
-          />
+          <Badge variant="viewing">Хянагдаж байна</Badge>
         ) : (
           <Button>Cause</Button>
         );

@@ -1,6 +1,6 @@
 "use client";
 
-import { Form, Input, Table, Flex, Steps, Button, Badge } from "antd";
+import { Form, Input, Table, Flex, Steps, Button } from "antd";
 import { useState, createContext, useRef, useEffect, useMemo } from "react";
 import { ReadDepartmentEmployee } from "./table/ReadDepartmentEmployee";
 import { ReadTestSchedule } from "./table/ReadTestSchedule";
@@ -9,6 +9,7 @@ import { ReadTestEnv } from "./table/ReadTestEnv";
 import { ReadTestCase } from "./table/ReadTestCase";
 import { convertName } from "@/util/usable";
 import { useSession } from "next-auth/react";
+import { Badge } from "@/components/ui/badge";
 
 const columns = [
   {
@@ -271,7 +272,7 @@ export function MemberPlanDetail({ document, steps }: any) {
                 </p>
                 <div className="mt-4">
                   {item.state === "ACCESS" ? (
-                    <Badge>Баталгаажсан</Badge>
+                    <Badge variant="info">Баталгаажсан</Badge>
                   ) : (
                     <Button
                       type="primary"
