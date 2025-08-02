@@ -1,4 +1,5 @@
 import { prisma } from "@/util/prisma";
+import { DocumentStateEnum } from "@prisma/client";
 
 export const convertUtil = (data: any[]) => {
   const converting = data.map((index: any, key: number) => {
@@ -142,3 +143,14 @@ export const filterEmployee = async (id: any): Promise<number | undefined> => {
 export const subLetter = (arg: string) => {
   return arg.substring(0, 2).toUpperCase();
 };
+
+export function MiddleCheck(arg: any) {
+  switch (arg) {
+    case 1:
+      return DocumentStateEnum.MIDDLE;
+    case 2:
+      return DocumentStateEnum.ACCESS;
+    default:
+      return DocumentStateEnum.FORWARD;
+  }
+}

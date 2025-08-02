@@ -54,11 +54,13 @@ export const authOptions: NextAuthOptions = {
         if (!user) {
           return null;
         }
+
         return {
           id: user.id.toString(),
           name: user.username,
           employee: user.employee,
           email: user.email,
+          mobile: user.mobile,
           permission: permission,
         };
       },
@@ -73,6 +75,7 @@ export const authOptions: NextAuthOptions = {
         token.name = user.name;
         token.email = user.email;
         token.image = user.image;
+        token.mobile = user.mobile;
         token.permission = user.permission;
       }
 
@@ -86,6 +89,7 @@ export const authOptions: NextAuthOptions = {
         employee: token.employee,
         name: token.name ?? null,
         email: token.email ?? null,
+        mobile: token.mobile ?? null,
         permission: token.permission,
       };
 

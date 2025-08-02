@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import axios from "axios";
 
 type GlobalStore = {
   checkout: number;
@@ -17,6 +18,8 @@ type GlobalStore = {
   getPaperCount: (value: number) => void;
   sharecount: number;
   getShareCount: (value: number) => void;
+  notificationCount: number;
+  getNotification: (slug: number) => Promise<void>;
 };
 
 export const ZUSTAND = create<GlobalStore>((set) => ({
@@ -41,5 +44,12 @@ export const ZUSTAND = create<GlobalStore>((set) => ({
   sharecount: 0,
   getShareCount(value: number) {
     set({ sharecount: value });
+  },
+  notificationCount: 0,
+  getNotification: async (slug: number) => {
+    const res = await axios.get(`/api/badge/${slug}`);
+    if (res.data.success) {
+      set({ notificationCount: res.data.data.length });
+    }
   },
 }));

@@ -103,7 +103,14 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
                 router.push("/paper/" + session?.user.id);
               },
             },
-            { key: "s4", icon: <HighlightOutlined />, label: "Тайлан" },
+            {
+              key: "s4",
+              icon: <HighlightOutlined />,
+              label: "Тайлан",
+              onClick: () => {
+                router.push("/report");
+              },
+            },
             {
               key: "s5",
               icon: <DesktopOutlined />,

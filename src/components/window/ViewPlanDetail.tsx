@@ -1,6 +1,6 @@
 "use client";
 
-import { Form, Input, Table, Flex, Steps, Button } from "antd";
+import { Form, Input, Table, Flex, Steps, Button, Modal, message } from "antd";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { ActionDetail } from "./MemberPlanDetail";
@@ -11,6 +11,9 @@ import { ReadTestEnv } from "./table/ReadTestEnv";
 import { ReadTestCase } from "./table/ReadTestCase";
 import { convertName } from "@/util/usable";
 import { Badge } from "@/components/ui/badge";
+import { ZUSTAND } from "@/zustand";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const columns = [
   {
@@ -27,9 +30,54 @@ const columns = [
 
 export function ViewPlanDetail({ document, steps }: any) {
   const [attributeForm] = Form.useForm();
+  const { checkout, getCheckout, documentid, getDocumentId } = ZUSTAND();
   const reference = useRef<HTMLDivElement>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
   const { data: session } = useSession();
+  const [messageApi, contextHolder] = message.useMessage();
+  const [append, setAppend] = useState("");
+  const router = useRouter();
+
+  const showOTP = () => {
+    getCheckout(7);
+  };
+
+  const cancelOTP = () => {
+    getCheckout(-1);
+  };
+  const sendOTP = async () => {
+    try {
+      const response = await axios.put("/api/otp/created", {
+        authuserId: Number(session?.user.id),
+      });
+      if (response.status === 200) {
+        messageApi.success("Нэг удаагийн код илгээгдлээ!");
+      }
+    } catch (error) {
+      messageApi.error("Амжилтгүй боллоо.");
+      return;
+    }
+  };
+
+  const checkOTP = async () => {
+    try {
+      const response = await axios.post("/api/final/", {
+        authuserId: Number(session?.user.id),
+        otp: Number(append),
+        reject: 2,
+        check: 2,
+        documentId: document.id,
+      });
+      if (response.data.success && session?.user?.id) {
+        //getNotification(session?.user?.id);
+        cancelOTP();
+        router.refresh();
+      }
+    } catch (error) {
+      messageApi.error("Амжилтгүй боллоо.");
+      return;
+    }
+  };
 
   const transformStyle = useMemo(
     () => ({
@@ -275,8 +323,9 @@ export function ViewPlanDetail({ document, steps }: any) {
                   ) : (
                     <Button
                       type="primary"
+                      onClick={showOTP}
                       disabled={
-                        session?.user.id === item.employee.authUser?.id
+                        Number(session?.user.id) === item.employee.authUser?.id
                           ? false
                           : true
                       }
@@ -291,6 +340,51 @@ export function ViewPlanDetail({ document, steps }: any) {
           }))}
         />
       </div>
+      <Modal
+        title=""
+        open={checkout === 7}
+        onCancel={cancelOTP}
+        footer={[
+          <Flex justify="space-between">
+            <Button key="back" type="link" className="mx-6" onClick={sendOTP}>
+              Дахин код авах
+            </Button>
+
+            <Button
+              key="next"
+              type="primary"
+              className="mx-6"
+              onClick={checkOTP}
+            >
+              Шалгах
+            </Button>
+          </Flex>,
+        ]}
+      >
+        {contextHolder}
+        <p className="mt-4 text-xl px-2 text-center">
+          {session?.user.mobile} дугаарт илгээсэн 6 оронтой кодыг оруулна уу.
+        </p>
+        <div className="my-4">
+          <Flex gap="middle" align="center" vertical>
+            <Input.OTP
+              size="large"
+              onChange={(e: any) => {
+                setAppend(e);
+              }}
+            />
+            <Button
+              type="primary"
+              className="w-[90%]"
+              onClick={() => {
+                sendOTP();
+              }}
+            >
+              Нууц код авах
+            </Button>
+          </Flex>
+        </div>
+      </Modal>
     </Form>
   );
 }
