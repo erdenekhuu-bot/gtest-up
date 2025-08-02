@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/util/prisma";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { CheckErp } from "@/util/checkout";
+import { DecryptAndChecking } from "@/util/checkout";
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt", maxAge: 60 * 60 },
@@ -22,6 +23,13 @@ export const authOptions: NextAuthOptions = {
         password: { label: "password" },
       },
       async authorize(credentials) {
+        const response: any = await DecryptAndChecking({
+          username: credentials?.username,
+          password: credentials?.password,
+        });
+        if (response.status !== 200) {
+          return null;
+        }
         const user = await prisma.authUser.findFirst({
           where: { username: credentials?.username },
           include: {
@@ -43,11 +51,9 @@ export const authOptions: NextAuthOptions = {
             user?.employee?.jobPosition?.jobPositionGroup?.name as string,
             user
           ));
-
         if (!user) {
           return null;
         }
-
         return {
           id: user.id.toString(),
           name: user.username,

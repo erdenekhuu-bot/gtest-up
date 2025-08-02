@@ -104,12 +104,20 @@ export function PlanPage({ data, total, page, pageSize }: any) {
       dataIndex: "id",
       render: (id: number, record: any) => {
         return (
+          // <Button
+          //   type="primary"
+          //   onClick={() => {
+          //     router.push("plan/" + id);
+          //   }}
+          //   disabled={record.state !== "DENY" ? true : false}
+          // >
+          //   Хянах
+          // </Button>
           <Button
             type="primary"
             onClick={() => {
               router.push("plan/" + id);
             }}
-            disabled={record.state !== "DENY" ? true : false}
           >
             Хянах
           </Button>

@@ -34,6 +34,7 @@ import type { MenuProps } from "antd";
 import { ZUSTAND } from "@/zustand";
 import { subLetter } from "@/util/usable";
 import axios from "axios";
+import Link from "next/link";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -164,7 +165,6 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
       authId: session?.user.id,
     });
     if (response.data.success) {
-      console.log(response.data.data);
       getPaperCount(response.data.data);
     }
   };
@@ -256,11 +256,6 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
             userSelect: "none",
           }}
         >
-          {/* <Breadcrumb style={{ margin: "16px 0" }}>
-            <Breadcrumb.Item>
-              <Link href={"/"}>Нүүр хуудас</Link>
-            </Breadcrumb.Item>
-          </Breadcrumb> */}
           {children}
         </Content>
       </Layout>

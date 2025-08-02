@@ -11,17 +11,15 @@ export default function LoginPage() {
   const [messageApi, contextHolder] = message.useMessage();
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    try {
-      const result = await signIn("localauth", {
-        username: values.username,
-        password: values.password,
-        redirect: false,
-      });
-      if (result?.ok) {
-        router.push("/plan");
-        messageApi.success("Амжилттай нэвтэрлээ");
-      }
-    } catch (error) {
+    const result = await signIn("localauth", {
+      username: values.username,
+      password: values.password,
+      redirect: false,
+    });
+    if (result?.ok) {
+      router.push("/plan");
+      messageApi.success("Амжилттай нэвтэрлээ");
+    } else {
       messageApi.error("Амжилтгүй боллоо");
     }
   };
