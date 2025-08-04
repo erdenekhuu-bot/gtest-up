@@ -139,50 +139,73 @@ export const formatHumanReadable = (arg: string) => {
 //     return undefined;
 //   }
 // };
+// export const filterEmployee = async (id: any): Promise<number | undefined> => {
+//   // Ensure id is a string and has at least two parts
+//   if (typeof id !== "string" || !id.trim()) {
+//     console.warn(
+//       `Invalid id format: ${id} (expected a non-empty string with firstname and lastname)`
+//     );
+//     return undefined;
+//   }
+
+//   // Split the id and trim to handle extra spaces
+//   const nameParts = id.trim().split(/\s+/);
+//   if (nameParts.length < 2) {
+//     console.warn(
+//       `Invalid id format: ${id} (expected at least two parts: firstname lastname)`
+//     );
+//     return undefined;
+//   }
+
+//   const firstname = nameParts[0];
+//   const lastname = nameParts[1];
+
+//   try {
+//     const result = await prisma.employee.findFirst({
+//       where: {
+//         AND: [
+//           { firstname: { equals: firstname, mode: "insensitive" } },
+//           { lastname: { equals: lastname, mode: "insensitive" } },
+//         ],
+//       },
+//       select: {
+//         id: true,
+//       },
+//     });
+
+//     if (!result) {
+//       console.warn(
+//         `No employee found for firstname: ${firstname}, lastname: ${lastname}`
+//       );
+//       return undefined;
+//     }
+
+//     return result.id;
+//   } catch (error) {
+//     console.error(`Error querying employee with id: ${id}`, error);
+//     return undefined;
+//   }
+// };
 export const filterEmployee = async (id: any): Promise<number | undefined> => {
-  // Ensure id is a string and has at least two parts
-  if (typeof id !== "string" || !id.trim()) {
-    console.warn(
-      `Invalid id format: ${id} (expected a non-empty string with firstname and lastname)`
-    );
-    return undefined;
-  }
+  if (typeof id !== "string") return undefined;
 
-  // Split the id and trim to handle extra spaces
-  const nameParts = id.trim().split(/\s+/);
-  if (nameParts.length < 2) {
-    console.warn(
-      `Invalid id format: ${id} (expected at least two parts: firstname lastname)`
-    );
-    return undefined;
-  }
-
-  const firstname = nameParts[0];
-  const lastname = nameParts[1];
+  const names = id.trim().split(/\s+/);
+  if (names.length < 2) return undefined;
 
   try {
     const result = await prisma.employee.findFirst({
       where: {
         AND: [
-          { firstname: { equals: firstname, mode: "insensitive" } },
-          { lastname: { equals: lastname, mode: "insensitive" } },
+          { firstname: { equals: names[0], mode: "insensitive" } },
+          { lastname: { equals: names[1], mode: "insensitive" } },
         ],
       },
-      select: {
-        id: true,
-      },
+      select: { id: true },
     });
 
-    if (!result) {
-      console.warn(
-        `No employee found for firstname: ${firstname}, lastname: ${lastname}`
-      );
-      return undefined;
-    }
-
-    return result.id;
+    return result?.id;
   } catch (error) {
-    console.error(`Error querying employee with id: ${id}`, error);
+    console.error("Error filtering employee:", error);
     return undefined;
   }
 };

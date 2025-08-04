@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     const employee = await prisma.$queryRaw`
       SELECT * FROM public."Employee" WHERE firstname LIKE ${`%${capitalizeFirstLetter(
         request.firstname
-      )}%`} ORDER BY id ASC;`;
+      )}%`} AND is_deleted=false ORDER BY id ASC;`;
 
     const totalEmployee = await prisma.employee.count();
     return NextResponse.json(

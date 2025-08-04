@@ -303,7 +303,35 @@ export async function EditShareGRP(data: any) {
         };
       })
     );
-    console.log(processedItems);
+    await prisma.$transaction(async (tx) => {
+      const document = await tx.shareGroup.findFirst({
+        where: {
+          documentId: data.documentid,
+        },
+      });
+      if (!document) {
+        await tx.shareGroup.createMany({
+          data: processedItems,
+        });
+      }
+      await tx.shareGroup.deleteMany({
+        where: {
+          documentId: data.documentid,
+        },
+      });
+      await tx.shareGroup.createMany({
+        data: processedItems,
+      });
+      await tx.document.update({
+        where: {
+          id: data.documentid,
+        },
+        data: {
+          state: Checking(data.share),
+        },
+      });
+    });
+
     return 1;
   } catch (error) {
     return -1;

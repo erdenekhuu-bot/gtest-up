@@ -125,16 +125,20 @@ export function PlanPage({ data, total, page, pageSize }: any) {
     {
       title: "Хуваалцах",
       dataIndex: "id",
-      render: (id: number) => (
-        <Button
-          onClick={() => {
-            getDocumentId(id);
-            getCheckout(4);
-          }}
-        >
-          SHARE
-        </Button>
-      ),
+      render: (id: number, record: any) => {
+        return record.state === "SHARED" ? (
+          <Badge variant="secondary">Хуваалцсан</Badge>
+        ) : (
+          <Button
+            onClick={() => {
+              getDocumentId(id);
+              getCheckout(4);
+            }}
+          >
+            Хуваалцах
+          </Button>
+        );
+      },
     },
   ];
 
