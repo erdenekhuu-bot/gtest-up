@@ -7,7 +7,7 @@ import { DocumentSchema } from "@/lib/validation";
 import { SecondActionSchema } from "@/lib/validation";
 import { ThirdActionSchema } from "@/lib/validation";
 import { Prisma } from "@prisma/client";
-import { Checking, filterEmployeeStat } from "./usable";
+import { Checking, filterEmployeeStat, filterEmployee } from "./usable";
 
 export async function CreateDocument(data: any) {
   try {
@@ -233,6 +233,27 @@ export async function FullUpdateDocument(data: any) {
 export async function ShareGR(data: any) {
   try {
     await prisma.$transaction(async (tx) => {
+      const user = await tx.authUser.findUnique({
+        where: {
+          id: data.authuser,
+        },
+        select: {
+          employee: true,
+        },
+      });
+      const userEntry = {
+        employeeId: user?.employee?.id,
+        documentId: data.documentid,
+      };
+
+      const merge = [
+        ...data.sharegroup.map((item: any) => ({
+          employeeId: item.employeeId,
+          documentId: item.documentId,
+        })),
+        userEntry,
+      ];
+
       const document = await tx.shareGroup.findFirst({
         where: {
           documentId: data.documentid,
@@ -240,7 +261,7 @@ export async function ShareGR(data: any) {
       });
       if (!document) {
         await tx.shareGroup.createMany({
-          data: data.sharegroup,
+          data: merge,
         });
       }
       await tx.shareGroup.deleteMany({
@@ -249,7 +270,7 @@ export async function ShareGR(data: any) {
         },
       });
       await tx.shareGroup.createMany({
-        data: data.sharegroup,
+        data: merge,
       });
       await tx.document.update({
         where: {
@@ -263,6 +284,28 @@ export async function ShareGR(data: any) {
     return 1;
   } catch (error) {
     console.log(error);
+    return -1;
+  }
+}
+
+export async function EditShareGRP(data: any) {
+  try {
+    const processedItems = await Promise.all(
+      data.sharegroup.map(async (item: any) => {
+        const employeeId =
+          typeof item.employeeId === "number"
+            ? item.employeeId
+            : await filterEmployee(item.employeeId);
+
+        return {
+          employeeId: employeeId,
+          documentId: item.documentId,
+        };
+      })
+    );
+    console.log(processedItems);
+    return 1;
+  } catch (error) {
     return -1;
   }
 }

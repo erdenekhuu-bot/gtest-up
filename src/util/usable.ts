@@ -115,15 +115,58 @@ export const formatHumanReadable = (arg: string) => {
   );
 };
 
+// export const filterEmployee = async (id: any): Promise<number | undefined> => {
+//   if (typeof id !== "string" || id.split(" ").length < 2) {
+//     return undefined;
+//   }
+
+//   try {
+//     const result = await prisma.employee.findFirst({
+//       where: {
+//         AND: [{ firstname: id.split(" ")[0] }, { lastname: id.split(" ")[1] }],
+//       },
+//       select: {
+//         id: true,
+//       },
+//     });
+
+//     if (!result) {
+//       return undefined;
+//     }
+
+//     return result.id;
+//   } catch (error) {
+//     return undefined;
+//   }
+// };
 export const filterEmployee = async (id: any): Promise<number | undefined> => {
-  if (typeof id !== "string" || id.split(" ").length < 2) {
+  // Ensure id is a string and has at least two parts
+  if (typeof id !== "string" || !id.trim()) {
+    console.warn(
+      `Invalid id format: ${id} (expected a non-empty string with firstname and lastname)`
+    );
     return undefined;
   }
+
+  // Split the id and trim to handle extra spaces
+  const nameParts = id.trim().split(/\s+/);
+  if (nameParts.length < 2) {
+    console.warn(
+      `Invalid id format: ${id} (expected at least two parts: firstname lastname)`
+    );
+    return undefined;
+  }
+
+  const firstname = nameParts[0];
+  const lastname = nameParts[1];
 
   try {
     const result = await prisma.employee.findFirst({
       where: {
-        AND: [{ firstname: id.split(" ")[0] }, { lastname: id.split(" ")[1] }],
+        AND: [
+          { firstname: { equals: firstname, mode: "insensitive" } },
+          { lastname: { equals: lastname, mode: "insensitive" } },
+        ],
       },
       select: {
         id: true,
@@ -131,11 +174,15 @@ export const filterEmployee = async (id: any): Promise<number | undefined> => {
     });
 
     if (!result) {
+      console.warn(
+        `No employee found for firstname: ${firstname}, lastname: ${lastname}`
+      );
       return undefined;
     }
 
     return result.id;
   } catch (error) {
+    console.error(`Error querying employee with id: ${id}`, error);
     return undefined;
   }
 };

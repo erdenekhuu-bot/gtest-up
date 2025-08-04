@@ -3,13 +3,14 @@ import { Modal, Form, Button, message, Table, Select } from "antd";
 import { ZUSTAND } from "@/zustand";
 import type { FormProps } from "antd";
 import Image from "next/image";
-import { convertUtil, capitalizeFirstLetter } from "@/util/usable";
+import { convertUtil, capitalizeFirstLetter, convertName } from "@/util/usable";
 import { useState, useCallback, useEffect } from "react";
 import axios from "axios";
-import { ShareGR } from "@/util/action";
 import { useSession } from "next-auth/react";
+import { v4 as uuidv4 } from "uuid";
+import { EditShareGRP } from "@/util/action";
 
-export function ShareWindow() {
+export function EditShareWindow() {
   const [mainForm] = Form.useForm();
   const { checkout, getCheckout, documentid } = ZUSTAND();
   const handleCancel = () => {
@@ -29,8 +30,7 @@ export function ShareWindow() {
       share: 4,
       sharegroup,
     };
-
-    const result = await ShareGR(merge);
+    const result = await EditShareGRP(merge);
     if (result > 0) {
       messageApi.success("Амжилттай хуваалцлаа!");
       getCheckout(-1);
@@ -64,13 +64,31 @@ export function ShareWindow() {
     } catch (error) {}
   };
 
+  const detail = async (id: number) => {
+    const response = await axios.get("/api/document/share/" + id);
+    if (response.data.success) {
+      const data = response.data?.data?.shareGroup.map((item: any) => {
+        return {
+          key: uuidv4(),
+          employeeId: `${item.employee.firstname} ${item.employee.lastname}`,
+        };
+      });
+      mainForm.setFieldsValue({
+        sharegroup: data,
+      });
+    }
+  };
   useEffect(() => {
     search ? fetchEmployees(search) : setEmployee([]);
   }, [search, fetchEmployees]);
 
+  useEffect(() => {
+    detail(Number(documentid));
+  }, [documentid]);
+
   return (
     <Modal
-      open={checkout === 4}
+      open={checkout === 8}
       onOk={onFinish}
       onCancel={handleCancel}
       title="ЖИМОБАЙЛ ХХК"
