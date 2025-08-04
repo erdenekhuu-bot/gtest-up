@@ -28,7 +28,13 @@ const getBase64 = (file: FileType): Promise<string> =>
     reader.onerror = (error) => reject(error);
   });
 
-export function TestCaseAction(form: any) {
+export function TestCaseAction({
+  form,
+  handleOk,
+}: {
+  form: any;
+  handleOk: () => void;
+}) {
   const [data, setData] = useState<any>([]);
   const [loading, setLoading] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -101,8 +107,13 @@ export function TestCaseAction(form: any) {
   }, [caseid, open]);
 
   return (
-    <Modal width={800} open={checkout === 9} onCancel={handleCancel}>
-      <Form>
+    <Modal
+      width={800}
+      open={checkout === 9}
+      onCancel={handleCancel}
+      onOk={handleOk}
+    >
+      <Form form={form}>
         <Flex align="center" className="mb-4">
           <Badge status="success" />
           <p className="mx-2">Ангилал</p>

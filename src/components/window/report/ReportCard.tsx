@@ -10,23 +10,23 @@ import { TestCaseAction } from "./TestCaseAction";
 export function ReportCard({ documentId }: any) {
   const [data, setData] = useState<any>([]);
   const [loading, setLoading] = useState(false);
-  const { getCaseId, getCheckout } = ZUSTAND();
+  const { caseid, getCaseId, getCheckout } = ZUSTAND();
   const [form] = Form.useForm();
-  // const handleOk = async () => {
-  //   try {
-  //     const values = await form.validateFields();
-  //     const request = await axios.patch(`/api/document/testcase/${caseId}`, {
-  //       action: values.testType,
-  //       description: values.description,
-  //     });
+  const handleOk = async () => {
+    try {
+      const values = await form.validateFields();
+      const request = await axios.patch(`/api/document/testcase/${caseid}`, {
+        action: values.testType,
+        description: values.description,
+      });
 
-  //     if (request.data.success) {
-
-  //       detail({ id: documentId });
-  //       form.resetFields();
-  //     }
-  //   } catch (error) {}
-  // };
+      if (request.data.success) {
+        getCheckout(-1);
+        detail({ id: documentId });
+        form.resetFields();
+      }
+    } catch (error) {}
+  };
 
   const detail = async (id: any) => {
     try {
@@ -231,7 +231,7 @@ export function ReportCard({ documentId }: any) {
         </Card>
       </Flex>
       <Form form={form}>
-        <TestCaseAction form={form} />
+        <TestCaseAction form={form} handleOk={handleOk} />
       </Form>
     </section>
   );
