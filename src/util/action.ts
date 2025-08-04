@@ -338,13 +338,110 @@ export async function EditShareGRP(data: any) {
   }
 }
 
-export async function Report(data: any) {
+export async function Report(datas: any) {
   try {
     await prisma.$transaction(async (tx) => {
-      console.log(data);
+      const document = await tx.document.findUnique({
+        where: { id: Number(datas.documentId) },
+        include: { testcase: true },
+      });
+      const testCaseIds = document?.testcase.map((tc) => tc.id);
+      const user = await tx.authUser.findUnique({
+        where: {
+          id: datas.authuserId,
+        },
+        include: {
+          employee: true,
+        },
+      });
+      const existingReport = await tx.report.findUnique({
+        where: {
+          documentId: datas.documentId,
+        },
+      });
+      let report;
+      if (existingReport) {
+        report = await tx.report.update({
+          where: {
+            documentId: datas.documentId,
+          },
+          data: {
+            reportname: datas.reportname,
+            reportpurpose: datas.reportpurpose,
+            reportprocessing: datas.reportprocessing,
+            employee: {
+              connect: {
+                id: user?.employee?.id,
+              },
+            },
+            reportadvice: datas.reportadvice,
+            reportconclusion: datas.reportconclusion,
+            issue: {
+              createMany: {
+                data: datas.reporttesterror,
+              },
+            },
+            budget: {
+              createMany: {
+                data: datas.reportbudget,
+              },
+            },
+          },
+        });
+      } else {
+        report = await tx.report.create({
+          data: {
+            reportname: datas.reportname,
+            reportpurpose: datas.reportpurpose,
+            reportprocessing: datas.reportprocessing,
+            document: {
+              connect: {
+                id: datas.documentId,
+              },
+            },
+            employee: {
+              connect: {
+                id: user?.employee?.id,
+              },
+            },
+            reportadvice: datas.reportadvice,
+            reportconclusion: datas.reportconclusion,
+            issue: {
+              createMany: {
+                data: datas.reporttesterror,
+              },
+            },
+            budget: {
+              createMany: {
+                data: datas.reportbudget,
+              },
+            },
+          },
+        });
+      }
+      // if (testCaseIds && testCaseIds.length > 0) {
+      //   await tx.report.update({
+      //     where: { id: datas.reportId },
+      //     data: {
+      //       testcase: {
+      //         connect: testCaseIds.map((testCaseId) => ({ id: testCaseId })),
+      //       },
+      //       usedphone: {
+      //         createMany: {
+      //           data: datas.usedphone,
+      //         },
+      //       },
+      //     },
+      //   });
+      // }
+      // await tx.report.findUnique({
+      //   where: { id: datas.reportId },
+      //   include: { testcase: true },
+      // });
     });
     return 1;
   } catch (error) {
+    console.log(error);
     return -1;
   }
 }

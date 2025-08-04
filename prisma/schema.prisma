@@ -267,7 +267,7 @@ model Report {
   usedphone        UsedPhone[]      @relation("used_phone")
   budget           ReportBudget[]   @relation("reportbudget")
   documentEmployee DocumentEmployee[] @relation("report_document_team")
-  rode          Json                
+  rode          Json?                
   started  DateTime @default(now())
   @@map("report_document")
 }

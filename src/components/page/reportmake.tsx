@@ -171,10 +171,12 @@ export function ReportMake({ id, data }: any) {
   const onFinish: FormProps["onFinish"] = async (values) => {
     const requestData = {
       ...values,
-      documentId: id,
-      authuserId: session?.user.id,
+      documentId: Number(id),
+      authuserId: Number(session?.user.id),
     };
+    console.log(requestData);
     const request = await Report(requestData);
+    console.log(request);
   };
   return (
     <Form className="p-6" form={mainForm} onFinish={onFinish}>
@@ -183,7 +185,7 @@ export function ReportMake({ id, data }: any) {
       </div>
       <div className="mt-8">
         <Form.Item
-          name="testname"
+          name="reportname"
           rules={[{ required: true, message: "Тестийн нэр!" }]}
         >
           <Input size="middle" placeholder="Тестийн нэр бичнэ үү..." />
@@ -192,7 +194,7 @@ export function ReportMake({ id, data }: any) {
       <b>ЗОРИЛГО</b>
       <div className="mt-4">
         <Form.Item
-          name="testpurpose"
+          name="reportpurpose"
           rules={[{ required: true, message: "Тестийн зорилго!" }]}
         >
           <Input.TextArea
@@ -218,7 +220,7 @@ export function ReportMake({ id, data }: any) {
       <b>ТЕСТИЙН ЯВЦЫН ТОЙМ</b>
       <div className="mt-4">
         <Form.Item
-          name="testprocessing"
+          name="reportprocessing"
           rules={[{ required: true, message: "Тестийн нэр!" }]}
         >
           <Input.TextArea
@@ -241,7 +243,7 @@ export function ReportMake({ id, data }: any) {
       <div className="mt-8">
         <p className="my-4 font-bold">ТЕСТИЙН ДҮГНЭЛТ</p>
         <Form.Item
-          name="conclusion"
+          name="reportconclusion"
           rules={[{ required: true, message: "Дүгнэлт!" }]}
         >
           <Input.TextArea
@@ -256,7 +258,7 @@ export function ReportMake({ id, data }: any) {
       <b>ЗӨВЛӨГӨӨ</b>
       <div className="mt-8">
         <Form.Item
-          name="advice"
+          name="reportadvice"
           rules={[{ required: true, message: "Зөвлөгөө!" }]}
         >
           <Input.TextArea
