@@ -338,6 +338,17 @@ export async function EditShareGRP(data: any) {
   }
 }
 
+export async function Report(data: any) {
+  try {
+    await prisma.$transaction(async (tx) => {
+      console.log(data);
+    });
+    return 1;
+  } catch (error) {
+    return -1;
+  }
+}
+
 export async function DeleteAll(data: any[]) {
   try {
     for (const item of data) {

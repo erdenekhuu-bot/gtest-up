@@ -1,11 +1,33 @@
 "use client";
-import { Button, Form, Input, Table } from "antd";
+import { Button, Form, Input, Table, Flex, message, Select } from "antd";
+import type { FormProps } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { ReportTestError } from "../window/report/ReportTestError";
 import { ReportBudget } from "../window/report/ReportBudget";
-import { convertName, formatHumanReadable } from "@/util/usable";
+import { convertName } from "@/util/usable";
+import { useSession } from "next-auth/react";
+import { useState } from "react";
+import Image from "next/image";
+import { Report } from "@/util/action";
 
 export function ReportMake({ id, data }: any) {
+  const [dataSource, setDataSource] = useState<any[]>([]);
+  const [nextKey, setNextKey] = useState(1);
+  const { data: session } = useSession();
+  const handleAdd = () => {
+    const newData = {
+      key: nextKey,
+      type: "",
+      phone: "",
+      description: "",
+      serial: "",
+    };
+    setDataSource([...dataSource, newData]);
+    setNextKey(nextKey + 1);
+  };
+  const handleDelete = (key: number) => {
+    setDataSource(dataSource.filter((item) => item.key !== key));
+  };
   const columns: ColumnsType = [
     {
       title: "Нэр",
@@ -69,8 +91,93 @@ export function ReportMake({ id, data }: any) {
       ),
     },
   ];
+  const phonecolumns: ColumnsType = [
+    {
+      title: "Дугаарын төрөл",
+      dataIndex: "type",
+      key: "type",
+      render: (_, record, index) => (
+        <Form.Item name={["usedphone", index, "type"]}>
+          <Select
+            placeholder=""
+            style={{ width: "100%" }}
+            options={[
+              {
+                label: "Урьдчилсан төлбөрт",
+                value: "PERPAID",
+              },
+              {
+                label: "Дараа төлбөрт",
+                value: "POSTPAID",
+              },
+            ]}
+            showSearch
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+          />
+        </Form.Item>
+      ),
+    },
+
+    {
+      title: "Дугаар",
+      dataIndex: "phone",
+      key: "phone",
+      render: (_, record, index) => (
+        <Form.Item name={["usedphone", index, "phone"]}>
+          <Input placeholder="" />
+        </Form.Item>
+      ),
+    },
+
+    {
+      title: "Тайлбар",
+      dataIndex: "description",
+      key: "description",
+      render: (_, record, index) => (
+        <Form.Item name={["usedphone", index, "description"]}>
+          <Input placeholder="" />
+        </Form.Item>
+      ),
+    },
+    {
+      title: "Сиреал дугаар",
+      dataIndex: "serial",
+      key: "serial",
+      render: (_, record, index) => (
+        <Form.Item name={["usedphone", index, "serial"]}>
+          <Input placeholder="" />
+        </Form.Item>
+      ),
+    },
+
+    {
+      title: "",
+      key: "id",
+      render: (_, record: any) => (
+        <Image
+          src="/trash.svg"
+          alt=""
+          className="hover:cursor-pointer"
+          width={20}
+          height={20}
+          onClick={() => handleDelete(record.key)}
+        />
+      ),
+    },
+  ];
+  const [mainForm] = Form.useForm();
+  const onFinish: FormProps["onFinish"] = async (values) => {
+    const requestData = {
+      ...values,
+      documentId: id,
+      authuserId: session?.user.id,
+    };
+    const request = await Report(requestData);
+  };
   return (
-    <Form className="p-6">
+    <Form className="p-6" form={mainForm} onFinish={onFinish}>
       <div className="flex justify-between text-xl">
         <b>"ЖИМОБАЙЛ" ХХК</b>
       </div>
@@ -168,6 +275,28 @@ export function ReportMake({ id, data }: any) {
         pagination={false}
         bordered
       />
+      <p className="mt-8 mb-4 font-bold text-lg">Ашигласан дугаарууд</p>
+      <Table
+        dataSource={dataSource}
+        columns={phonecolumns}
+        pagination={false}
+        bordered
+      />
+      <div className="text-end mt-4">
+        <Button
+          type="primary"
+          onClick={() => {
+            handleAdd();
+          }}
+        >
+          Мөр нэмэх
+        </Button>
+      </div>
+      <Flex justify="start" gap={20} style={{ marginTop: 40 }}>
+        <Button size="large" type="primary" onClick={() => mainForm.submit()}>
+          Тайлан үүсгэх
+        </Button>
+      </Flex>
     </Form>
   );
 }

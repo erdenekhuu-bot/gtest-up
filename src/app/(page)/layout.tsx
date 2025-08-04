@@ -35,7 +35,6 @@ import type { MenuProps } from "antd";
 import { ZUSTAND } from "@/zustand";
 import { subLetter } from "@/util/usable";
 import axios from "axios";
-import Link from "next/link";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
