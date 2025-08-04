@@ -11,7 +11,7 @@ import { ReportCard } from "../window/report/ReportCard";
 
 const { Dragger } = Upload;
 
-export function ReportPage({ data, total, page, pageSize }: any) {
+export function TestCaseReportPage({ data, total, page, pageSize }: any) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();

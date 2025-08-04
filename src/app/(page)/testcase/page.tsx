@@ -2,7 +2,8 @@
 import { prisma } from "@/util/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { ReportList } from "@/components/window/report/reportlist";
+import { DocumentStateEnum } from "@prisma/client";
+import { TestCaseReportPage } from "@/components/page/reportpage";
 
 export default async function Page(props: {
   searchParams?: Promise<{
@@ -23,17 +24,11 @@ export default async function Page(props: {
         {
           authUserId: Number(session?.user.id),
         },
+
         {
           departmentEmployeeRole: {
             every: {
-              state: "ACCESS",
-            },
-          },
-        },
-        {
-          testcase: {
-            every: {
-              testType: "ENDED",
+              state: DocumentStateEnum.ACCESS,
             },
           },
         },
@@ -42,6 +37,18 @@ export default async function Page(props: {
     skip: (page - 1) * pageSize,
     take: pageSize,
     include: {
+      user: {
+        select: {
+          employee: {
+            select: {
+              firstname: true,
+              lastname: true,
+            },
+          },
+        },
+      },
+      file: true,
+      report: true,
       departmentEmployeeRole: true,
     },
     orderBy: {
@@ -49,5 +56,13 @@ export default async function Page(props: {
     },
   });
   const totalCount = record.length;
-  return <ReportList document={record} />;
+
+  return (
+    <TestCaseReportPage
+      data={record}
+      total={totalCount}
+      page={page}
+      pageSize={pageSize}
+    />
+  );
 }

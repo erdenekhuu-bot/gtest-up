@@ -16,6 +16,7 @@ import {
   DesktopOutlined,
   DatabaseTwoTone,
   PieChartTwoTone,
+  CheckOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -106,6 +107,14 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
             {
               key: "s4",
               icon: <HighlightOutlined />,
+              label: "Тест кэйс",
+              onClick: () => {
+                router.push("/testcase");
+              },
+            },
+            {
+              key: "s8",
+              icon: <CheckOutlined />,
               label: "Тайлан",
               onClick: () => {
                 router.push("/report");
