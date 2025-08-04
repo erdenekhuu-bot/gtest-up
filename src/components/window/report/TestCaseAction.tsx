@@ -28,13 +28,13 @@ const getBase64 = (file: FileType): Promise<string> =>
     reader.onerror = (error) => reject(error);
   });
 
-export function TestCaseAction() {
+export function TestCaseAction(form: any) {
   const [data, setData] = useState<any>([]);
   const [loading, setLoading] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const { caseid } = ZUSTAND();
+  const { caseid, checkout, getCheckout } = ZUSTAND();
 
   const handlePreview = async (file: UploadFile) => {
     if (!file.url && !file.preview) {
@@ -48,21 +48,25 @@ export function TestCaseAction() {
   const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) =>
     setFileList(newFileList);
 
-  // const detail = async function ({ id }: { id: number }) {
-  //   try {
-  //     const request = await axios.get(`/api/document/testcase/${id}`);
-  //     if (request.data.success) {
-  //       setData(request.data.data);
-  //       setLoading(true);
-  //       form.setFieldsValue({
-  //         testType: request.data.data?.testType || "CREATED",
-  //         description: request.data.data?.description || "",
-  //       });
-  //     }
-  //   } catch (error) {
-  //     return;
-  //   }
-  // };
+  const handleCancel = () => {
+    getCheckout(-1);
+  };
+
+  const detail = async function ({ id }: { id: number }) {
+    try {
+      const request = await axios.get(`/api/document/testcase/${id}`);
+      if (request.data.success) {
+        setData(request.data.data);
+        setLoading(true);
+        form.setFieldsValue({
+          testType: request.data.data?.testType || "CREATED",
+          description: request.data.data?.description || "",
+        });
+      }
+    } catch (error) {
+      return;
+    }
+  };
 
   const handleDeleteTestCaseImage = async (imageId: number) => {
     try {
@@ -87,9 +91,18 @@ export function TestCaseAction() {
     </button>
   );
 
+  useEffect(() => {
+    if (caseid) {
+      detail({ id: caseid });
+    }
+    if (!open) {
+      setFileList([]);
+    }
+  }, [caseid, open]);
+
   return (
-    <Modal open={open} onOk={handleOk} onCancel={handleCancel} width={800}>
-      <Form form={form}>
+    <Modal width={800} open={checkout === 9} onCancel={handleCancel}>
+      <Form>
         <Flex align="center" className="mb-4">
           <Badge status="success" />
           <p className="mx-2">Ангилал</p>
@@ -163,7 +176,7 @@ export function TestCaseAction() {
         </div>
         <div className="my-4">
           <Upload
-            action={`/api/image/${id}`}
+            // action={`/api/image/${id}`}
             listType="picture-card"
             fileList={fileList}
             onPreview={handlePreview}

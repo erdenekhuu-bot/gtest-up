@@ -6,7 +6,6 @@ import { OTP } from "@prisma/client";
 export async function PUT(req: NextRequest) {
   try {
     const { authuserId } = await req.json();
-    console.log(authuserId);
     const authuser = await prisma.authUser.findUnique({
       where: {
         id: authuserId,

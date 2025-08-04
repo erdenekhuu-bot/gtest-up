@@ -90,17 +90,21 @@ export function PlanPage({ data, total, page, pageSize }: any) {
       title: "Төлөв",
       dataIndex: "state",
       render: (state: string) => {
-        return state !== "REJECTED" ? (
-          <Badge variant="viewing">Хянагдаж байна</Badge>
-        ) : (
+        return state === "ACCESS" ? (
+          <Badge variant="info" className="py-1">
+            Зөвшөөрөгдсөн
+          </Badge>
+        ) : state === "REJECTED" ? (
           <Button>Cause</Button>
+        ) : (
+          <Badge variant="viewing">Хянагдаж байна</Badge>
         );
       },
     },
     {
       title: "Засах",
       dataIndex: "id",
-      render: (id: number, record: any) => {
+      render: (id: number) => {
         return (
           // <Button
           //   type="primary"

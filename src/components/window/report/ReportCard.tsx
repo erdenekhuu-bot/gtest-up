@@ -5,13 +5,13 @@ import { EllipsisOutlined } from "@ant-design/icons";
 import { mongollabel, convertStatus, mergeLetter } from "@/util/usable";
 import axios from "axios";
 import { ZUSTAND } from "@/zustand";
+import { TestCaseAction } from "./TestCaseAction";
 
 export function ReportCard({ documentId }: any) {
   const [data, setData] = useState<any>([]);
   const [loading, setLoading] = useState(false);
+  const { getCaseId, getCheckout } = ZUSTAND();
   const [form] = Form.useForm();
-  const { caseid, getCaseId } = ZUSTAND();
-
   // const handleOk = async () => {
   //   try {
   //     const values = await form.validateFields();
@@ -79,6 +79,7 @@ export function ReportCard({ documentId }: any) {
                           className="hover:cursor-pointer text-lg"
                           onClick={() => {
                             getCaseId(item.id);
+                            getCheckout(9);
                           }}
                         />
                       </Flex>
@@ -139,6 +140,7 @@ export function ReportCard({ documentId }: any) {
                           className="hover:cursor-pointer text-lg"
                           onClick={() => {
                             getCaseId(item.id);
+                            getCheckout(9);
                           }}
                         />
                       </Flex>
@@ -199,6 +201,7 @@ export function ReportCard({ documentId }: any) {
                           className="hover:cursor-pointer text-lg"
                           onClick={() => {
                             getCaseId(item.id);
+                            getCheckout(9);
                           }}
                         />
                       </Flex>
@@ -227,15 +230,9 @@ export function ReportCard({ documentId }: any) {
           </div>
         </Card>
       </Flex>
-      {/* <Form form={form}>
-        <TestCaseAction
-          open={action}
-          handleOk={handleOk}
-          handleCancel={handleCancel}
-          id={caseId}
-          form={form}
-        />
-      </Form> */}
+      <Form form={form}>
+        <TestCaseAction form={form} />
+      </Form>
     </section>
   );
 }
