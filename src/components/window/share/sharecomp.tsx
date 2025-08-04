@@ -1,19 +1,28 @@
 "use client";
-import { Card, Flex } from "antd";
+import { Card, Flex, Popover, Button } from "antd";
 import { redirect } from "next/navigation";
 import { convertName } from "@/util/usable";
 
 const Useitself = ({ title, employee }: { title: string; employee: any }) => {
+  const content = (
+    <Flex gap={10}>
+      <Button type="primary" onClick={() => redirect("/share/1")}>
+        Төлөвлөгөө үзэх
+      </Button>
+      <Button>Хуваалцсан хүмүүс</Button>
+    </Flex>
+  );
   return (
-    <Card
-      title={title}
-      variant="outlined"
-      className="hover:cursor-pointer m-6"
-      style={{ width: 300 }}
-      onClick={() => redirect("/share/1")}
-    >
-      <p>{convertName(employee)}</p>
-    </Card>
+    <Popover content={content} title="Document">
+      <Card
+        title={title}
+        variant="outlined"
+        className="m-6"
+        style={{ width: 300 }}
+      >
+        <p>{convertName(employee)}</p>
+      </Card>
+    </Popover>
   );
 };
 

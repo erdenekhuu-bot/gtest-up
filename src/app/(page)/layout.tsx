@@ -247,7 +247,7 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
                 style={{ backgroundColor: "#00569E" }}
               >
                 <span className="text-2xl">
-                  {subLetter(String(session?.user.username))}
+                  {subLetter(String(session?.user.name))}
                 </span>
               </Avatar>
             </Flex>

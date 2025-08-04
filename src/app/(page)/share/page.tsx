@@ -37,9 +37,7 @@ export default async function Page(props: {
               },
             },
             {
-              document: {
-                authUserId: Number(session?.user.id),
-              },
+              employeeId: authUser.employee?.id,
             },
           ],
         },
