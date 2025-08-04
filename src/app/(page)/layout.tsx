@@ -122,20 +122,27 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
             },
           ],
         },
-    chekcout >= 2 && chekcout < 5
-      ? {
-          key: "3",
-          icon: <SnippetsOutlined />,
-          label: "Ирсэн төлөвлөгөө",
-          onClick: () => router.push("/listplan"),
-        }
-      : null,
-    chekcout >= 5
-      ? {
-          key: "4",
-          icon: <DesktopOutlined />,
-          label: "Ирсэн төлөвлөгөө CEO",
-        }
+    chekcout > 1
+      ? chekcout > 4
+        ? {
+            key: "4",
+            icon: <DesktopOutlined />,
+            label: "Ирсэн төлөвлөгөө CEO",
+            onClick: () => router.push("/ceoplan"),
+          }
+        : chekcout > 2
+        ? {
+            key: "8",
+            icon: <SnippetsOutlined />,
+            label: "Ирсэн төлөвлөгөө DIR",
+            onClick: () => router.push("/dirplan"),
+          }
+        : {
+            key: "3",
+            icon: <SnippetsOutlined />,
+            label: "Ирсэн төлөвлөгөө",
+            onClick: () => router.push("/listplan"),
+          }
       : null,
     manager === "cc573"
       ? {

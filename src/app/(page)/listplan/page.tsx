@@ -71,11 +71,7 @@ export default async function Page(props: {
     return list;
   });
 
-  const totalCount = await prisma.document.count({
-    where: {
-      authUserId: Number(session?.user.id),
-    },
-  });
+  const totalCount = record.length;
 
   return (
     <ListPage

@@ -1,5 +1,5 @@
 "use client";
-import { Table, Flex, Input, Button } from "antd";
+import { Table, Flex, Input, Button, Badge } from "antd";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { convertName, formatHumanReadable } from "@/util/usable";
 
@@ -57,18 +57,35 @@ export function ListPage({ data, total, page, pageSize }: any) {
         formatHumanReadable(new Date(startedDate).toISOString()),
     },
     {
+      title: "Төлөв",
+      dataIndex: "rode",
+      render: (rode: boolean) => {
+        return (
+          <div>
+            {rode ? (
+              <Badge status="success" text="Уншсан" />
+            ) : (
+              <Badge status="processing" text="Шинэ" />
+            )}
+          </div>
+        );
+      },
+    },
+    {
       title: "Шалгах",
       dataIndex: "document",
-      render: (record: any) => (
-        <Button
-          type="primary"
-          onClick={() => {
-            router.push("listplan/" + record.id);
-          }}
-        >
-          View
-        </Button>
-      ),
+      render: (record: any) => {
+        return (
+          <Button
+            type="primary"
+            onClick={() => {
+              router.push("listplan/" + record.id);
+            }}
+          >
+            View
+          </Button>
+        );
+      },
     },
   ];
 
