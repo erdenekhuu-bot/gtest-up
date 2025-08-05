@@ -11,7 +11,7 @@ export default function Error({
     <div>
       <h2 className="text-center text-4xl">Ямар нэг зүйл буруу байна</h2>
       <p className="my-8">{error.message}</p>
-      <button onClick={() => reset()}>Ахин оролдоно уу</button>
+      <button onClick={() => reset()}>Ахин оролдоно уу !!</button>
     </div>
   );
 }
