@@ -9,9 +9,9 @@ export default function Error({
 }) {
   return (
     <div>
-      <h2 className="text-center text-4xl">Something went wrong!</h2>
+      <h2 className="text-center text-4xl">Ямар нэг зүйл буруу байна</h2>
       <p className="my-8">{error.message}</p>
-      <button onClick={() => reset()}>Try again</button>
+      <button onClick={() => reset()}>Ахин оролдоно уу</button>
     </div>
   );
 }

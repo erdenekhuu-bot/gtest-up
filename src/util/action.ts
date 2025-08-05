@@ -13,7 +13,6 @@ export async function CreateDocument(data: any) {
   try {
     const validate = v.safeParse(DocumentSchema, data);
     if (!validate.success) {
-      console.log(validate);
       return 0;
     }
     const record = await prisma.$transaction(async (tx) => {
@@ -65,7 +64,7 @@ export async function CreateDocument(data: any) {
 
     return record.id;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return -1;
   }
 }
@@ -130,7 +129,7 @@ export async function SecondAction(data: any) {
     });
     return 1;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return -1;
   }
 }
@@ -157,6 +156,7 @@ export async function ThirdAction(data: any) {
     });
     return 1;
   } catch (error) {
+    console.error(error);
     return -1;
   }
 }
@@ -225,7 +225,7 @@ export async function FullUpdateDocument(data: any) {
     });
     return 1;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return -1;
   }
 }
@@ -283,7 +283,7 @@ export async function ShareGR(data: any) {
     });
     return 1;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return -1;
   }
 }
@@ -334,6 +334,7 @@ export async function EditShareGRP(data: any) {
 
     return 1;
   } catch (error) {
+    console.error(error);
     return -1;
   }
 }
@@ -441,7 +442,7 @@ export async function Report(datas: any) {
     });
     return 1;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return -1;
   }
 }
@@ -455,7 +456,7 @@ export async function DeleteAll(data: any[]) {
     }
     return 1;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return -1;
   }
 }
