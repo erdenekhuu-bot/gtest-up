@@ -1,5 +1,14 @@
 "use client";
-import { Form, message, Table, Input, Select, Button, Flex } from "antd";
+import {
+  Form,
+  message,
+  Table,
+  Input,
+  Select,
+  Button,
+  Flex,
+  DatePicker,
+} from "antd";
 import type { FormProps } from "antd";
 import Image from "next/image";
 import {
@@ -57,7 +66,7 @@ export function EditPage({ document, id }: any) {
     return {
       key: uuidv4(),
       id: data.employee.id,
-      employeeId: `${data.employee.firstname} ${data.employee.lastname}` || "",
+      employee: `${data.employee?.firstname} ${data.employee?.lastname}`,
       role: data.role || "",
       startedDate,
       endDate,
@@ -151,11 +160,18 @@ export function EditPage({ document, id }: any) {
       },
     ];
 
+    const testteam = (values.testschedule || []).map((item: any) => ({
+      employeeId: item.employeeId,
+      role: item.role,
+      startedDate: dayjs(item.startedDate).format("YYYY-MM-DDTHH:mm:ssZ"),
+      endDate: dayjs(item.endDate).format("YYYY-MM-DDTHH:mm:ssZ"),
+      authUserId: session?.user.id,
+    }));
+
     const bank = {
       bankname: values.bankname || "",
       bank: values.bank || "",
     };
-
     const addition = (values.attribute || []).map((item: any) => {
       return {
         categoryMain: "Түтгэлзүүлэх болон дахин эхлүүлэх шалгуур",
@@ -163,7 +179,6 @@ export function EditPage({ document, id }: any) {
         value: item.value,
       };
     });
-
     addition.forEach((item: any) => {
       attributeData.push(item);
     });
@@ -175,7 +190,6 @@ export function EditPage({ document, id }: any) {
         riskLevel: selectConvert(item.riskLevel),
       };
     });
-
     const budgetdata = (values.testenv || []).map((item: any) => ({
       productCategory: String(item.productCategory),
       product: String(item.product),
@@ -183,7 +197,6 @@ export function EditPage({ document, id }: any) {
       priceTotal: Number(item.priceTotal),
       amount: Number(item.amount),
     }));
-
     const testcase = (values.testcase || []).map((item: any) => {
       return {
         category: item.category,
@@ -193,7 +206,6 @@ export function EditPage({ document, id }: any) {
         types: item.types,
       };
     });
-
     const merge = {
       ...values,
       riskdata,
@@ -201,9 +213,9 @@ export function EditPage({ document, id }: any) {
       testcase,
       budgetdata,
       bank,
+      testteam,
       id,
     };
-
     const update = await FullUpdate(merge);
   };
 
@@ -219,7 +231,8 @@ export function EditPage({ document, id }: any) {
         role: item.role,
       })),
       testschedule: scheduleData.map((item: any) => ({
-        ...item,
+        employeeId: { value: item.id, label: item.employee },
+        role: item.role,
         startedDate: item.startedDate ? dayjs(item.startedDate) : null,
         endDate: item.endDate ? dayjs(item.endDate) : null,
       })),
@@ -294,7 +307,6 @@ export function EditPage({ document, id }: any) {
                       title: "Нэр",
                       dataIndex: "name",
                       key: "name",
-
                       render: (_, __, index) => (
                         <Form.Item name={[index, "employeeId"]}>
                           <Select
@@ -436,6 +448,7 @@ export function EditPage({ document, id }: any) {
           </Form.Item>
         </div>
         <TestSchedule />
+
         <div className="font-bold my-2 text-lg">
           4. Төслийн үр дүнгийн таамаглал, эрсдэл, хараат байдал
         </div>

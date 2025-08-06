@@ -55,14 +55,8 @@ export function TestSchedule() {
                   dataIndex: "employeeId",
                   key: "employeeId",
                   render: (_, __, index) => (
-                    <Form.Item
-                      name={[index, "employeeId"]}
-                      rules={[
-                        { required: true, message: "Тестийн нэр бичнэ үү" },
-                      ]}
-                    >
+                    <Form.Item name={[index, "employeeId"]}>
                       <Select
-                        placeholder=""
                         options={convertUtil(getEmployee)}
                         onSearch={handleSearch}
                         filterOption={false}

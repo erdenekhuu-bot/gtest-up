@@ -463,8 +463,29 @@ export async function DeleteAll(data: any[]) {
 
 export async function FullUpdate(data: any) {
   try {
+    const result = data.departmentemployee.map((item: any) => {
+      return {
+        employeeId:
+          typeof item.employeeId !== "number"
+            ? item.employeeId.value
+            : item.employeeId,
+        role: item.role,
+      };
+    });
+
+    const team = data.testteam.map((item: any) => {
+      return {
+        employeeId:
+          typeof item.employeeId !== "number"
+            ? item.employeeId.value
+            : item.employeeId,
+        role: item.role,
+        startedDate: item.startedDate,
+        endDate: item.endDate,
+      };
+    });
+
     await prisma.$transaction(async (tx) => {
-      console.log(data);
       const cleanedBudget = data.testbudget.map(
         (item: { key: any; [key: string]: any }) => {
           const { key, ...rest } = item;
@@ -483,6 +504,12 @@ export async function FullUpdate(data: any) {
       await tx.testCase.deleteMany({
         where: { documentId: Number(data.id) },
       });
+      await tx.departmentEmployeeRole.deleteMany({
+        where: { documentId: Number(data.id) },
+      });
+      await tx.documentEmployee.deleteMany({
+        where: { documentId: Number(data.id) },
+      });
 
       await tx.document.update({
         where: { id: Number(data.id) },
@@ -499,6 +526,16 @@ export async function FullUpdate(data: any) {
                 intro: data.intro,
                 aim: data.aim,
               },
+            },
+          },
+          departmentEmployeeRole: {
+            createMany: {
+              data: result,
+            },
+          },
+          documentemployee: {
+            createMany: {
+              data: team,
             },
           },
           attribute: {
