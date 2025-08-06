@@ -17,13 +17,24 @@ export default async function Page(props: {
   const pageSize = Number(searchParams?.pageSize) || 10;
   const session = await getServerSession(authOptions);
 
-  const record = await prisma.document.findMany({
-    where: {
-      authUserId: Number(session?.user.id),
-    },
-    include: {
-      detail: true,
-    },
+  const record = await prisma.$transaction(async (tx) => {
+    const user = await tx.authUser.findUnique({
+      where: { id: Number(session?.user.id) },
+      select: {
+        employee: true,
+      },
+    });
+    const confirm = await tx.confirmPaper.findMany({
+      where: { employeeId: user?.employee?.id },
+      include: {
+        document: {
+          include: {
+            detail: true,
+          },
+        },
+      },
+    });
+    return confirm;
   });
   const totalCount = record.length;
   return (

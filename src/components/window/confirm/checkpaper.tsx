@@ -1,16 +1,12 @@
 "use client";
-import { Card, Flex, theme, Button, Form, Input, Table } from "antd";
+import { Flex, Form, Input, Table } from "antd";
 import { useEffect } from "react";
 import { ActionDetail } from "../MemberPlanDetail";
 import { ReadDepartmentEmployee } from "../table/ReadDepartmentEmployee";
 import { ReadTestSchedule } from "../table/ReadTestSchedule";
 import { ReadTestRisk } from "../table/ReadTestRisk";
-import { ReadTestCase } from "../table/ReadTestCase";
 import { ReadTestEnv } from "../table/ReadTestEnv";
-import { createContext } from "react";
-import { ConfirmDepartmentEmployee } from "./table/ConfirmDepartmentEmployee";
-
-const { useToken } = theme;
+import { ReadTestCase } from "../table/ReadTestCase";
 
 const columns = [
   {
@@ -24,8 +20,6 @@ const columns = [
     key: "value",
   },
 ];
-
-export const ConfirmDetail = createContext<any | null>(null);
 
 export function CheckPaper({ data }: any) {
   const [attributeForm] = Form.useForm();
@@ -57,11 +51,11 @@ export function CheckPaper({ data }: any) {
         data.attribute.find((attr: any) => attr.category === "Нэмэлт")?.value ||
         "",
     });
-  }, []);
+  }, [data.id]);
 
   return (
     <Form form={attributeForm}>
-      <ActionDetail.Provider value={document}>
+      <ActionDetail.Provider value={data}>
         <section className="flex-1 w-3/4">
           <div className="first-column p-6">
             <div className="flex justify-between text-xl mb-6">
@@ -82,7 +76,7 @@ export function CheckPaper({ data }: any) {
                 тэдгээрийн томилогдсон төлөөлөгчдийн зөвшөөрлийг үндэслэн
                 зохицуулж, нэмэлтээр батална.
               </p>
-              <ConfirmDepartmentEmployee />
+              <ReadDepartmentEmployee />
             </div>
             <div className="my-4">
               <div className="font-bold my-2 text-lg mx-4">

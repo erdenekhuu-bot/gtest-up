@@ -1,14 +1,18 @@
 "use client";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Card, Flex, Badge, theme, Button, Pagination } from "antd";
 import { ZUSTAND } from "@/zustand";
 import { PaperWindow } from "./paperwindow";
+import axios from "axios";
+import { useSession } from "next-auth/react";
 
 const { useToken } = theme;
 
 export function PaperDocument({ data, total, page, pageSize }: any) {
+  console.log(data);
   const { token } = useToken();
-  const { getDocumentId, getCheckout } = ZUSTAND();
+  const router = useRouter();
+  const { data: session } = useSession();
   return (
     <section>
       <Flex gap={20} wrap="wrap" style={{ padding: 24 }}>
@@ -22,7 +26,7 @@ export function PaperDocument({ data, total, page, pageSize }: any) {
                   fontSize: "1.1rem",
                 }}
               >
-                {item.title}
+                {item.document.title}
               </span>
             }
             className="m-4 transition-all duration-300 hover:shadow-lg"
@@ -47,9 +51,9 @@ export function PaperDocument({ data, total, page, pageSize }: any) {
                   fontWeight: "bold",
                 }}
                 className="hover:cusror-pointer"
-                onClick={() => redirect(`paper/${item.id}`)}
+                onClick={() => router.push(`paper/${item.id}`)}
               >
-                {item.title}
+                {item.document.title}
               </div>
             }
           >
@@ -67,7 +71,16 @@ export function PaperDocument({ data, total, page, pageSize }: any) {
                   borderRadius: 2,
                 }}
               />
-              <Button type="primary">Үзэх</Button>
+              <Button
+                type="primary"
+                onClick={async () =>
+                  await axios.patch("/api/document/paper", {
+                    authUser: session?.user.id,
+                  })
+                }
+              >
+                Үзэх
+              </Button>
             </div>
           </Card>
         ))}

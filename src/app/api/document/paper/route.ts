@@ -27,7 +27,7 @@ export async function PATCH(req: NextRequest) {
             employeeId: user.employee?.id,
           },
           data: {
-            rode: { rode: convertName(user.employee) },
+            rode: { employee: convertName(user.employee), rode: true },
           },
         }));
       return update;
