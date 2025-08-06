@@ -64,7 +64,6 @@ export async function CreateDocument(data: any) {
 
     return record.id;
   } catch (error) {
-    console.error(error);
     return -1;
   }
 }
@@ -493,6 +492,57 @@ export async function FullUpdate(data: any) {
     return 1;
   } catch (error) {
     console.error(error);
+    return -1;
+  }
+}
+
+export async function ConfirmDoc(data: any) {
+  try {
+    const result = data.map((item: any) => {
+      return {
+        employeeId:
+          typeof item.employeeId !== "number"
+            ? item.employeeId.value
+            : item.employeeId,
+        system: item.system,
+        description: item.description,
+        module: item.module,
+        version: item.version,
+        jobs: item.jobs,
+        startedDate: item.startedDate,
+        title: item.title,
+        documentId: item.documentId,
+        rode: {
+          employeeId:
+            typeof item.employeeId !== "number"
+              ? item.employeeId.value
+              : item.employeeId,
+          rode: false,
+        },
+      };
+    });
+    await prisma.$transaction(async (tx) => {
+      const document = await tx.confirmPaper.findFirst({
+        where: {
+          documentId: Number(data[0].documentId),
+        },
+      });
+      if (!document) {
+        await tx.confirmPaper.createMany({
+          data: result,
+        });
+      }
+      await tx.confirmPaper.deleteMany({
+        where: {
+          documentId: Number(data[0].documentId),
+        },
+      });
+      await tx.confirmPaper.createMany({
+        data: result,
+      });
+    });
+    return 1;
+  } catch (error) {
     return -1;
   }
 }

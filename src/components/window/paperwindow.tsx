@@ -19,6 +19,7 @@ import { useState, useCallback, useEffect } from "react";
 import { capitalizeFirstLetter, convertUtil } from "@/util/usable";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { ConfirmDoc } from "@/util/action";
 
 dayjs.extend(customParseFormat);
 const dateFormat = "YYYY/MM/DD";
@@ -30,33 +31,32 @@ export function PaperWindow() {
   const [search, setSearch] = useState("");
   const [messageApi, contextHolder] = message.useMessage();
 
-  const router = useRouter();
   const handleCancel = () => {
     getCheckout(-1);
   };
   const onFinish: FormProps["onFinish"] = async (values) => {
-    try {
-      const data = values.confirms.map((item: any) => {
-        return {
-          employeeId: item.employeeId,
-          system: item.system,
-          description: item.description,
-          module: item.module,
-          version: item.version,
-          jobs: item.jobs,
-          startedDate: dayjs(values.startedDate).format("YYYY-MM-DDTHH:mm:ssZ"),
-          title: values.title,
-          documentid,
-        };
-      });
-
-      const response = await axios.put("/api/document/confirm", data);
-      if (response.data.success) {
-        messageApi.success("Батлах хуудас үүслээ");
-        router.refresh();
-        handleCancel();
-      }
-    } catch (error) {
+    const data = values.confirms.map((item: any) => {
+      return {
+        employeeId: item.employeeId,
+        system: item.system,
+        description: item.description,
+        module: item.module,
+        version: item.version,
+        jobs: item.jobs,
+        startedDate: dayjs(values.startedDate).format("YYYY-MM-DDTHH:mm:ssZ"),
+        title: values.title,
+        rode: {
+          employee: item.employeeId,
+          rode: false,
+        },
+        documentId: documentid,
+      };
+    });
+    const response = await ConfirmDoc(data);
+    if (response > 0) {
+      messageApi.success("Батлах хуудас үүслээ");
+      handleCancel();
+    } else {
       messageApi.error("Амжилтгүй боллоо.");
     }
   };
@@ -64,13 +64,17 @@ export function PaperWindow() {
   const detail = async ({ id }: { id: number }) => {
     try {
       const request = await axios.get(`/api/document/confirm/${id}`);
-
+      console.log(request.data.data);
       if (request.data.success) {
         const updatedData = request.data.data.confirm.map((data: any) => ({
           key: uuidv4(),
           id: data.id,
-          employeeId:
-            `${data.employee.firstname} ${data.employee.lastname}` || "",
+          // employeeId:
+          //   `${data.employee.firstname} ${data.employee.lastname}` || "",
+          employeeId: {
+            value: data.id,
+            label: `${data.employee.firstname} ${data.employee.lastname}`,
+          },
           system: data.system,
           description: data.description,
           module: data.module,
@@ -121,7 +125,7 @@ export function PaperWindow() {
     <Modal
       open={checkout === 5}
       onCancel={handleCancel}
-      width={800}
+      width={1000}
       title=""
       footer={[
         <Button key="back" onClick={handleCancel}>
@@ -150,7 +154,6 @@ export function PaperWindow() {
           </Form.Item>
         </div>
         <div className="mt-8">
-          {/* <p className="text-lg text-center my-2">{documentName}</p> */}
           <Form.List name="confirms">
             {(fields, { add, remove }) => (
               <section>

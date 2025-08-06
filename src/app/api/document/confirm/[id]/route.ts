@@ -12,65 +12,7 @@ export async function GET(
         where: {
           id: Number(id),
         },
-        include: {
-          documentemployee: {
-            select: {
-              employee: {
-                select: {
-                  id: true,
-                  firstname: true,
-                  lastname: true,
-                  jobPosition: true,
-                  department: true,
-                },
-              },
-              role: true,
-              startedDate: true,
-              endDate: true,
-            },
-          },
-          departmentEmployeeRole: {
-            distinct: ["employeeId"],
-            select: {
-              employee: {
-                include: {
-                  jobPosition: true,
-                  department: true,
-                  authUser: true,
-                },
-              },
-              role: true,
-              state: true,
-              startedDate: true,
-              endDate: true,
-            },
-            orderBy: {
-              startedDate: "asc",
-            },
-          },
-          attribute: true,
-          detail: true,
-          riskassessment: true,
-          testcase: {
-            orderBy: {
-              id: "asc",
-            },
-            include: {
-              testCaseImage: true,
-            },
-          },
-          budget: true,
-          file: true,
-          report: {
-            include: {
-              budget: true,
-              issue: true,
-              team: true,
-              testcase: true,
-              file: true,
-              usedphone: true,
-            },
-          },
+        select: {
           confirm: {
             include: {
               employee: true,
