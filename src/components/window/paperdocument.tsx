@@ -47,7 +47,7 @@ export function PaperDocument({ data, total, page, pageSize }: any) {
                   fontWeight: "bold",
                 }}
                 className="hover:cusror-pointer"
-                onClick={() => redirect(`viewplan/${item.id}`)}
+                onClick={() => redirect(`paper/${item.id}`)}
               >
                 {item.title}
               </div>
@@ -60,8 +60,6 @@ export function PaperDocument({ data, total, page, pageSize }: any) {
                 gap: 8,
               }}
             >
-              <Badge status="success" text={item.state} />
-
               <div
                 style={{
                   height: 4,
@@ -69,15 +67,7 @@ export function PaperDocument({ data, total, page, pageSize }: any) {
                   borderRadius: 2,
                 }}
               />
-              <Button
-                type="primary"
-                onClick={() => {
-                  getDocumentId(item.id);
-                  getCheckout(5);
-                }}
-              >
-                Хуудас үүсгэх
-              </Button>
+              <Button type="primary">Үзэх</Button>
             </div>
           </Card>
         ))}
