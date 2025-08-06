@@ -63,7 +63,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: record });
   } catch (error) {
-    console.log(error);
     return NextResponse.json({ success: false, data: error });
   }
 }
@@ -106,7 +105,6 @@ export async function PUT(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: record });
   } catch (error) {
-    console.log(error);
     return NextResponse.json({ success: false, data: error });
   }
 }
@@ -142,7 +140,6 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: record });
   } catch (error) {
-    console.log(error);
     return NextResponse.json({ success: false, data: error });
   }
 }

@@ -217,6 +217,11 @@ export function EditPage({ document, id }: any) {
       id,
     };
     const update = await FullUpdate(merge);
+    if (update > 0) {
+      messageApi.success("Амжилттай засагдсан");
+    } else {
+      messageApi.error("Алдаа гарлаа");
+    }
   };
 
   useEffect(() => {

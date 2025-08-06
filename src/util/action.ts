@@ -7,7 +7,7 @@ import { DocumentSchema } from "@/lib/validation";
 import { SecondActionSchema } from "@/lib/validation";
 import { ThirdActionSchema } from "@/lib/validation";
 import { Prisma } from "@prisma/client";
-import { Checking, filterEmployeeStat, filterEmployee } from "./usable";
+import { Checking, filterEmployee } from "./usable";
 
 export async function CreateDocument(data: any) {
   try {
@@ -73,7 +73,6 @@ export async function SecondAction(data: any) {
   try {
     const validate = v.safeParse(SecondActionSchema, data);
     if (!validate.success) {
-      console.log(validate);
       return 0;
     }
 
@@ -138,7 +137,6 @@ export async function ThirdAction(data: any) {
   try {
     const validate = v.safeParse(ThirdActionSchema, data);
     if (!validate.success) {
-      console.log(validate);
       return 0;
     }
     await prisma.document.update({
@@ -160,75 +158,6 @@ export async function ThirdAction(data: any) {
     return -1;
   }
 }
-
-// export async function FullUpdateDocument(data: any) {
-//   try {
-//     const mhn = await Promise.all(
-//       data.departmentemployee.map(async (item: any) => {
-//         return {
-//           employeeId: await filterEmployeeStat(item.employeeId),
-//           role: item.role,
-//         };
-//       })
-//     );
-//     await prisma.$transaction(async (tx) => {
-//       const authuser = await tx.authUser.findUnique({
-//         where: {
-//           id: data.authuserId,
-//         },
-//         include: {
-//           employee: {
-//             include: {
-//               department: true,
-//             },
-//           },
-//         },
-//       });
-//       const initials = filterDepartment(authuser?.employee?.department?.name);
-//       const numbering = "-ТӨ-" + initials;
-//       const lastDocument = await tx.document.findFirst({
-//         orderBy: { generate: "desc" },
-//       });
-//       const lastNumber = lastDocument?.generate
-//         ? Number(lastDocument.generate.replace(numbering, ""), 10)
-//         : 0;
-
-//       const generate = String(lastNumber + 1).padStart(3, "0") + numbering;
-//       await tx.departmentEmployeeRole.deleteMany({
-//         where: { documentId: data.documentId },
-//       });
-//       await tx.documentDetail.deleteMany({
-//         where: { documentId: data.documentId },
-//       });
-//       const doc = await tx.document.update({
-//         where: { id: data.documentId },
-//         data: {
-//           authUserId: data.authuserId,
-//           userDataId: data.authuserId,
-//           generate,
-//           state: DocumentStateEnum.DENY,
-//           title: data.title,
-//           detail: {
-//             create: {
-//               intro: data.intro,
-//               aim: data.aim,
-//             },
-//           },
-//           departmentEmployeeRole: {
-//             createMany: {
-//               data: mhn,
-//             },
-//           },
-//         },
-//       });
-//       return doc;
-//     });
-//     return 1;
-//   } catch (error) {
-//     console.error(error);
-//     return -1;
-//   }
-// }
 
 export async function ShareGR(data: any) {
   try {
@@ -288,7 +217,7 @@ export async function ShareGR(data: any) {
   }
 }
 
-export async function EditShareGRP({ data }: any) {
+export async function EditShareGRP(data: any) {
   try {
     const processedItems = await Promise.all(
       data.sharegroup.map(async (item: any) => {

@@ -90,36 +90,30 @@ export function PlanPage({ data, total, page, pageSize }: any) {
       title: "Төлөв",
       dataIndex: "state",
       render: (state: string) => {
-        return state === "ACCESS" ? (
-          <Badge variant="info" className="py-1">
-            Зөвшөөрөгдсөн
-          </Badge>
-        ) : state === "REJECTED" ? (
-          <Button>Cause</Button>
-        ) : (
+        return state === "PENDING" ? (
+          <Badge variant="default">Хүлээгдэж байна</Badge>
+        ) : state === "FORWARD" ? (
           <Badge variant="viewing">Хянагдаж байна</Badge>
+        ) : state === "ACCESS" ? (
+          <Badge variant="info">Хянагдаж байна</Badge>
+        ) : state === "SHARED" ? (
+          <Badge variant="viewing">Хуваалцаж байна</Badge>
+        ) : (
+          <Badge variant="outline">Шинэ</Badge>
         );
       },
     },
     {
       title: "Засах",
       dataIndex: "id",
-      render: (id: number) => {
+      render: (id: number, record: any) => {
         return (
-          // <Button
-          //   type="primary"
-          //   onClick={() => {
-          //     router.push("plan/" + id);
-          //   }}
-          //   disabled={record.state !== "DENY" ? true : false}
-          // >
-          //   Хянах
-          // </Button>
           <Button
             type="primary"
             onClick={() => {
               router.push("plan/" + id);
             }}
+            disabled={record.state === "DENY" ? false : true}
           >
             Засах
           </Button>

@@ -174,9 +174,8 @@ export function ReportMake({ id, data }: any) {
       documentId: Number(id),
       authuserId: Number(session?.user.id),
     };
-    console.log(requestData);
+
     const request = await Report(requestData);
-    console.log(request);
   };
   return (
     <Form className="p-6" form={mainForm} onFinish={onFinish}>
