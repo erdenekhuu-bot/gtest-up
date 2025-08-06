@@ -121,7 +121,7 @@ export function PlanPage({ data, total, page, pageSize }: any) {
               router.push("plan/" + id);
             }}
           >
-            Хянах
+            Засах
           </Button>
         );
       },

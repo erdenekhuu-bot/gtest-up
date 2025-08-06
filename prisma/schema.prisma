@@ -117,7 +117,7 @@ model Document {
   userData               AuthUserData?            @relation(fields: [userDataId], references: [authUserId], onDelete: Cascade)
   attribute              DocumentAttribute[]      @relation("attribute")
   budget                 DocumentBudget[]         @relation("budget")
-  detail                 DocumentDetail[]         @relation("detail")
+  detail                 DocumentDetail?         @relation("detail")
   documentemployee       DocumentEmployee[]       @relation("documentemployee")
   file                   File[]
   riskassessment         RiskAssessment[]         @relation("assessent")
@@ -148,7 +148,7 @@ model DocumentDetail {
   intro      String   @db.VarChar(500)
   aim        String   @db.VarChar(500)
   id         Int      @id @default(autoincrement())
-  documentId Int
+  documentId Int @unique
   document   Document @relation("detail", fields: [documentId], references: [id], onDelete: Cascade)
 }
 

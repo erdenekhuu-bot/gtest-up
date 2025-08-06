@@ -2,7 +2,11 @@
 import { Form, message, Table, Input, Select, Button, Flex } from "antd";
 import type { FormProps } from "antd";
 import Image from "next/image";
-import { convertUtil, capitalizeFirstLetter } from "@/util/usable";
+import {
+  convertUtil,
+  capitalizeFirstLetter,
+  selectConvert,
+} from "@/util/usable";
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { TestSchedule } from "../../creation/Schedule";
@@ -17,6 +21,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ZUSTAND } from "@/zustand";
 import { PaperWindow } from "../../paperwindow";
+import { FullUpdate } from "@/util/action";
 
 dayjs.extend(customParseFormat);
 
@@ -31,12 +36,13 @@ export function EditPage({ document, id }: any) {
   const { data: session } = useSession();
   const { getCheckout, getDocumentId } = ZUSTAND();
   // convert department employee
+
   const updatedData = document.departmentEmployeeRole.map((data: any) => ({
     key: uuidv4(),
-    id: data.employee.id,
-    department: data.employee.department?.name || "",
-    employee: `${data.employee.firstname} ${data.employee.lastname}`,
-    jobPosition: data.employee.jobPosition?.name || "",
+    id: data.employee?.id,
+    department: data.employee?.department?.name || "",
+    employee: `${data.employee?.firstname} ${data.employee?.lastname}`,
+    jobPosition: data.employee?.jobPosition?.name || "",
     role: data.role,
   }));
 
@@ -112,15 +118,100 @@ export function EditPage({ document, id }: any) {
   };
 
   const onFinish: FormProps["onFinish"] = async (values) => {
-    console.log(values);
+    let attributeData = [
+      {
+        categoryMain: "Тестийн үе шат",
+        category: "Бэлтгэл үе",
+        value: values.predict || "",
+      },
+      {
+        categoryMain: "Тестийн үе шат",
+        category: "Тестийн гүйцэтгэл",
+        value: values.dependecy || "",
+      },
+      {
+        categoryMain: "Тестийн үе шат",
+        category: "Тестийн хаалт",
+        value: values.standby || "",
+      },
+      {
+        categoryMain: "Төслийн үр дүнгийн таамаглал, эрсдэл, хараат байдал",
+        category: "Таамаглал",
+        value: values.execute || "",
+      },
+      {
+        categoryMain: "Төслийн үр дүнгийн таамаглал, эрсдэл, хараат байдал",
+        category: "Хараат байдал",
+        value: values.terminate || "",
+      },
+      {
+        categoryMain: "Төслийн үр дүнгийн таамаглал, эрсдэл, хараат байдал",
+        category: "Нэмэлт",
+        value: values.adding || "",
+      },
+    ];
+
+    const bank = {
+      bankname: values.bankname || "",
+      bank: values.bank || "",
+    };
+
+    const addition = (values.attribute || []).map((item: any) => {
+      return {
+        categoryMain: "Түтгэлзүүлэх болон дахин эхлүүлэх шалгуур",
+        category: item.category,
+        value: item.value,
+      };
+    });
+
+    addition.forEach((item: any) => {
+      attributeData.push(item);
+    });
+    const riskdata = (values.testrisk || []).map((item: any) => {
+      return {
+        affectionLevel: selectConvert(item.affectionLevel),
+        mitigationStrategy: item.mitigationStrategy,
+        riskDescription: item.riskDescription,
+        riskLevel: selectConvert(item.riskLevel),
+      };
+    });
+
+    const budgetdata = (values.testenv || []).map((item: any) => ({
+      productCategory: String(item.productCategory),
+      product: String(item.product),
+      priceUnit: Number(item.priceUnit),
+      priceTotal: Number(item.priceTotal),
+      amount: Number(item.amount),
+    }));
+
+    const testcase = (values.testcase || []).map((item: any) => {
+      return {
+        category: item.category,
+        division: item.division,
+        result: item.result,
+        steps: item.steps,
+        types: item.types,
+      };
+    });
+
+    const merge = {
+      ...values,
+      riskdata,
+      attributeData,
+      testcase,
+      budgetdata,
+      bank,
+      id,
+    };
+
+    const update = await FullUpdate(merge);
   };
 
   useEffect(() => {
-    search ? fetchEmployees(search) : setEmployee([]);
     mainForm.setFieldsValue({
       title: document.title,
-      aim: document.detail[0].aim,
-      intro: document.detail[0].intro,
+      aim: document.detail.aim,
+      intro: document.detail.intro,
       departmentemployee: updatedData.map((item: any) => ({
         employeeId: { value: item.id, label: item.employee },
         jobposition: item.jobPosition,
@@ -163,7 +254,11 @@ export function EditPage({ document, id }: any) {
           attr.categoryMain === "Түтгэлзүүлэх болон дахин эхлүүлэх шалгуур"
       ),
     });
-  }, [search, fetchEmployees]);
+  }, [document, fetchEmployees]);
+
+  useEffect(() => {
+    search ? fetchEmployees(search) : setEmployee([]);
+  }, [search]);
 
   return (
     <section>

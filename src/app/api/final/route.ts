@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
       checkout.checkotp === "ACCESS" &&
         (await tx.document.update({
           where: {
-            id: parseInt(request.documentId),
+            id: Number(request.documentId),
           },
           data: {
             state: Checking(request.reject),
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       const updating = await tx.departmentEmployeeRole.updateMany({
         where: {
           employeeId: authuser?.employee?.id,
-          documentId: parseInt(request.documentId),
+          documentId: Number(request.documentId),
         },
         data: {
           state: MiddleCheck(request.check),
@@ -129,7 +129,7 @@ export async function PATCH(req: NextRequest) {
       const updating = await tx.departmentEmployeeRole.updateMany({
         where: {
           employeeId: authuser?.employee?.id,
-          documentId: parseInt(request.documentId),
+          documentId: Number(request.documentId),
         },
         data: {
           state: Checking(request.reject),

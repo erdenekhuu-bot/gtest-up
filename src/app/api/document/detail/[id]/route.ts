@@ -10,7 +10,7 @@ export async function GET(
     const record = await prisma.$transaction(async (tx) => {
       const detail = await tx.document.findUnique({
         where: {
-          id: parseInt(id),
+          id: Number(id),
         },
         include: {
           documentemployee: {

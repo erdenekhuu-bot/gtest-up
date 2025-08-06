@@ -34,6 +34,9 @@ export function ShareWindow() {
     if (result > 0) {
       messageApi.success("Амжилттай хуваалцлаа!");
       getCheckout(-1);
+      // for (const share of values.sharegroup) {
+      //   await axios.put("/api/otp/share", { employeeId: share.employeeId });
+      // }
     } else {
       messageApi.error("Алдаа гарлаа");
     }

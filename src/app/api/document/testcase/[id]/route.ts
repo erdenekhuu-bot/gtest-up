@@ -9,7 +9,7 @@ export async function GET(
     const { id } = await params;
     const record = await prisma.testCase.findUnique({
       where: {
-        id: parseInt(id),
+        id: Number(id),
       },
       include: {
         testCaseImage: true,
@@ -46,7 +46,7 @@ export async function PATCH(
     const request = await req.json();
     const record = await prisma.testCase.update({
       where: {
-        id: parseInt(id),
+        id: Number(id),
       },
       data: {
         testType: request.action,

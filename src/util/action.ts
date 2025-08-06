@@ -161,74 +161,74 @@ export async function ThirdAction(data: any) {
   }
 }
 
-export async function FullUpdateDocument(data: any) {
-  try {
-    const mhn = await Promise.all(
-      data.departmentemployee.map(async (item: any) => {
-        return {
-          employeeId: await filterEmployeeStat(item.employeeId),
-          role: item.role,
-        };
-      })
-    );
-    await prisma.$transaction(async (tx) => {
-      const authuser = await tx.authUser.findUnique({
-        where: {
-          id: data.authuserId,
-        },
-        include: {
-          employee: {
-            include: {
-              department: true,
-            },
-          },
-        },
-      });
-      const initials = filterDepartment(authuser?.employee?.department?.name);
-      const numbering = "-ТӨ-" + initials;
-      const lastDocument = await tx.document.findFirst({
-        orderBy: { generate: "desc" },
-      });
-      const lastNumber = lastDocument?.generate
-        ? parseInt(lastDocument.generate.replace(numbering, ""), 10)
-        : 0;
+// export async function FullUpdateDocument(data: any) {
+//   try {
+//     const mhn = await Promise.all(
+//       data.departmentemployee.map(async (item: any) => {
+//         return {
+//           employeeId: await filterEmployeeStat(item.employeeId),
+//           role: item.role,
+//         };
+//       })
+//     );
+//     await prisma.$transaction(async (tx) => {
+//       const authuser = await tx.authUser.findUnique({
+//         where: {
+//           id: data.authuserId,
+//         },
+//         include: {
+//           employee: {
+//             include: {
+//               department: true,
+//             },
+//           },
+//         },
+//       });
+//       const initials = filterDepartment(authuser?.employee?.department?.name);
+//       const numbering = "-ТӨ-" + initials;
+//       const lastDocument = await tx.document.findFirst({
+//         orderBy: { generate: "desc" },
+//       });
+//       const lastNumber = lastDocument?.generate
+//         ? Number(lastDocument.generate.replace(numbering, ""), 10)
+//         : 0;
 
-      const generate = String(lastNumber + 1).padStart(3, "0") + numbering;
-      await tx.departmentEmployeeRole.deleteMany({
-        where: { documentId: data.documentId },
-      });
-      await tx.documentDetail.deleteMany({
-        where: { documentId: data.documentId },
-      });
-      const doc = await tx.document.update({
-        where: { id: data.documentId },
-        data: {
-          authUserId: data.authuserId,
-          userDataId: data.authuserId,
-          generate,
-          state: DocumentStateEnum.DENY,
-          title: data.title,
-          detail: {
-            create: {
-              intro: data.intro,
-              aim: data.aim,
-            },
-          },
-          departmentEmployeeRole: {
-            createMany: {
-              data: mhn,
-            },
-          },
-        },
-      });
-      return doc;
-    });
-    return 1;
-  } catch (error) {
-    console.error(error);
-    return -1;
-  }
-}
+//       const generate = String(lastNumber + 1).padStart(3, "0") + numbering;
+//       await tx.departmentEmployeeRole.deleteMany({
+//         where: { documentId: data.documentId },
+//       });
+//       await tx.documentDetail.deleteMany({
+//         where: { documentId: data.documentId },
+//       });
+//       const doc = await tx.document.update({
+//         where: { id: data.documentId },
+//         data: {
+//           authUserId: data.authuserId,
+//           userDataId: data.authuserId,
+//           generate,
+//           state: DocumentStateEnum.DENY,
+//           title: data.title,
+//           detail: {
+//             create: {
+//               intro: data.intro,
+//               aim: data.aim,
+//             },
+//           },
+//           departmentEmployeeRole: {
+//             createMany: {
+//               data: mhn,
+//             },
+//           },
+//         },
+//       });
+//       return doc;
+//     });
+//     return 1;
+//   } catch (error) {
+//     console.error(error);
+//     return -1;
+//   }
+// }
 
 export async function ShareGR(data: any) {
   try {
@@ -281,14 +281,14 @@ export async function ShareGR(data: any) {
         },
       });
     });
+
     return 1;
   } catch (error) {
-    console.error(error);
     return -1;
   }
 }
 
-export async function EditShareGRP(data: any) {
+export async function EditShareGRP({ data }: any) {
   try {
     const processedItems = await Promise.all(
       data.sharegroup.map(async (item: any) => {
@@ -454,6 +454,76 @@ export async function DeleteAll(data: any[]) {
         where: { id: Number(item) },
       });
     }
+    return 1;
+  } catch (error) {
+    console.error(error);
+    return -1;
+  }
+}
+
+export async function FullUpdate(data: any) {
+  try {
+    await prisma.$transaction(async (tx) => {
+      console.log(data);
+      const cleanedBudget = data.testbudget.map(
+        (item: { key: any; [key: string]: any }) => {
+          const { key, ...rest } = item;
+          return rest;
+        }
+      );
+      await tx.documentAttribute.deleteMany({
+        where: { documentId: Number(data.id) },
+      });
+      await tx.riskAssessment.deleteMany({
+        where: { documentId: Number(data.id) },
+      });
+      await tx.documentBudget.deleteMany({
+        where: { documentId: Number(data.id) },
+      });
+      await tx.testCase.deleteMany({
+        where: { documentId: Number(data.id) },
+      });
+
+      await tx.document.update({
+        where: { id: Number(data.id) },
+        data: {
+          title: data.title,
+          bank: {
+            name: data.bank.bankname,
+            address: data.bank.bank,
+          },
+          detail: {
+            update: {
+              where: { documentId: Number(data.id) },
+              data: {
+                intro: data.intro,
+                aim: data.aim,
+              },
+            },
+          },
+          attribute: {
+            createMany: {
+              data: data.attributeData,
+            },
+          },
+          riskassessment: {
+            createMany: {
+              data: data.riskdata,
+            },
+          },
+          budget: {
+            createMany: {
+              data: cleanedBudget,
+            },
+          },
+          testcase: {
+            createMany: {
+              data: data.testcase,
+            },
+          },
+        },
+      });
+    });
     return 1;
   } catch (error) {
     console.error(error);

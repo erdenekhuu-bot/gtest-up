@@ -30,6 +30,7 @@ export function EditShareWindow() {
       share: 4,
       sharegroup,
     };
+
     const result = await EditShareGRP(merge);
     if (result > 0) {
       messageApi.success("Амжилттай хуваалцлаа!");

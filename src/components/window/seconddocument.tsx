@@ -86,9 +86,9 @@ export function SecondDocument() {
     const budgetdata = (values.testbudget || []).map((item: any) => ({
       productCategory: String(item.productCategory),
       product: String(item.product),
-      priceUnit: parseInt(item.priceUnit),
-      priceTotal: parseInt(item.priceTotal),
-      amount: parseInt(item.amount),
+      priceUnit: Number(item.priceUnit),
+      priceTotal: Number(item.priceTotal),
+      amount: Number(item.amount),
     }));
 
     const merge = {
