@@ -9,10 +9,10 @@ import { useSession } from "next-auth/react";
 const { useToken } = theme;
 
 export function PaperDocument({ data, total, page, pageSize }: any) {
-  console.log(data);
   const { token } = useToken();
   const router = useRouter();
   const { data: session } = useSession();
+
   return (
     <section>
       <Flex gap={20} wrap="wrap" style={{ padding: 24 }}>

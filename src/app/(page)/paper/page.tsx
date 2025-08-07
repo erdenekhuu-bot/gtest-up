@@ -37,6 +37,7 @@ export default async function Page(props: {
     return confirm;
   });
   const totalCount = record.length;
+
   return (
     <PaperDocument
       data={record}
