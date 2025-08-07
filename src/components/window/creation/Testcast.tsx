@@ -2,12 +2,9 @@
 import { Form, Input, Table, Button, Select, Flex } from "antd";
 import Image from "next/image";
 import * as XLSX from "xlsx";
-import { useState } from "react";
+import type { FormInstance } from "antd/es/form";
 
-export function TestCase() {
-  const [count, setCount] = useState(0);
-  const [data, setData] = useState<any | null>(null);
-
+export function TestCase({ form }: { form: FormInstance }) {
   const handleFileUpload = (e: any) => {
     const file = e.target.files[0];
     const reader = new FileReader();
@@ -18,7 +15,11 @@ export function TestCase() {
       const sheet = workbook.Sheets[sheetName];
       const sheetData = XLSX.utils.sheet_to_json(sheet);
 
-      setData(sheetData);
+      const dataWithKeys = sheetData.map((item: any, index: number) => ({
+        ...item,
+        id: index.toString(),
+      }));
+      form.setFieldsValue({ testcase: dataWithKeys });
     };
 
     reader.readAsBinaryString(file);
@@ -40,62 +41,7 @@ export function TestCase() {
                   key: "category",
                   render: (_, __, index) => (
                     <Form.Item name={[index, "category"]}>
-                      <Select
-                        placeholder=""
-                        style={{ width: "100%" }}
-                        options={[
-                          {
-                            label: "System testing",
-                            value: "System testing",
-                          },
-                          {
-                            label: "UI testing",
-                            value: "UI testing",
-                          },
-                          {
-                            label: "Integration testing",
-                            value: "Integration testing",
-                          },
-                          {
-                            label: "Unit testing + Integration testing",
-                            value: "Unit testing + Integration testing",
-                          },
-                          {
-                            label: "Acceptance Testing + System Testing",
-                            value: "Acceptance Testing + System Testing",
-                          },
-                          {
-                            label: "Smoke Testing",
-                            value: "Smoke Testing",
-                          },
-                          {
-                            label: "Performance Testing",
-                            value: "Performance Testing",
-                          },
-                          {
-                            label: "Security Testing",
-                            value: "Security Testing",
-                          },
-                          {
-                            label: "Regression Testing",
-                            value: "Regression Testing",
-                          },
-                          {
-                            label: "Load Testing",
-                            value: "Load Testing",
-                          },
-                          {
-                            label: "Stress Testing",
-                            value: "Stress Testing",
-                          },
-                        ]}
-                        showSearch
-                        filterOption={(input, option) =>
-                          (option?.label ?? "")
-                            .toLowerCase()
-                            .includes(input.toLowerCase())
-                        }
-                      />
+                      <Input.TextArea />
                     </Form.Item>
                   ),
                 },
@@ -105,7 +51,7 @@ export function TestCase() {
                   key: "types",
                   render: (_, __, index) => (
                     <Form.Item name={[index, "types"]}>
-                      <Input.TextArea rows={1} />
+                      <Input.TextArea />
                     </Form.Item>
                   ),
                 },
@@ -115,7 +61,7 @@ export function TestCase() {
                   key: "steps",
                   render: (_, __, index) => (
                     <Form.Item name={[index, "steps"]}>
-                      <Input.TextArea rows={1} />
+                      <Input.TextArea />
                     </Form.Item>
                   ),
                 },
@@ -156,24 +102,8 @@ export function TestCase() {
               ]}
               bordered
             />
-            <Flex justify="space-between" style={{ marginTop: 10 }}>
-              <Button type="primary" onChange={handleFileUpload}>
-                Import
-              </Button>
-              <Button
-                type="primary"
-                onClick={() =>
-                  add({
-                    category: "",
-                    types: "",
-                    steps: "",
-                    result: "",
-                    division: "",
-                  })
-                }
-              >
-                Мөр нэмэх
-              </Button>
+            <Flex style={{ marginTop: 10 }}>
+              <Input type="file" onChange={handleFileUpload} />
             </Flex>
           </section>
         )}

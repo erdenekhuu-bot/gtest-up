@@ -538,7 +538,7 @@ export function ShareMember({ document, id }: any) {
             </Form.Item>
           </Flex>
         </div>
-        <TestCase />
+        <TestCase form={mainForm} />
         <Flex justify="space-between" gap={20} style={{ marginTop: 40 }}>
           <Button type="dashed" size="large">
             Батлах хуудас

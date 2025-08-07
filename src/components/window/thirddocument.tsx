@@ -45,7 +45,7 @@ export function ThirdDocument() {
     >
       {contextHolder}
       <Form form={mainForm} onFinish={onFinish}>
-        <TestCase />
+        <TestCase form={mainForm} />
       </Form>
     </Modal>
   );
