@@ -75,5 +75,5 @@ export default async function Page({
     },
   });
 
-  return <ShareMember document={record} />;
+  return <ShareMember document={record} id={Number(view)} />;
 }

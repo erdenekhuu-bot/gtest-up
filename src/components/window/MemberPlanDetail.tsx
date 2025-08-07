@@ -46,8 +46,8 @@ export function MemberPlanDetail({ document, steps }: any) {
     }
     attributeForm.setFieldsValue({
       title: document.title,
-      aim: document.detail[0].aim,
-      intro: document.detail[0].intro,
+      aim: document.detail.aim,
+      intro: document.detail.intro,
       bankname: document.bank?.name,
       bank: document.bank?.address,
       predict:

@@ -23,13 +23,13 @@ export const authOptions: NextAuthOptions = {
         password: { label: "password" },
       },
       async authorize(credentials) {
-        const response: any = await DecryptAndChecking({
-          username: credentials?.username,
-          password: credentials?.password,
-        });
-        if (response.status !== 200) {
-          return null;
-        }
+        // const response: any = await DecryptAndChecking({
+        //   username: credentials?.username,
+        //   password: credentials?.password,
+        // });
+        // if (response.status !== 200) {
+        //   return null;
+        // }
         const user = await prisma.authUser.findFirst({
           where: { username: credentials?.username },
           include: {

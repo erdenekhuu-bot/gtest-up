@@ -31,7 +31,6 @@ import { useRouter } from "next/navigation";
 import { ZUSTAND } from "@/zustand";
 import { PaperWindow } from "../../paperwindow";
 import { FullUpdate } from "@/util/action";
-
 dayjs.extend(customParseFormat);
 
 const dateFormat = "YYYY/MM/DD";
@@ -44,6 +43,7 @@ export function EditPage({ document, id }: any) {
   const router = useRouter();
   const { data: session } = useSession();
   const { getCheckout, getDocumentId } = ZUSTAND();
+
   // convert department employee
 
   const updatedData = document.departmentEmployeeRole.map((data: any) => ({

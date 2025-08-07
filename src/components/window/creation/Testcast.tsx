@@ -1,8 +1,28 @@
 "use client";
-import { Form, Input, Table, Button, Select } from "antd";
+import { Form, Input, Table, Button, Select, Flex } from "antd";
 import Image from "next/image";
+import * as XLSX from "xlsx";
+import { useState } from "react";
 
 export function TestCase() {
+  const [count, setCount] = useState(0);
+  const [data, setData] = useState<any | null>(null);
+
+  const handleFileUpload = (e: any) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (event: any) => {
+      const workbook = XLSX.read(event.target.result, { type: "binary" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const sheetData = XLSX.utils.sheet_to_json(sheet);
+
+      setData(sheetData);
+    };
+
+    reader.readAsBinaryString(file);
+  };
   return (
     <section>
       <Form.List name="testcase">
@@ -136,7 +156,10 @@ export function TestCase() {
               ]}
               bordered
             />
-            <div className="text-end mt-4">
+            <Flex justify="space-between" style={{ marginTop: 10 }}>
+              <Button type="primary" onChange={handleFileUpload}>
+                Import
+              </Button>
               <Button
                 type="primary"
                 onClick={() =>
@@ -151,7 +174,7 @@ export function TestCase() {
               >
                 Мөр нэмэх
               </Button>
-            </div>
+            </Flex>
           </section>
         )}
       </Form.List>

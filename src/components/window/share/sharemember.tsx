@@ -13,34 +13,33 @@ import { TestCase } from "../creation/Testcast";
 import { v4 as uuidv4 } from "uuid";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { ZUSTAND } from "@/zustand";
 import { PaperWindow } from "../paperwindow";
+import { useSession } from "next-auth/react";
+import { selectConvert } from "@/util/usable";
+import { FullUpdate } from "@/util/action";
+import { redirect } from "next/navigation";
 
 dayjs.extend(customParseFormat);
 
 const dateFormat = "YYYY/MM/DD";
 
-export function ShareMember(document: any) {
+export function ShareMember({ document, id }: any) {
   const [messageApi, contextHolder] = message.useMessage();
   const [mainForm] = Form.useForm();
   const [getEmployee, setEmployee] = useState<any>([]);
   const [search, setSearch] = useState("");
+  const { data: session } = useSession();
   // convert department employee
-  const updatedData = document.document.departmentEmployeeRole.map(
-    (data: any) => ({
-      key: uuidv4(),
-      id: data.employee.id,
-      department: data.employee.department?.name || "",
-      employee: `${data.employee.firstname} ${data.employee.lastname}`,
-      jobPosition: data.employee.jobPosition?.name || "",
-      role: data.role,
-    })
-  );
+  const updatedData = document.departmentEmployeeRole.map((data: any) => ({
+    key: uuidv4(),
+    id: data.employee.id,
+    department: data.employee.department?.name || "",
+    employee: `${data.employee.firstname} ${data.employee.lastname}`,
+    jobPosition: data.employee.jobPosition?.name || "",
+    role: data.role,
+  }));
 
-  //convert document employee
-  const scheduleData = document.document.documentemployee.map((data: any) => {
+  const scheduleData = document.documentemployee.map((data: any) => {
     const startedDate =
       data.startedDate && dayjs(data.startedDate, dateFormat)
         ? data.startedDate
@@ -50,7 +49,7 @@ export function ShareMember(document: any) {
     return {
       key: uuidv4(),
       id: data.employee.id,
-      employeeId: `${data.employee.firstname} ${data.employee.lastname}` || "",
+      employee: `${data.employee?.firstname} ${data.employee?.lastname}`,
       role: data.role || "",
       startedDate,
       endDate,
@@ -58,7 +57,7 @@ export function ShareMember(document: any) {
   });
 
   //riskassesment huvirgah
-  const riskData = document.document.riskassessment.map((data: any) => ({
+  const riskData = document.riskassessment.map((data: any) => ({
     key: uuidv4(),
     id: data.id,
     riskDescription: data.riskDescription || "",
@@ -68,7 +67,7 @@ export function ShareMember(document: any) {
   }));
 
   //budget huvirgah
-  const budgetData = document.document.budget.map((data: any) => ({
+  const budgetData = document.budget.map((data: any) => ({
     key: uuidv4(),
     id: data.id,
     productCategory: data.productCategory || "",
@@ -78,7 +77,7 @@ export function ShareMember(document: any) {
     priceTotal: data.priceTotal || 0,
   }));
 
-  const caseData = document.document.testcase.map((testCase: any) => ({
+  const caseData = document.testcase.map((testCase: any) => ({
     key: uuidv4(),
     id: testCase.id,
     category: testCase.category || "",
@@ -111,15 +110,110 @@ export function ShareMember(document: any) {
   };
 
   const onFinish: FormProps["onFinish"] = async (values) => {
-    console.log(values);
+    let attributeData = [
+      {
+        categoryMain: "Тестийн үе шат",
+        category: "Бэлтгэл үе",
+        value: values.predict || "",
+      },
+      {
+        categoryMain: "Тестийн үе шат",
+        category: "Тестийн гүйцэтгэл",
+        value: values.dependecy || "",
+      },
+      {
+        categoryMain: "Тестийн үе шат",
+        category: "Тестийн хаалт",
+        value: values.standby || "",
+      },
+      {
+        categoryMain: "Төслийн үр дүнгийн таамаглал, эрсдэл, хараат байдал",
+        category: "Таамаглал",
+        value: values.execute || "",
+      },
+      {
+        categoryMain: "Төслийн үр дүнгийн таамаглал, эрсдэл, хараат байдал",
+        category: "Хараат байдал",
+        value: values.terminate || "",
+      },
+      {
+        categoryMain: "Төслийн үр дүнгийн таамаглал, эрсдэл, хараат байдал",
+        category: "Нэмэлт",
+        value: values.adding || "",
+      },
+    ];
+
+    const testteam = (values.testschedule || []).map((item: any) => ({
+      employeeId: item.employeeId,
+      role: item.role,
+      startedDate: dayjs(item.startedDate).format("YYYY-MM-DDTHH:mm:ssZ"),
+      endDate: dayjs(item.endDate).format("YYYY-MM-DDTHH:mm:ssZ"),
+      authUserId: session?.user.id,
+    }));
+
+    const bank = {
+      bankname: values.bankname || "",
+      bank: values.bank || "",
+    };
+    const addition = (values.attribute || []).map((item: any) => {
+      return {
+        categoryMain: "Түтгэлзүүлэх болон дахин эхлүүлэх шалгуур",
+        category: item.category,
+        value: item.value,
+      };
+    });
+    addition.forEach((item: any) => {
+      attributeData.push(item);
+    });
+    const riskdata = (values.testrisk || []).map((item: any) => {
+      return {
+        affectionLevel: selectConvert(item.affectionLevel),
+        mitigationStrategy: item.mitigationStrategy,
+        riskDescription: item.riskDescription,
+        riskLevel: selectConvert(item.riskLevel),
+      };
+    });
+    const budgetdata = (values.testenv || []).map((item: any) => ({
+      productCategory: String(item.productCategory),
+      product: String(item.product),
+      priceUnit: Number(item.priceUnit),
+      priceTotal: Number(item.priceTotal),
+      amount: Number(item.amount),
+    }));
+    const testcase = (values.testcase || []).map((item: any) => {
+      return {
+        category: item.category,
+        division: item.division,
+        result: item.result,
+        steps: item.steps,
+        types: item.types,
+      };
+    });
+    const merge = {
+      ...values,
+      riskdata,
+      attributeData,
+      testcase,
+      budgetdata,
+      bank,
+      testteam,
+      id,
+    };
+
+    const update = await FullUpdate(merge);
+    if (update > 0) {
+      messageApi.success("Амжилттай засагдсан");
+    } else {
+      messageApi.error("Алдаа гарлаа");
+    }
   };
 
   useEffect(() => {
     search ? fetchEmployees(search) : setEmployee([]);
     mainForm.setFieldsValue({
-      title: document.document.title,
-      aim: document.document.detail[0].aim,
-      intro: document.document.detail[0].intro,
+      title: document.title,
+      aim: document.detail.aim,
+      intro: document.detail.intro,
       departmentemployee: updatedData.map((item: any) => ({
         employeeId: { value: item.id, label: item.employee },
         jobposition: item.jobPosition,
@@ -127,54 +221,53 @@ export function ShareMember(document: any) {
         role: item.role,
       })),
       testschedule: scheduleData.map((item: any) => ({
-        ...item,
+        employeeId: { value: item.id, label: item.employee },
+        role: item.role,
         startedDate: item.startedDate ? dayjs(item.startedDate) : null,
         endDate: item.endDate ? dayjs(item.endDate) : null,
       })),
       predict:
-        document.document.attribute.find(
-          (attr: any) => attr.category === "Таамаглал"
-        )?.value || "",
+        document.attribute.find((attr: any) => attr.category === "Таамаглал")
+          ?.value || "",
       dependecy:
-        document.document.attribute.find(
+        document.attribute.find(
           (attr: any) => attr.category === "Хараат байдал"
         )?.value || "",
       standby:
-        document.document.attribute.find(
-          (attr: any) => attr.category === "Бэлтгэл үе"
-        )?.value || "",
+        document.attribute.find((attr: any) => attr.category === "Бэлтгэл үе")
+          ?.value || "",
       execute:
-        document.document.attribute.find(
+        document.attribute.find(
           (attr: any) => attr.category === "Тестийн гүйцэтгэл"
         )?.value || "",
       terminate:
-        document.document.attribute.find(
+        document.attribute.find(
           (attr: any) => attr.category === "Тестийн хаалт"
         )?.value || "",
       adding:
-        document.document.attribute.find(
-          (attr: any) => attr.category === "Нэмэлт"
-        )?.value || "",
-      bankname: document.document.bank?.name,
-      bank: document.document.bank?.address,
+        document.attribute.find((attr: any) => attr.category === "Нэмэлт")
+          ?.value || "",
+      bankname: document.bank?.name,
+      bank: document.bank?.address,
       testrisk: riskData,
       testbudget: budgetData,
       testcase: caseData,
-      attribute: document.document.attribute.filter(
+      attribute: document.attribute.filter(
         (attr: any) =>
           attr.categoryMain === "Түтгэлзүүлэх болон дахин эхлүүлэх шалгуур"
       ),
     });
-  }, [search, fetchEmployees]);
+  }, [document, fetchEmployees]);
+
+  useEffect(() => {
+    search ? fetchEmployees(search) : setEmployee([]);
+  }, [search]);
   return (
     <section>
       {contextHolder}
       <p className="font-bold text-2xl mb-6">ЖИМОБАЙЛ ХХК</p>
       <Form form={mainForm} onFinish={onFinish}>
-        <Form.Item
-          name="title"
-          rules={[{ required: true, message: "Тестийн нэр бичнэ үү" }]}
-        >
+        <Form.Item name="title">
           <Input size="large" placeholder="Тестийн нэр бичнэ үү..." />
         </Form.Item>
         <div className="my-2">
@@ -301,15 +394,7 @@ export function ShareMember(document: any) {
           <div className="font-bold my-2 text-lg mx-4">
             1. Үйл ажиллагааны зорилго
           </div>
-          <Form.Item
-            name="aim"
-            rules={[
-              {
-                required: true,
-                message: "Үйл ажиллагааны зорилгоо бичнэ үү",
-              },
-            ]}
-          >
+          <Form.Item name="aim">
             <Input.TextArea
               rows={5}
               placeholder="Тестийн зорилго бичнэ үү..."
@@ -323,15 +408,7 @@ export function ShareMember(document: any) {
           <div className="font-bold my-2 text-lg mx-4">
             2. Тестийн танилцуулга
           </div>
-          <Form.Item
-            name="intro"
-            rules={[
-              {
-                required: true,
-                message: "Танилцуулгаа бичнэ үү",
-              },
-            ]}
-          >
+          <Form.Item name="intro">
             <Input.TextArea
               maxLength={500}
               rows={5}
@@ -353,10 +430,7 @@ export function ShareMember(document: any) {
           </ul>
         </li>
         <div className="mt-2">
-          <Form.Item
-            name="predict"
-            rules={[{ required: true, message: "Таамаглалаа бичнэ үү" }]}
-          >
+          <Form.Item name="predict">
             <Input.TextArea
               rows={5}
               style={{ resize: "none" }}
@@ -375,10 +449,7 @@ export function ShareMember(document: any) {
             </ul>
           </li>
           <div className="mt-2">
-            <Form.Item
-              name="dependecy"
-              rules={[{ required: true, message: "Хараат байдлыг бичнэ үү" }]}
-            >
+            <Form.Item name="dependecy">
               <Input.TextArea
                 rows={5}
                 style={{ resize: "none" }}
@@ -398,10 +469,7 @@ export function ShareMember(document: any) {
             </ul>
           </li>
           <div className="mt-2">
-            <Form.Item
-              name="standby"
-              rules={[{ required: true, message: "Бэлтгэл үеийг бичнэ үү" }]}
-            >
+            <Form.Item name="standby">
               <Input.TextArea
                 rows={5}
                 style={{ resize: "none" }}
@@ -420,12 +488,7 @@ export function ShareMember(document: any) {
             </ul>
           </li>
           <div className="mt-2">
-            <Form.Item
-              name="execute"
-              rules={[
-                { required: true, message: "Тестийн гүйцэтгэлээ бичнэ үү" },
-              ]}
-            >
+            <Form.Item name="execute">
               <Input.TextArea
                 rows={5}
                 style={{ resize: "none" }}
@@ -444,10 +507,7 @@ export function ShareMember(document: any) {
             </ul>
           </li>
           <div className="mt-2">
-            <Form.Item
-              name="terminate"
-              rules={[{ required: true, message: "Тестийн хаалт бичнэ үү" }]}
-            >
+            <Form.Item name="terminate">
               <Input.TextArea
                 rows={5}
                 style={{ resize: "none" }}
@@ -483,7 +543,15 @@ export function ShareMember(document: any) {
           <Button type="dashed" size="large">
             Батлах хуудас
           </Button>
-          {document.state === "DENY" && (
+          <Button
+            size="large"
+            type="link"
+            htmlType="submit"
+            onClick={() => mainForm.submit()}
+          >
+            Засаад, хадгалах
+          </Button>
+          {/* {document.state === "DENY" && (
             <Button
               size="large"
               type="link"
@@ -492,9 +560,18 @@ export function ShareMember(document: any) {
             >
               Засаад, хадгалах
             </Button>
-          )}
-          <Button size="large" type="primary">
-            Алдаа байхгүй, Илгээх
+          )} */}
+          <Button
+            size="large"
+            type="primary"
+            onClick={async () => {
+              await axios.patch("/api/document/share", {
+                id,
+              });
+              redirect("/plan");
+            }}
+          >
+            SHARE болиулах
           </Button>
         </Flex>
       </Form>
