@@ -171,7 +171,7 @@ model DocumentBudget {
   priceUnit       Int?      @default(0)
   priceTotal      Int?      @default(0)
   isFull          Int?     @default(0)
-  id              String      @id
+  id              Int      @id @default(autoincrement())
   documentId      Int
   document        Document @relation("budget", fields: [documentId], references: [id], onDelete: Cascade)
 }
@@ -329,13 +329,13 @@ model ConfirmPaper {
   id Int @id @default(autoincrement())
   document Document @relation("confirm",fields: [documentId], references: [id], onDelete: Cascade)
   documentId Int 
-  employee Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  employeeId Int @unique
-  system String @db.VarChar(100)
-  description String @db.VarChar(500)
-  module String @db.VarChar(200)
-  version String @db.VarChar(100)
-  jobs    String
+  employee Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId Int 
+  system String? @db.VarChar(100)
+  description String? @db.VarChar(500)
+  module String? @db.VarChar(200)
+  version String? @db.VarChar(100)
+  jobs    String?
   title   String @db.VarChar(200)
   startedDate DateTime @default(now())
   endData     DateTime @updatedAt

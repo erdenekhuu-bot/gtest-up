@@ -127,7 +127,7 @@ export async function SecondAction(data: any) {
     });
     return 1;
   } catch (error) {
-    console.error(error);
+    console.log(error);
     return -1;
   }
 }
@@ -138,19 +138,22 @@ export async function ThirdAction(data: any) {
     if (!validate.success) {
       return 0;
     }
-    await prisma.document.update({
-      where: {
-        id: Number(data.documentid),
-      },
-      data: {
-        testcase: {
-          createMany: {
-            data: data.testcase,
-          },
+
+    console.log(
+      await prisma.document.update({
+        where: {
+          id: Number(data.documentid),
         },
-        isFull: 2,
-      },
-    });
+        data: {
+          testcase: {
+            createMany: {
+              data: data.testcase,
+            },
+          },
+          isFull: 2,
+        },
+      })
+    );
     return 1;
   } catch (error) {
     console.error(error);
@@ -414,13 +417,6 @@ export async function FullUpdate(data: any) {
     });
 
     await prisma.$transaction(async (tx) => {
-      const cleanedBudget = data.testbudget.map(
-        (item: { key: any; [key: string]: any }) => {
-          const { key, ...rest } = item;
-          return rest;
-        }
-      );
-
       await tx.documentAttribute.deleteMany({
         where: { documentId: Number(data.id) },
       });
@@ -439,7 +435,6 @@ export async function FullUpdate(data: any) {
       await tx.documentEmployee.deleteMany({
         where: { documentId: Number(data.id) },
       });
-
       await tx.document.update({
         where: { id: Number(data.id) },
         data: {
@@ -479,7 +474,7 @@ export async function FullUpdate(data: any) {
           },
           budget: {
             createMany: {
-              data: cleanedBudget,
+              data: data.budgetdata,
             },
           },
           testcase: {
@@ -499,17 +494,13 @@ export async function FullUpdate(data: any) {
 
 export async function ConfirmDoc(data: any) {
   try {
+    console.log(data);
     const result = data.map((item: any) => {
       return {
         employeeId:
           typeof item.employeeId !== "number"
             ? item.employeeId.value
             : item.employeeId,
-        system: item.system,
-        description: item.description,
-        module: item.module,
-        version: item.version,
-        jobs: item.jobs,
         startedDate: item.startedDate,
         title: item.title,
         documentId: item.documentId,
@@ -544,6 +535,7 @@ export async function ConfirmDoc(data: any) {
     });
     return 1;
   } catch (error) {
+    console.log(error);
     return -1;
   }
 }

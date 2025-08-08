@@ -89,6 +89,7 @@ export function SecondDocument() {
       priceUnit: Number(item.priceUnit),
       priceTotal: Number(item.priceTotal),
       amount: Number(item.amount),
+      id: Number(item.id),
     }));
 
     const merge = {
@@ -99,6 +100,7 @@ export function SecondDocument() {
       attributeData,
       budgetdata,
     };
+
     const result = await SecondAction(merge);
     if (result > 0) {
       messageApi.success("Амжилттай хадгалагдлаа!");

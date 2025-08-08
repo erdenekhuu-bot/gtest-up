@@ -31,6 +31,8 @@ import { useRouter } from "next/navigation";
 import { ZUSTAND } from "@/zustand";
 import { PaperWindow } from "../../paperwindow";
 import { FullUpdate } from "@/util/action";
+import { parseLocaleNumber } from "@/util/usable";
+
 dayjs.extend(customParseFormat);
 
 const dateFormat = "YYYY/MM/DD";
@@ -86,7 +88,7 @@ export function EditPage({ document, id }: any) {
   //budget huvirgah
   const budgetData = document.budget.map((data: any) => ({
     key: uuidv4(),
-    id: data.id,
+    id: Number(data.id),
     productCategory: data.productCategory || "",
     product: data.product || "",
     amount: data.amount || 0,
@@ -190,13 +192,14 @@ export function EditPage({ document, id }: any) {
         riskLevel: selectConvert(item.riskLevel),
       };
     });
-    const budgetdata = (values.testenv || []).map((item: any) => ({
-      productCategory: String(item.productCategory),
-      product: String(item.product),
-      priceUnit: Number(item.priceUnit),
-      priceTotal: Number(item.priceTotal),
-      amount: Number(item.amount),
+    const budgetdata = (values.testbudget || []).map((item: any) => ({
+      productCategory: item.productCategory,
+      product: item.product,
+      priceUnit: parseLocaleNumber(item.priceUnit),
+      priceTotal: parseLocaleNumber(item.priceTotal),
+      amount: parseLocaleNumber(item.amount),
     }));
+
     const testcase = (values.testcase || []).map((item: any) => {
       return {
         category: item.category,
@@ -557,7 +560,7 @@ export function EditPage({ document, id }: any) {
         <TestCase form={mainForm} />
         <Flex justify="space-between" gap={20} style={{ marginTop: 40 }}>
           <Button
-            type="dashed"
+            type="text"
             size="large"
             onClick={() => {
               getDocumentId(Number(id));
@@ -569,7 +572,7 @@ export function EditPage({ document, id }: any) {
           {document.state === "DENY" && (
             <Button
               size="large"
-              type="link"
+              type="text"
               htmlType="submit"
               onClick={() => mainForm.submit()}
             >

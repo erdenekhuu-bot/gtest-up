@@ -38,11 +38,6 @@ export function PaperWindow() {
     const data = values.confirms.map((item: any) => {
       return {
         employeeId: item.employeeId,
-        system: item.system,
-        description: item.description,
-        module: item.module,
-        version: item.version,
-        jobs: item.jobs,
         startedDate: dayjs(values.startedDate).format("YYYY-MM-DDTHH:mm:ssZ"),
         title: values.title,
         rode: {
@@ -52,6 +47,7 @@ export function PaperWindow() {
         documentId: documentid,
       };
     });
+
     const response = await ConfirmDoc(data);
     if (response > 0) {
       messageApi.success("Батлах хуудас үүслээ");
@@ -64,22 +60,19 @@ export function PaperWindow() {
   const detail = async ({ id }: { id: number }) => {
     try {
       const request = await axios.get(`/api/document/confirm/${id}`);
-      console.log(request.data.data);
       if (request.data.success) {
         const updatedData = request.data.data.confirm.map((data: any) => ({
           key: uuidv4(),
           id: data.id,
-          // employeeId:
-          //   `${data.employee.firstname} ${data.employee.lastname}` || "",
           employeeId: {
             value: data.id,
             label: `${data.employee.firstname} ${data.employee.lastname}`,
           },
-          system: data.system,
-          description: data.description,
-          module: data.module,
-          version: data.version,
-          jobs: data.jobs,
+          // system: data.system,
+          // description: data.description,
+          // module: data.module,
+          // version: data.version,
+          // jobs: data.jobs,
         }));
 
         caseForm.setFieldsValue({
@@ -125,7 +118,6 @@ export function PaperWindow() {
     <Modal
       open={checkout === 5}
       onCancel={handleCancel}
-      width={1000}
       title=""
       footer={[
         <Button key="back" onClick={handleCancel}>
@@ -154,7 +146,7 @@ export function PaperWindow() {
           </Form.Item>
         </div>
         <div className="mt-8">
-          <Form.List name="confirms">
+          {/* <Form.List name="confirms">
             {(fields, { add, remove }) => (
               <section>
                 <Table
@@ -228,6 +220,79 @@ export function PaperWindow() {
                         <Form.Item name={[index, "employeeId"]}>
                           <Select
                             style={{ width: "100%" }}
+                            options={convertUtil(getEmployee)}
+                            onSearch={handleSearch}
+                            filterOption={false}
+                            showSearch
+                            onChange={async (value, option) => {
+                              const selectedEmployee = await findEmployee(
+                                value
+                              );
+                              if (selectedEmployee) {
+                                caseForm.setFieldsValue({
+                                  departmentemployee: {
+                                    [index]: {
+                                      employeeId: value,
+                                      department:
+                                        selectedEmployee.jobPosition?.name ||
+                                        "",
+                                    },
+                                  },
+                                });
+                              }
+                            }}
+                          />
+                        </Form.Item>
+                      ),
+                    },
+
+                    {
+                      title: "",
+                      key: "id",
+                      render: (_, __, index) => (
+                        <Image
+                          src="/trash.svg"
+                          alt=""
+                          className="hover:cursor-pointer"
+                          width={20}
+                          height={20}
+                          onClick={() => remove(index)}
+                        />
+                      ),
+                    },
+                  ]}
+                ></Table>
+                <div className="text-end mt-4">
+                  <Button
+                    type="primary"
+                    onClick={() =>
+                      add({
+                        employeeId: "",
+                      })
+                    }
+                  >
+                    Мөр нэмэх
+                  </Button>
+                </div>
+              </section>
+            )}
+          </Form.List> */}
+          <Form.List name="confirms">
+            {(fields, { add, remove }) => (
+              <section>
+                <Table
+                  dataSource={fields}
+                  pagination={false}
+                  bordered
+                  rowKey="key"
+                  columns={[
+                    {
+                      title: "Хариуцагч",
+                      dataIndex: "name",
+                      key: "name",
+                      render: (_, __, index) => (
+                        <Form.Item name={[index, "employeeId"]}>
+                          <Select
                             options={convertUtil(getEmployee)}
                             onSearch={handleSearch}
                             filterOption={false}

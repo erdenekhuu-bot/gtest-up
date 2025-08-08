@@ -44,7 +44,11 @@ export default async function Page(props: {
         distinct: ["documentId"],
         include: {
           employee: true,
-          document: true,
+          document: {
+            include: {
+              detail: true,
+            },
+          },
         },
       }));
     return document;

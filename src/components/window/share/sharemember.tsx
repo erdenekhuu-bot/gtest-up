@@ -199,7 +199,6 @@ export function ShareMember({ document, id }: any) {
       testteam,
       id,
     };
-
     const update = await FullUpdate(merge);
     if (update > 0) {
       messageApi.success("Амжилттай засагдсан");

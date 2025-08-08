@@ -3,8 +3,10 @@ import { Form, Input, Table, Flex } from "antd";
 import Image from "next/image";
 import * as XLSX from "xlsx";
 import type { FormInstance } from "antd/es/form";
+import { useState } from "react";
 
 export function TestBudget({ form }: { form: FormInstance }) {
+  const [tableData, setTableData] = useState<any[]>([]);
   const handleFileUpload = (e: any) => {
     const file = e.target.files[0];
     const reader = new FileReader();
@@ -16,14 +18,21 @@ export function TestBudget({ form }: { form: FormInstance }) {
       const sheetData = XLSX.utils.sheet_to_json(sheet);
 
       const dataWithKeys = sheetData.map((item: any, index: number) => ({
-        ...item,
+        productCategory: item.productCategory,
+        product: item.product,
+        amount: item.amount.toLocaleString("de-DE"),
+        priceUnit: item.priceUnit,
+        priceTotal: item.priceTotal.toLocaleString("de-DE"),
         id: index.toString(),
       }));
+
       form.setFieldsValue({ testbudget: dataWithKeys });
+      setTableData(dataWithKeys);
     };
 
     reader.readAsBinaryString(file);
   };
+
   return (
     <section>
       <div className="font-bold my-2 text-lg mx-4">
@@ -43,7 +52,7 @@ export function TestBudget({ form }: { form: FormInstance }) {
                   key: "productCategory",
                   render: (_, __, index) => (
                     <Form.Item name={[index, "productCategory"]}>
-                      <Input.TextArea rows={1} />
+                      <Input.TextArea rows={1} readOnly />
                     </Form.Item>
                   ),
                 },
@@ -53,7 +62,7 @@ export function TestBudget({ form }: { form: FormInstance }) {
                   key: "product",
                   render: (_, __, index) => (
                     <Form.Item name={[index, "product"]}>
-                      <Input.TextArea rows={1} />
+                      <Input.TextArea rows={1} readOnly />
                     </Form.Item>
                   ),
                 },
@@ -63,7 +72,7 @@ export function TestBudget({ form }: { form: FormInstance }) {
                   key: "amount",
                   render: (_, __, index) => (
                     <Form.Item name={[index, "amount"]}>
-                      <Input placeholder="" type="number" />
+                      <Input placeholder="" type="number" readOnly />
                     </Form.Item>
                   ),
                 },
@@ -73,7 +82,7 @@ export function TestBudget({ form }: { form: FormInstance }) {
                   key: "priceUnit",
                   render: (_, __, index) => (
                     <Form.Item name={[index, "priceUnit"]}>
-                      <Input placeholder="" type="number" />
+                      <Input placeholder="" type="number" readOnly />
                     </Form.Item>
                   ),
                 },
@@ -83,7 +92,7 @@ export function TestBudget({ form }: { form: FormInstance }) {
                   key: "priceTotal",
                   render: (_, __, index) => (
                     <Form.Item name={[index, "priceTotal"]}>
-                      <Input placeholder="" type="number" />
+                      <Input placeholder="" readOnly />
                     </Form.Item>
                   ),
                 },
@@ -102,6 +111,25 @@ export function TestBudget({ form }: { form: FormInstance }) {
                   ),
                 },
               ]}
+              summary={() => {
+                const total = tableData.reduce((sum, row) => {
+                  const numericValue = Number(
+                    String(row.priceTotal).replace(/\./g, "")
+                  );
+                  return sum + numericValue;
+                }, 0);
+
+                return (
+                  <Table.Summary.Row>
+                    <Table.Summary.Cell index={0} colSpan={4} align="right">
+                      Нийт
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={4}>
+                      {total.toLocaleString("de-DE")}
+                    </Table.Summary.Cell>
+                  </Table.Summary.Row>
+                );
+              }}
               bordered
             />
             <Flex style={{ marginTop: 10, marginBottom: 30 }}>

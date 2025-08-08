@@ -4,14 +4,15 @@ import { redirect } from "next/navigation";
 import { convertName } from "@/util/usable";
 import { ZUSTAND } from "@/zustand";
 import { EditShareWindow } from "./shareEditWindow";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
 
 const Useitself = ({
   title,
-  employee,
+  contents,
   id,
 }: {
   title: string;
-  employee: any;
+  contents: string;
   id: number;
 }) => {
   const { getCheckout, getDocumentId } = ZUSTAND();
@@ -36,15 +37,36 @@ const Useitself = ({
         title={title}
         variant="outlined"
         className="m-6"
-        style={{ width: 300 }}
+        style={{ width: 400 }}
       >
-        <p>{convertName(employee)}</p>
+        <p>{contents}</p>
       </Card>
     </Popover>
   );
 };
 
 export function ShareComp({ document }: any) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
+  const router = useRouter();
+  const generateSearch = (term: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (term) {
+      params.set("search", term);
+      params.set("page", "1");
+    } else {
+      params.delete("search");
+    }
+    replace(`${pathname}?${params.toString()}`);
+  };
+
+  const handleTableChange = (pagination: any) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("page", pagination.current.toString());
+    params.set("pageSize", pagination.pageSize.toString());
+    replace(`${pathname}?${params.toString()}`);
+  };
   return (
     <section>
       <Flex gap={20}>
@@ -52,7 +74,7 @@ export function ShareComp({ document }: any) {
           <Useitself
             key={index}
             title={item.document.title}
-            employee={item.employee}
+            contents={item.document.detail.aim}
             id={item.document.id}
           />
         ))}

@@ -237,3 +237,6 @@ export const convertStatus = (arg: string) => {
 export const mergeLetter = (letter: any) => {
   return letter?.firstname.substring(0, 1) + letter?.lastname.substring(0, 1);
 };
+export const parseLocaleNumber = (value: any): number => {
+  return Number(String(value).replace(/[.\s]/g, ""));
+};

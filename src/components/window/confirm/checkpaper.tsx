@@ -23,7 +23,6 @@ const columns = [
 
 export function CheckPaper({ data }: any) {
   const [attributeForm] = Form.useForm();
-  console.log(data);
   useEffect(() => {
     attributeForm.setFieldsValue({
       title: data.title,
