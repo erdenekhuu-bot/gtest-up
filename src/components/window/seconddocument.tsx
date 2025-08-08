@@ -151,7 +151,7 @@ export function SecondDocument() {
             />
           </Form.Item>
         </div>
-        <TestRisk />
+        <TestRisk form={mainForm} />
         <div>
           <li>
             4.3 Хараат байдал
@@ -251,8 +251,8 @@ export function SecondDocument() {
             <Input placeholder="" />
           </Form.Item>
         </div>
-        <Addition />
-        <TestBudget />
+        <Addition form={mainForm} />
+        <TestBudget form={mainForm} />
         <div className="">
           <p className="my-4 font-bold">ТӨСӨВИЙН ДАНС</p>
           <Flex gap={10}>

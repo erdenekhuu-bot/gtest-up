@@ -171,7 +171,7 @@ model DocumentBudget {
   priceUnit       Int?      @default(0)
   priceTotal      Int?      @default(0)
   isFull          Int?     @default(0)
-  id              Int      @id @default(autoincrement())
+  id              String      @id
   documentId      Int
   document        Document @relation("budget", fields: [documentId], references: [id], onDelete: Cascade)
 }

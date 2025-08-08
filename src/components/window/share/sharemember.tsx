@@ -439,7 +439,7 @@ export function ShareMember({ document, id }: any) {
             />
           </Form.Item>
         </div>
-        <TestRisk />
+        <TestRisk form={mainForm} />
         <div>
           <li>
             4.3 Хараат байдал
@@ -525,8 +525,8 @@ export function ShareMember({ document, id }: any) {
             <Input placeholder="" />
           </Form.Item>
         </div>
-        <Addition />
-        <TestBudget />
+        <Addition form={mainForm} />
+        <TestBudget form={mainForm} />
         <div className="">
           <p className="my-4 font-bold">ТӨСӨВИЙН ДАНС</p>
           <Flex gap={10}>
@@ -551,16 +551,6 @@ export function ShareMember({ document, id }: any) {
           >
             Засаад, хадгалах
           </Button>
-          {/* {document.state === "DENY" && (
-            <Button
-              size="large"
-              type="link"
-              htmlType="submit"
-              onClick={() => mainForm.submit()}
-            >
-              Засаад, хадгалах
-            </Button>
-          )} */}
           <Button
             size="large"
             type="primary"

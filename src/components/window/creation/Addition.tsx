@@ -1,8 +1,29 @@
 "use client";
-import { Form, Input, Table, Button, Select } from "antd";
+import { Form, Input, Table, Flex, Select } from "antd";
 import Image from "next/image";
+import * as XLSX from "xlsx";
+import type { FormInstance } from "antd/es/form";
 
-export function Addition() {
+export function Addition({ form }: { form: FormInstance }) {
+  const handleFileUpload = (e: any) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (event: any) => {
+      const workbook = XLSX.read(event.target.result, { type: "binary" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const sheetData = XLSX.utils.sheet_to_json(sheet);
+
+      const dataWithKeys = sheetData.map((item: any, index: number) => ({
+        ...item,
+        id: index.toString(),
+      }));
+      form.setFieldsValue({ attribute: dataWithKeys });
+    };
+
+    reader.readAsBinaryString(file);
+  };
   return (
     <Form.List name="attribute">
       {(fields, { add, remove }) => (
@@ -19,12 +40,7 @@ export function Addition() {
                 key: "category",
                 width: 300,
                 render: (_, __, index) => (
-                  <Form.Item
-                    name={[index, "category"]}
-                    rules={[
-                      { required: true, message: "Тестийн нэр бичнэ үү" },
-                    ]}
-                  >
+                  <Form.Item name={[index, "category"]}>
                     <Select
                       placeholder=""
                       style={{ width: "100%" }}
@@ -53,12 +69,7 @@ export function Addition() {
                 dataIndex: "category",
                 key: "value",
                 render: (_, __, index) => (
-                  <Form.Item
-                    name={[index, "value"]}
-                    rules={[
-                      { required: true, message: "Тестийн нэр бичнэ үү" },
-                    ]}
-                  >
+                  <Form.Item name={[index, "value"]}>
                     <Input.TextArea rows={3} />
                   </Form.Item>
                 ),
@@ -79,14 +90,22 @@ export function Addition() {
               },
             ]}
           />
-          <div className="text-end mt-4">
-            <Button
-              type="primary"
-              onClick={() => add({ category: "", types: "" })}
+
+          <Flex style={{ marginTop: 10, marginBottom: 30 }}>
+            <label
+              htmlFor="addition"
+              className="bg-blue-500 text-white p-3 cursor-pointer rounded-lg active:opacity-50 transition-opacity"
             >
-              Мөр нэмэх
-            </Button>
-          </div>
+              Хүснэгт оруулах
+            </label>
+
+            <Input
+              id="addition"
+              type="file"
+              hidden
+              onChange={handleFileUpload}
+            />
+          </Flex>
         </section>
       )}
     </Form.List>

@@ -283,10 +283,7 @@ export function EditPage({ document, id }: any) {
       {contextHolder}
       <p className="font-bold text-2xl mb-6">ЖИМОБАЙЛ ХХК</p>
       <Form form={mainForm} onFinish={onFinish}>
-        <Form.Item
-          name="title"
-          rules={[{ required: true, message: "Тестийн нэр бичнэ үү" }]}
-        >
+        <Form.Item name="title">
           <Input size="large" placeholder="Тестийн нэр бичнэ үү..." />
         </Form.Item>
         <div className="my-2">
@@ -412,15 +409,7 @@ export function EditPage({ document, id }: any) {
           <div className="font-bold my-2 text-lg mx-4">
             1. Үйл ажиллагааны зорилго
           </div>
-          <Form.Item
-            name="aim"
-            rules={[
-              {
-                required: true,
-                message: "Үйл ажиллагааны зорилгоо бичнэ үү",
-              },
-            ]}
-          >
+          <Form.Item name="aim">
             <Input.TextArea
               rows={5}
               placeholder="Тестийн зорилго бичнэ үү..."
@@ -434,15 +423,7 @@ export function EditPage({ document, id }: any) {
           <div className="font-bold my-2 text-lg mx-4">
             2. Тестийн танилцуулга
           </div>
-          <Form.Item
-            name="intro"
-            rules={[
-              {
-                required: true,
-                message: "Танилцуулгаа бичнэ үү",
-              },
-            ]}
-          >
+          <Form.Item name="intro">
             <Input.TextArea
               maxLength={500}
               rows={5}
@@ -465,10 +446,7 @@ export function EditPage({ document, id }: any) {
           </ul>
         </li>
         <div className="mt-2">
-          <Form.Item
-            name="predict"
-            rules={[{ required: true, message: "Таамаглалаа бичнэ үү" }]}
-          >
+          <Form.Item name="predict">
             <Input.TextArea
               rows={5}
               style={{ resize: "none" }}
@@ -477,7 +455,7 @@ export function EditPage({ document, id }: any) {
             />
           </Form.Item>
         </div>
-        <TestRisk />
+        <TestRisk form={mainForm} />
         <div>
           <li>
             4.3 Хараат байдал
@@ -487,10 +465,7 @@ export function EditPage({ document, id }: any) {
             </ul>
           </li>
           <div className="mt-2">
-            <Form.Item
-              name="dependecy"
-              rules={[{ required: true, message: "Хараат байдлыг бичнэ үү" }]}
-            >
+            <Form.Item name="dependecy">
               <Input.TextArea
                 rows={5}
                 style={{ resize: "none" }}
@@ -510,10 +485,7 @@ export function EditPage({ document, id }: any) {
             </ul>
           </li>
           <div className="mt-2">
-            <Form.Item
-              name="standby"
-              rules={[{ required: true, message: "Бэлтгэл үеийг бичнэ үү" }]}
-            >
+            <Form.Item name="standby">
               <Input.TextArea
                 rows={5}
                 style={{ resize: "none" }}
@@ -532,12 +504,7 @@ export function EditPage({ document, id }: any) {
             </ul>
           </li>
           <div className="mt-2">
-            <Form.Item
-              name="execute"
-              rules={[
-                { required: true, message: "Тестийн гүйцэтгэлээ бичнэ үү" },
-              ]}
-            >
+            <Form.Item name="execute">
               <Input.TextArea
                 rows={5}
                 style={{ resize: "none" }}
@@ -556,10 +523,7 @@ export function EditPage({ document, id }: any) {
             </ul>
           </li>
           <div className="mt-2">
-            <Form.Item
-              name="terminate"
-              rules={[{ required: true, message: "Тестийн хаалт бичнэ үү" }]}
-            >
+            <Form.Item name="terminate">
               <Input.TextArea
                 rows={5}
                 style={{ resize: "none" }}
@@ -577,8 +541,8 @@ export function EditPage({ document, id }: any) {
             <Input placeholder="" />
           </Form.Item>
         </div>
-        <Addition />
-        <TestBudget />
+        <Addition form={mainForm} />
+        <TestBudget form={mainForm} />
         <div className="">
           <p className="my-4 font-bold">ТӨСӨВИЙН ДАНС</p>
           <Flex gap={10}>

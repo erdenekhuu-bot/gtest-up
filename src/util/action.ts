@@ -420,6 +420,7 @@ export async function FullUpdate(data: any) {
           return rest;
         }
       );
+
       await tx.documentAttribute.deleteMany({
         where: { documentId: Number(data.id) },
       });

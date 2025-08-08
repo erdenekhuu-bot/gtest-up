@@ -1,8 +1,29 @@
 "use client";
-import { Form, Input, Table, Button } from "antd";
+import { Form, Input, Table, Flex } from "antd";
 import Image from "next/image";
+import * as XLSX from "xlsx";
+import type { FormInstance } from "antd/es/form";
 
-export function TestBudget() {
+export function TestBudget({ form }: { form: FormInstance }) {
+  const handleFileUpload = (e: any) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (event: any) => {
+      const workbook = XLSX.read(event.target.result, { type: "binary" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const sheetData = XLSX.utils.sheet_to_json(sheet);
+
+      const dataWithKeys = sheetData.map((item: any, index: number) => ({
+        ...item,
+        id: index.toString(),
+      }));
+      form.setFieldsValue({ testbudget: dataWithKeys });
+    };
+
+    reader.readAsBinaryString(file);
+  };
   return (
     <section>
       <div className="font-bold my-2 text-lg mx-4">
@@ -22,7 +43,7 @@ export function TestBudget() {
                   key: "productCategory",
                   render: (_, __, index) => (
                     <Form.Item name={[index, "productCategory"]}>
-                      <Input.TextArea rows={1} style={{ resize: "none" }} />
+                      <Input.TextArea rows={1} />
                     </Form.Item>
                   ),
                 },
@@ -32,7 +53,7 @@ export function TestBudget() {
                   key: "product",
                   render: (_, __, index) => (
                     <Form.Item name={[index, "product"]}>
-                      <Input.TextArea rows={1} style={{ resize: "none" }} />
+                      <Input.TextArea rows={1} />
                     </Form.Item>
                   ),
                 },
@@ -83,22 +104,21 @@ export function TestBudget() {
               ]}
               bordered
             />
-            <div className="text-end mt-4">
-              <Button
-                type="primary"
-                onClick={() =>
-                  add({
-                    productCategory: "",
-                    product: "",
-                    amount: 0,
-                    priceUnit: 0,
-                    priceTotal: 0,
-                  })
-                }
+            <Flex style={{ marginTop: 10, marginBottom: 30 }}>
+              <label
+                htmlFor="budget"
+                className="bg-blue-500 text-white p-3 cursor-pointer rounded-lg active:opacity-50 transition-opacity"
               >
-                Мөр нэмэх
-              </Button>
-            </div>
+                Хүснэгт оруулах
+              </label>
+
+              <Input
+                id="budget"
+                type="file"
+                hidden
+                onChange={handleFileUpload}
+              />
+            </Flex>
           </section>
         )}
       </Form.List>

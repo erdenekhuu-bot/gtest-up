@@ -1,5 +1,5 @@
 "use client";
-import { Form, Input, Table, Button, Select, Flex } from "antd";
+import { Form, Input, Table, Flex, Select } from "antd";
 import Image from "next/image";
 import * as XLSX from "xlsx";
 import type { FormInstance } from "antd/es/form";
@@ -41,7 +41,62 @@ export function TestCase({ form }: { form: FormInstance }) {
                   key: "category",
                   render: (_, __, index) => (
                     <Form.Item name={[index, "category"]}>
-                      <Input.TextArea />
+                      <Select
+                        placeholder=""
+                        style={{ width: "100%" }}
+                        options={[
+                          {
+                            label: "System testing",
+                            value: "System testing",
+                          },
+                          {
+                            label: "UI testing",
+                            value: "UI testing",
+                          },
+                          {
+                            label: "Integration testing",
+                            value: "Integration testing",
+                          },
+                          {
+                            label: "Unit testing + Integration testing",
+                            value: "Unit testing + Integration testing",
+                          },
+                          {
+                            label: "Acceptance Testing + System Testing",
+                            value: "Acceptance Testing + System Testing",
+                          },
+                          {
+                            label: "Smoke Testing",
+                            value: "Smoke Testing",
+                          },
+                          {
+                            label: "Performance Testing",
+                            value: "Performance Testing",
+                          },
+                          {
+                            label: "Security Testing",
+                            value: "Security Testing",
+                          },
+                          {
+                            label: "Regression Testing",
+                            value: "Regression Testing",
+                          },
+                          {
+                            label: "Load Testing",
+                            value: "Load Testing",
+                          },
+                          {
+                            label: "Stress Testing",
+                            value: "Stress Testing",
+                          },
+                        ]}
+                        showSearch
+                        filterOption={(input, option) =>
+                          (option?.label ?? "")
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                      />
                     </Form.Item>
                   ),
                 },
@@ -102,8 +157,15 @@ export function TestCase({ form }: { form: FormInstance }) {
               ]}
               bordered
             />
-            <Flex style={{ marginTop: 10 }}>
-              <Input type="file" onChange={handleFileUpload} />
+            <Flex style={{ marginTop: 10, marginBottom: 30 }}>
+              <label
+                htmlFor="case"
+                className="bg-blue-500 text-white p-3 cursor-pointer rounded-lg active:opacity-50 transition-opacity"
+              >
+                Хүснэгт оруулах
+              </label>
+
+              <Input id="case" type="file" hidden onChange={handleFileUpload} />
             </Flex>
           </section>
         )}
