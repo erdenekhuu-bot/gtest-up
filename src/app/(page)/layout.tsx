@@ -156,6 +156,7 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
           key: "5",
           icon: <RadarChartOutlined />,
           label: "Ирсэн төлөвлөгөөн (cc573)",
+          onClick: () => router.push("/cc573"),
         }
       : null,
     chekcout > 1 && chekcout < 2

@@ -8,6 +8,7 @@ import { useState, useCallback, useEffect } from "react";
 import axios from "axios";
 import { ShareGR } from "@/util/action";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 
 export function ShareWindow() {
   const [mainForm] = Form.useForm();

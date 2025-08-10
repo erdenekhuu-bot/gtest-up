@@ -105,6 +105,7 @@ export function SecondDocument() {
     if (result > 0) {
       messageApi.success("Амжилттай хадгалагдлаа!");
       getCheckout(3);
+      mainForm.resetFields();
     } else {
       messageApi.error("Алдаа гарлаа");
     }

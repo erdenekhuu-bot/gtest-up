@@ -17,7 +17,8 @@ import { PaperWindow } from "../paperwindow";
 import { useSession } from "next-auth/react";
 import { selectConvert } from "@/util/usable";
 import { FullUpdate } from "@/util/action";
-import { redirect } from "next/navigation";
+import { ZUSTAND } from "@/zustand";
+import { useRouter } from "next/navigation";
 
 dayjs.extend(customParseFormat);
 
@@ -29,6 +30,9 @@ export function ShareMember({ document, id }: any) {
   const [getEmployee, setEmployee] = useState<any>([]);
   const [search, setSearch] = useState("");
   const { data: session } = useSession();
+  const { getCheckout, getDocumentId } = ZUSTAND();
+  const router = useRouter();
+
   // convert department employee
   const updatedData = document.departmentEmployeeRole.map((data: any) => ({
     key: uuidv4(),
@@ -539,28 +543,41 @@ export function ShareMember({ document, id }: any) {
         </div>
         <TestCase form={mainForm} />
         <Flex justify="space-between" gap={20} style={{ marginTop: 40 }}>
-          <Button type="dashed" size="large">
+          <Button
+            type="primary"
+            size="large"
+            onClick={() => {
+              getDocumentId(Number(id));
+              getCheckout(5);
+            }}
+          >
             Батлах хуудас
           </Button>
-          <Button
-            size="large"
-            type="link"
-            htmlType="submit"
-            onClick={() => mainForm.submit()}
-          >
-            Засаад, хадгалах
-          </Button>
+
+          {document.state === "FORWARD" && (
+            <Button
+              size="large"
+              type="text"
+              htmlType="submit"
+              onClick={() => mainForm.submit()}
+            >
+              Засаад, хадгалах
+            </Button>
+          )}
           <Button
             size="large"
             type="primary"
             onClick={async () => {
-              await axios.patch("/api/document/share", {
-                id,
+              await axios.put(`/api/final/`, {
+                authuserId: session?.user.id,
+                reject: 1,
+                documentId: id,
               });
-              redirect("/plan");
+              router.refresh();
+              messageApi.success("Амжилттай илгээгдлээ");
             }}
           >
-            SHARE болиулах
+            Алдаа байхгүй, Илгээх
           </Button>
         </Flex>
       </Form>

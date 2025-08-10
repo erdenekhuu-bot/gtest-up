@@ -10,23 +10,15 @@ import {
   Divider,
   Image,
   Form,
+  Button,
+  message,
 } from "antd";
-import type { GetProp, UploadFile, UploadProps } from "antd";
+import type { UploadFile, UploadProps } from "antd";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { PlusOutlined } from "@ant-design/icons";
 import { convertName } from "@/util/usable";
 import { ZUSTAND } from "@/zustand";
-
-type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
-
-const getBase64 = (file: FileType): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-  });
+import { UploadOutlined } from "@ant-design/icons";
 
 export function TestCaseAction({
   form,
@@ -42,13 +34,14 @@ export function TestCaseAction({
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const { caseid, checkout, getCheckout } = ZUSTAND();
 
-  const handlePreview = async (file: UploadFile) => {
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj as FileType);
+  const handleRemove = async (file: any) => {
+    try {
+      await axios.delete(`/api/upload/image/${file.name}`);
+      message.success(`${file.name} deleted successfully`);
+      setFileList((prev) => prev.filter((item) => item.uid !== file.uid));
+    } catch (error) {
+      message.error(`Failed to delete ${file.name}`);
     }
-
-    setPreviewImage(file.url || (file.preview as string));
-    setPreviewOpen(true);
   };
 
   const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) =>
@@ -89,13 +82,6 @@ export function TestCaseAction({
       return;
     }
   };
-
-  const uploadButton = (
-    <button style={{ border: 0, background: "none" }} type="button">
-      <PlusOutlined />
-      <div style={{ marginTop: 8 }}>Зураг оруулах</div>
-    </button>
-  );
 
   useEffect(() => {
     if (caseid) {
@@ -187,16 +173,13 @@ export function TestCaseAction({
         </div>
         <div className="my-4">
           <Upload
-            // action={`/api/image/${id}`}
-            listType="picture-card"
+            action="/api/upload/image"
             fileList={fileList}
-            onPreview={handlePreview}
+            onRemove={handleRemove}
             onChange={handleChange}
-            showUploadList={{
-              showRemoveIcon: false,
-            }}
+            directory
           >
-            {fileList.length >= 8 ? null : uploadButton}
+            <Button icon={<UploadOutlined />}>Upload Directory</Button>
           </Upload>
 
           {previewImage && (

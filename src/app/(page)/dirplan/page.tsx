@@ -72,6 +72,7 @@ export default async function Page(props: {
     return filteredData;
   });
   const totalCount = record.length;
+
   return (
     <ListPage
       data={record}

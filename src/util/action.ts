@@ -139,21 +139,19 @@ export async function ThirdAction(data: any) {
       return 0;
     }
 
-    console.log(
-      await prisma.document.update({
-        where: {
-          id: Number(data.documentid),
-        },
-        data: {
-          testcase: {
-            createMany: {
-              data: data.testcase,
-            },
+    await prisma.document.update({
+      where: {
+        id: Number(data.documentid),
+      },
+      data: {
+        testcase: {
+          createMany: {
+            data: data.testcase,
           },
-          isFull: 2,
         },
-      })
-    );
+        isFull: 2,
+      },
+    });
     return 1;
   } catch (error) {
     console.error(error);
@@ -494,7 +492,6 @@ export async function FullUpdate(data: any) {
 
 export async function ConfirmDoc(data: any) {
   try {
-    console.log(data);
     const result = data.map((item: any) => {
       return {
         employeeId:
@@ -513,12 +510,14 @@ export async function ConfirmDoc(data: any) {
         },
       };
     });
+
     await prisma.$transaction(async (tx) => {
       const document = await tx.confirmPaper.findFirst({
         where: {
           documentId: Number(data[0].documentId),
         },
       });
+
       if (!document) {
         await tx.confirmPaper.createMany({
           data: result,

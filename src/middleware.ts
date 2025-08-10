@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-// export async function middleware(req: NextRequest) {
-//   return NextResponse.next();
-// }
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Allow requests to public paths without auth
   const publicPaths = [
     "/login",
     "/api",
@@ -30,6 +26,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|upload/images|login|api).*)",
+    "/((?!login|api|_next/static|_next/image|favicon.ico|upload/images).*)",
   ],
 };

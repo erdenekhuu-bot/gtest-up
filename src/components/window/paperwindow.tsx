@@ -58,31 +58,22 @@ export function PaperWindow() {
   };
 
   const detail = async ({ id }: { id: number }) => {
-    try {
-      const request = await axios.get(`/api/document/confirm/${id}`);
-      if (request.data.success) {
-        const updatedData = request.data.data.confirm.map((data: any) => ({
-          key: uuidv4(),
-          id: data.id,
-          employeeId: {
-            value: data.id,
-            label: `${data.employee.firstname} ${data.employee.lastname}`,
-          },
-          // system: data.system,
-          // description: data.description,
-          // module: data.module,
-          // version: data.version,
-          // jobs: data.jobs,
-        }));
+    const request = await axios.get(`/api/document/confirm/${id}`);
+    if (request.data.success) {
+      const updatedData = request.data.data.confirm.map((data: any) => ({
+        key: uuidv4(),
+        id: data.id,
+        employeeId: {
+          value: data.id,
+          label: `${data.employee.firstname} ${data.employee.lastname}`,
+        },
+      }));
 
-        caseForm.setFieldsValue({
-          confirms: updatedData,
-          startedDate: dayjs(request.data.data.confirm[0]?.startedDate) || "",
-          title: request.data.data.confirm[0]?.title || "",
-        });
-      }
-    } catch (error) {
-      return;
+      caseForm.setFieldsValue({
+        confirms: updatedData,
+        startedDate: dayjs(request.data.data.confirm[0]?.startedDate) || "",
+        title: request.data.data.confirm[0]?.title || "",
+      });
     }
   };
   const findEmployee = async (id: number) => {

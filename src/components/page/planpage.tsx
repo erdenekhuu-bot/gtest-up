@@ -113,9 +113,8 @@ export function PlanPage({ data, total, page, pageSize }: any) {
             onClick={() => {
               router.push("plan/" + id);
             }}
-            disabled={record.state === "DENY" ? false : true}
           >
-            Засах
+            Хянах
           </Button>
         );
       },
