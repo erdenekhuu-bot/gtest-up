@@ -19,36 +19,51 @@ import { useState, useCallback, useEffect } from "react";
 import { capitalizeFirstLetter, convertUtil } from "@/util/usable";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ConfirmDoc } from "@/util/action";
+import { ConfirmMember } from "@/util/action";
+import { useSession } from "next-auth/react";
 
 dayjs.extend(customParseFormat);
 const dateFormat = "YYYY/MM/DD";
 
-export function PaperWindow() {
-  const { checkout, getCheckout, documentid } = ZUSTAND();
+export function PaperOthers() {
+  const {
+    fetchpaper,
+    checkout,
+    getCheckout,
+    documentid,
+    employeeId,
+    confirmId,
+  } = ZUSTAND();
   const [caseForm] = Form.useForm();
-  const [getEmployee, setEmployee] = useState<any>([]);
-  const [search, setSearch] = useState("");
   const [messageApi, contextHolder] = message.useMessage();
+  const { data: session } = useSession();
 
   const handleCancel = () => {
     getCheckout(-1);
   };
+  const router = useRouter();
   const onFinish: FormProps["onFinish"] = async (values) => {
-    const data = values.confirms.map((item: any) => {
+    const merge = values.confirms.map((item: any) => {
       return {
-        employeeId: item.employeeId,
-        rode: {
-          employee: item.employeeId,
-          rode: false,
-        },
-        documentId: documentid,
+        system: item.system,
+        jobs: item.jobs,
+        module: item.module,
+        version: item.version,
+        description: item.description,
+        employeeId,
+        documentid,
       };
     });
 
-    const response = await ConfirmDoc(data);
+    const response = await ConfirmMember(merge);
+
     if (response > 0) {
-      messageApi.success("Батлах хуудас үүслээ");
+      await axios.patch("/api/document/paper", {
+        authUser: session?.user.id,
+        paperid: confirmId,
+      });
+      fetchpaper(Number(session?.user.id));
+      router.refresh();
       handleCancel();
     } else {
       messageApi.error("Амжилтгүй боллоо.");
@@ -56,17 +71,24 @@ export function PaperWindow() {
   };
 
   const detail = async ({ id }: { id: number }) => {
-    const request = await axios.get(`/api/document/confirm/${id}`);
+    const request = await axios.post(`/api/document/confirm/detail`, {
+      id,
+      userid: session?.user.id,
+    });
     if (request.data.success) {
-      const updatedData = request.data.data.confirm.map((data: any) => ({
+      const updatedData = request.data.data?.confirm.map((data: any) => ({
         key: uuidv4(),
         id: data.id,
         employeeId: {
           value: data.id,
           label: `${data.employee.firstname} ${data.employee.lastname}`,
         },
+        jobs: data.jobs,
+        module: data.module,
+        system: data.system,
+        version: data.version,
+        description: data.description,
       }));
-
       caseForm.setFieldsValue({
         confirms: updatedData,
         startedDate: dayjs(request.data.data.confirm[0]?.startedDate) || "",
@@ -74,30 +96,6 @@ export function PaperWindow() {
       });
     }
   };
-  const findEmployee = async (id: number) => {
-    try {
-      const response = await axios.get("/api/employee/" + id);
-      return response.data.data;
-    } catch (error) {}
-  };
-  const handleSearch = (value: any) => {
-    setSearch(capitalizeFirstLetter(value));
-  };
-  const fetchEmployees = useCallback(async (searchValue: string) => {
-    try {
-      const response = await axios.post("/api/employee", {
-        firstname: searchValue,
-      });
-
-      if (response.data.success) {
-        setEmployee(response.data.data);
-      }
-    } catch (error) {}
-  }, []);
-
-  useEffect(() => {
-    search ? fetchEmployees(search) : setEmployee([]);
-  }, [search, fetchEmployees]);
 
   useEffect(() => {
     detail({ id: documentid });
@@ -105,9 +103,10 @@ export function PaperWindow() {
 
   return (
     <Modal
-      open={checkout === 5}
+      open={checkout === 10}
       onCancel={handleCancel}
       title=""
+      width={1000}
       footer={[
         <Button key="back" onClick={handleCancel}>
           Болих
@@ -133,38 +132,62 @@ export function PaperWindow() {
                   rowKey="key"
                   columns={[
                     {
-                      title: "Хариуцагч",
-                      dataIndex: "name",
-                      key: "name",
+                      title: "Систем нэр",
+                      dataIndex: "system",
+                      key: "system",
                       render: (_, __, index) => (
-                        <Form.Item name={[index, "employeeId"]}>
-                          <Select
-                            options={convertUtil(getEmployee)}
-                            onSearch={handleSearch}
-                            filterOption={false}
-                            showSearch
-                            onChange={async (value, option) => {
-                              const selectedEmployee = await findEmployee(
-                                value
-                              );
-                              if (selectedEmployee) {
-                                caseForm.setFieldsValue({
-                                  departmentemployee: {
-                                    [index]: {
-                                      employeeId: value,
-                                      department:
-                                        selectedEmployee.jobPosition?.name ||
-                                        "",
-                                    },
-                                  },
-                                });
-                              }
-                            }}
+                        <Form.Item name={[index, "system"]}>
+                          <Input />
+                        </Form.Item>
+                      ),
+                    },
+                    {
+                      title: "Хийгдсэн ажлууд",
+                      dataIndex: "jobs",
+                      key: "jobs",
+                      render: (_, __, index) => (
+                        <Form.Item
+                          name={[index, "jobs"]}
+                          rules={[{ required: false }]}
+                        >
+                          <Input.TextArea
+                            rows={1}
+                            placeholder=""
+                            maxLength={500}
                           />
                         </Form.Item>
                       ),
                     },
-
+                    {
+                      title: "Шинэчлэлт хийгдсэн модул",
+                      dataIndex: "module",
+                      key: "module",
+                      render: (_, __, index) => (
+                        <Form.Item name={[index, "module"]}>
+                          <Input />
+                        </Form.Item>
+                      ),
+                    },
+                    {
+                      title: "Хувилбар",
+                      dataIndex: "version",
+                      key: "version",
+                      render: (_, __, index) => (
+                        <Form.Item name={[index, "version"]}>
+                          <Input />
+                        </Form.Item>
+                      ),
+                    },
+                    {
+                      title: "Тайлбар",
+                      dataIndex: "description",
+                      key: "description",
+                      render: (_, __, index) => (
+                        <Form.Item name={[index, "description"]}>
+                          <Input />
+                        </Form.Item>
+                      ),
+                    },
                     {
                       title: "",
                       key: "id",

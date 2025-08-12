@@ -1,21 +1,15 @@
 import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/util/prisma";
 
-export async function POST(req: NextRequest) {
+export async function PUT(req: NextRequest) {
   try {
     const { tm } = await req.json();
-    const record = await prisma.document.findMany({
-      where: {
-        authUserId: Number(tm),
-      },
+    const record = await prisma.employee.findUnique({
+      where: { id: Number(tm) },
       include: {
-        departmentEmployeeRole: {
+        confirm: {
           include: {
-            employee: {
-              select: {
-                authUser: true,
-              },
-            },
+            document: true,
           },
         },
       },
@@ -38,24 +32,15 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function PUT(req: NextRequest) {
+export async function PATCH(req: NextRequest) {
   try {
-    const { tm } = await req.json();
-    const record = await prisma.document.findMany({
+    const { id } = await req.json();
+    const record = await prisma.confirmPaper.update({
       where: {
-        authUserId: Number(tm),
+        id,
       },
-      include: {
-        departmentEmployeeRole: {
-          include: {
-            employee: {
-              select: {
-                authUser: true,
-              },
-            },
-          },
-        },
-        confirm: true,
+      data: {
+        check: true,
       },
     });
     return NextResponse.json(

@@ -41,6 +41,14 @@ export function MemberPlanDetail({ document, steps }: any) {
   );
 
   useEffect(() => {
+    const handleScroll = () => {
+      setScrollPosition(window.scrollY);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
     if (reference.current) {
       Object.assign(reference.current.style, transformStyle);
     }

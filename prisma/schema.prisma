@@ -336,10 +336,12 @@ model ConfirmPaper {
   module String? @db.VarChar(200)
   version String? @db.VarChar(100)
   jobs    String?
-  title   String @db.VarChar(200)
+  title   String? @db.VarChar(200)
   startedDate DateTime @default(now())
   endData     DateTime @updatedAt
-  rode    Json
+  rode    Json?
+  check  Boolean @default(false)
+  @@index([documentId, employeeId])
 }
 
 enum PhoneType {

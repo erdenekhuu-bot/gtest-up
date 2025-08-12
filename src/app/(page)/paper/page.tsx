@@ -26,6 +26,9 @@ export default async function Page(props: {
     });
     const confirm = await tx.confirmPaper.findMany({
       where: { employeeId: user?.employee?.id },
+      orderBy: {
+        id: "asc",
+      },
       include: {
         document: {
           include: {

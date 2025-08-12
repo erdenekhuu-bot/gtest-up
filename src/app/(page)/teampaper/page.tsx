@@ -1,5 +1,8 @@
+"use server";
 import { prisma } from "@/util/prisma";
-import { JobPosition } from "@/components/admin/jobposition";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { TeamPaperPage } from "@/components/page/teampaperpage";
 
 export default async function Page(props: {
   searchParams?: Promise<{
@@ -9,37 +12,44 @@ export default async function Page(props: {
   }>;
 }) {
   const searchParams = await props.searchParams;
-  const search = searchParams?.search || "";
   const page = Number(searchParams?.page) || 1;
   const pageSize = Number(searchParams?.pageSize) || 10;
+  const session = await getServerSession(authOptions);
+  const authuser = await prisma.authUser.findUnique({
+    where: {
+      id: Number(session?.user.id),
+    },
+    include: {
+      employee: {
+        include: {
+          department: true,
+        },
+      },
+    },
+  });
   const record = await prisma.$transaction(async (tx) => {
-    const employee = await tx.employee.findMany({
-      skip: (page - 1) * pageSize,
-      take: pageSize,
+    const result = await tx.employee.findMany({
       where: {
         AND: [
           {
-            isDeleted: false,
+            departmentId: authuser?.employee?.department.id,
           },
           {
-            firstname: {
-              contains: search || "",
-            },
+            isDeleted: false,
           },
         ],
       },
       include: {
+        confirm: true,
         jobPosition: true,
-        department: true,
       },
     });
-
-    return employee;
+    return result;
   });
-  const totalCount = await prisma.employee.count();
 
+  const totalCount = record.length;
   return (
-    <JobPosition
+    <TeamPaperPage
       data={record}
       total={totalCount}
       page={page}

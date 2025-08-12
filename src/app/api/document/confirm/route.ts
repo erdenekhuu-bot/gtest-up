@@ -89,6 +89,10 @@ export async function POST(req: NextRequest) {
         (await tx.confirmPaper.findMany({
           where: {
             employeeId: user.employee?.id,
+            rode: {
+              path: ["rode"],
+              equals: false,
+            },
           },
         }));
       return paper?.length;

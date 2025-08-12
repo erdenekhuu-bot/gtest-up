@@ -17,7 +17,15 @@ export function TestBudget({ form }: { form: FormInstance }) {
       const sheet = workbook.Sheets[sheetName];
       const sheetData = XLSX.utils.sheet_to_json(sheet);
 
-      const dataWithKeys = sheetData.map((item: any, index: number) => ({
+      const cleanedData = sheetData.map((row: any) => {
+        const newRow: any = {};
+        Object.keys(row).forEach((key) => {
+          newRow[key.trim()] = row[key];
+        });
+        return newRow;
+      });
+
+      const dataWithKeys = cleanedData.map((item: any, index: number) => ({
         productCategory: item.productCategory,
         product: item.product,
         amount: item.amount.toLocaleString("de-DE"),

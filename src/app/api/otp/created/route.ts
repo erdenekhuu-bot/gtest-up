@@ -17,27 +17,27 @@ export async function PUT(req: NextRequest) {
 
     const generate = Math.floor(100000 + Math.random() * 900000);
 
-    // const sendSms = `http://sms-special.gmobile.mn/cgi-bin/sendsms?username=${
-    //   process.env.OTP_USERNAME
-    // }&password=${process.env.OTP_PASSWORD}&from=245&to=${
-    //   authuser?.mobile
-    // }&text=${`Таны баталгаажуулах нэг удаагийн код: ` + generate}`;
+    const sendSms = `http://sms-special.gmobile.mn/cgi-bin/sendsms?username=${
+      process.env.OTP_USERNAME
+    }&password=${process.env.OTP_PASSWORD}&from=245&to=${
+      authuser?.mobile
+    }&text=${`Таны баталгаажуулах нэг удаагийн код: ` + generate}`;
 
-    // const response = await axios.get(sendSms);
-    // console.log(response.data);
+    const response = await axios.get(sendSms);
+    console.log(response.data);
 
-    // if (response.data !== "0: Accepted for delivery") {
-    //   console.log("Хүлээн авагчийн дугаар буруу");
-    //   return NextResponse.json(
-    //     {
-    //       success: false,
-    //       data: "Хүлээн авагчийн дугаар буруу",
-    //     },
-    //     {
-    //       status: 404,
-    //     }
-    //   );
-    // }
+    if (response.data !== "0: Accepted for delivery") {
+      console.log("Хүлээн авагчийн дугаар буруу");
+      return NextResponse.json(
+        {
+          success: false,
+          data: "Хүлээн авагчийн дугаар буруу",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
     await prisma.authUser.update({
       where: {
         id: authuserId,

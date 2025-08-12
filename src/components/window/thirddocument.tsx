@@ -11,21 +11,14 @@ export function ThirdDocument() {
     getCheckout(-1);
   };
   const onFinish: FormProps["onFinish"] = async (values) => {
-    const testcase = values.testcase.map((item: any) => {
-      return {
-        id: Number(item.id),
-        category: item.category,
-        division: item.division,
-        result: item.result,
-        steps: item.steps,
-        types: item.types,
-      };
-    });
-
+    const testcase = values.testcase.map(({ id, ...rest }: any) => ({
+      ...rest,
+    }));
     const merge = {
       documentid,
       testcase,
     };
+
     const result = await ThirdAction(merge);
     if (result > 0) {
       messageApi.success("Амжилттай хадгалагдлаа!");

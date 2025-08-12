@@ -45,7 +45,7 @@ export default async function Page(props: {
     },
   });
   const totalCount = record.length;
-  console.log(record);
+
   return (
     <CCpage
       document={record}

@@ -554,16 +554,14 @@ export function ShareMember({ document, id }: any) {
             Батлах хуудас
           </Button>
 
-          {document.state === "FORWARD" && (
-            <Button
-              size="large"
-              type="text"
-              htmlType="submit"
-              onClick={() => mainForm.submit()}
-            >
-              Засаад, хадгалах
-            </Button>
-          )}
+          <Button
+            size="large"
+            type="text"
+            htmlType="submit"
+            onClick={() => mainForm.submit()}
+          >
+            Засаад, хадгалах
+          </Button>
           <Button
             size="large"
             type="primary"

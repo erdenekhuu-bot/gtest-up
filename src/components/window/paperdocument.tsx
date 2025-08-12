@@ -1,17 +1,24 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { Card, Flex, Badge, theme, Button, Pagination } from "antd";
+import { Card, Flex, theme, Button, Pagination } from "antd";
 import { ZUSTAND } from "@/zustand";
-import { PaperWindow } from "./paperwindow";
+import { PaperOthers } from "./paperothers";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import { Badge } from "../ui/badge";
 
 const { useToken } = theme;
 
 export function PaperDocument({ data, total, page, pageSize }: any) {
   const { token } = useToken();
   const router = useRouter();
-  const { data: session } = useSession();
+  const {
+    fetchpaper,
+    getCheckout,
+    getEmployeeId,
+    getDocumentId,
+    takeConfirmId,
+  } = ZUSTAND();
 
   return (
     <section>
@@ -19,16 +26,7 @@ export function PaperDocument({ data, total, page, pageSize }: any) {
         {data.map((item: any, index: number) => (
           <Card
             key={index}
-            title={
-              <span
-                style={{
-                  fontWeight: 600,
-                  fontSize: "1.1rem",
-                }}
-              >
-                {item.document.title}
-              </span>
-            }
+            title="Баталгаажуулах хуудас"
             className="m-4 transition-all duration-300 hover:shadow-lg"
             style={{
               width: 320,
@@ -51,7 +49,6 @@ export function PaperDocument({ data, total, page, pageSize }: any) {
                   fontWeight: "bold",
                 }}
                 className="hover:cusror-pointer"
-                onClick={() => router.push(`paper/${item.id}`)}
               >
                 {item.document.title}
               </div>
@@ -71,27 +68,33 @@ export function PaperDocument({ data, total, page, pageSize }: any) {
                   borderRadius: 2,
                 }}
               />
-              <Button
-                type="primary"
-                onClick={async () =>
-                  await axios.patch("/api/document/paper", {
-                    authUser: session?.user.id,
-                  })
-                }
-              >
-                Үзэх
-              </Button>
+              {item.rode?.rode ? (
+                <Badge variant="info">Үзсэн</Badge>
+              ) : (
+                <Button
+                  type="primary"
+                  onClick={async () => {
+                    getCheckout(10);
+                    getEmployeeId(item.employeeId);
+                    getDocumentId(item.document.id);
+                    takeConfirmId(item.id);
+                  }}
+                >
+                  {item.rode?.rode ? <span>Үзсэн</span> : <span>Үзээгүй</span>}
+                </Button>
+              )}
             </div>
           </Card>
         ))}
       </Flex>
+
       <Pagination
         total={total}
         pageSize={pageSize}
         current={page}
         align="end"
       />
-      <PaperWindow />
+      <PaperOthers />
     </section>
   );
 }

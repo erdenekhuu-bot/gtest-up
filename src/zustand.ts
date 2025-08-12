@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import axios from "axios";
+import { useSession } from "next-auth/react";
 
 type GlobalStore = {
   checkout: number;
@@ -15,13 +16,19 @@ type GlobalStore = {
   memberid: number;
   getMember: (value: number) => void;
   papercount: number;
-  getPaperCount: (value: number) => void;
-  sharecount: number;
-  getShareCount: (value: number) => void;
   notificationCount: number;
   getNotification: (slug: number) => Promise<void>;
   caseid: number;
   getCaseId: (value: number) => void;
+  fetchpaper: (id: number) => Promise<void>;
+  employeeId: number;
+  getEmployeeId: (value: number) => void;
+  confirmId: number;
+  takeConfirmId: (value: number) => void;
+  fetchshare: (value: number) => Promise<void>;
+  sharecount: number;
+  confirmpaperid: number;
+  triggerPaper: (value: number) => void;
 };
 
 export const ZUSTAND = create<GlobalStore>((set) => ({
@@ -42,11 +49,7 @@ export const ZUSTAND = create<GlobalStore>((set) => ({
   memberid: 0,
   getMember: (value: number) => set({ memberid: value }),
   papercount: 0,
-  getPaperCount: (value: number) => set({ papercount: value }),
   sharecount: 0,
-  getShareCount(value: number) {
-    set({ sharecount: value });
-  },
   notificationCount: 0,
   getNotification: async (slug: number) => {
     const res = await axios.get(`/api/badge/${slug}`);
@@ -58,4 +61,28 @@ export const ZUSTAND = create<GlobalStore>((set) => ({
   getCaseId: (value: number) => {
     set({ caseid: value });
   },
+  fetchpaper: async (id: number) => {
+    const response = await axios.post("/api/document/confirm", {
+      authId: id,
+    });
+    if (response.data.success) {
+      set({ papercount: response.data.data });
+    }
+  },
+  employeeId: 0,
+  getEmployeeId: (value: number) => {
+    set({ employeeId: value });
+  },
+  confirmId: 0,
+  takeConfirmId: (value: number) => set({ confirmId: value }),
+  fetchshare: async function (id: number) {
+    const response = await axios.post("/api/document/share", {
+      authId: id,
+    });
+    if (response.data.success) {
+      set({ sharecount: response.data.data });
+    }
+  },
+  confirmpaperid: 0,
+  triggerPaper: (value: number) => set({ confirmpaperid: value }),
 }));

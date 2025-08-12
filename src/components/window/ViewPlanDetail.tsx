@@ -69,7 +69,6 @@ export function ViewPlanDetail({ document, steps }: any) {
         documentId: document.id,
       });
       if (response.data.success && session?.user?.id) {
-        //getNotification(session?.user?.id);
         cancelOTP();
         router.refresh();
       }
@@ -86,6 +85,14 @@ export function ViewPlanDetail({ document, steps }: any) {
     }),
     [scrollPosition]
   );
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollPosition(window.scrollY);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     if (reference.current) {
@@ -299,7 +306,7 @@ export function ViewPlanDetail({ document, steps }: any) {
         </section>
       </ActionDetail.Provider>
       <div
-        className="w-1/4 p-4 mt-8 h-[700px] overflow-auto scrollbar"
+        className="w-1/4 p-4 mt-8 h-fit"
         ref={reference}
         style={transformStyle}
       >

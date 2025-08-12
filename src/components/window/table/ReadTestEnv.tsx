@@ -62,6 +62,27 @@ export function ReadTestEnv() {
         columns={columns}
         pagination={false}
         bordered
+        summary={() => {
+          const data = detailContext?.budget || [];
+          const total = data.reduce((sum: any, row: any) => {
+            const numericValue = Number(
+              String(row.priceTotal).replace(/\./g, "")
+            );
+            return sum + (isNaN(numericValue) ? 0 : numericValue);
+          }, 0);
+
+          return (
+            <Table.Summary.Row>
+              <Table.Summary.Cell index={0} colSpan={4} align="right">
+                Нийт
+              </Table.Summary.Cell>
+              <Table.Summary.Cell index={4}>
+                {total.toLocaleString("de-DE")}
+              </Table.Summary.Cell>
+              <Table.Summary.Cell index={5} />
+            </Table.Summary.Row>
+          );
+        }}
       />
     </div>
   );

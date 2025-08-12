@@ -33,7 +33,6 @@ import { signOut, useSession } from "next-auth/react";
 import type { MenuProps } from "antd";
 import { ZUSTAND } from "@/zustand";
 import { subLetter } from "@/util/usable";
-import axios from "axios";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -45,11 +44,11 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   const router = useRouter();
-  const { getBread, papercount, getPaperCount } = ZUSTAND();
+  const { getBread, papercount, fetchpaper, fetchshare, sharecount } =
+    ZUSTAND();
   const { data: session } = useSession();
   const chekcout = session?.user.permission.kind?.length;
   const manager = session?.user.name;
-  const [sharecount, setSharecount] = useState(0);
 
   const items: MenuItem[] = [
     chekcout > 1
@@ -68,6 +67,21 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
               key: "s110",
               icon: <HighlightOutlined />,
               label: "Ирсэн тайлан",
+            },
+            {
+              key: "s111",
+              icon: <HighlightOutlined />,
+              label: "Баталгаажуулах хуудасууд",
+              onClick: () => router.push("/teampaper"),
+            },
+            {
+              key: "s55",
+              icon: <DesktopOutlined />,
+              label: "Хуваалцсан",
+              onClick: () => {
+                router.push("/share");
+                getBread("Хуваалцсан");
+              },
             },
           ],
         }
@@ -93,14 +107,6 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
               icon: <PieChartOutlined />,
               label: "Батлах хуудас",
               onClick: () => router.push("/paper"),
-            },
-            {
-              key: "s7",
-              icon: <PieChartOutlined />,
-              label: "Ирсэн хуудас",
-              onClick: () => {
-                router.push("/paper/" + session?.user.id);
-              },
             },
             {
               key: "s4",
@@ -141,7 +147,7 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
         ? {
             key: "8",
             icon: <SnippetsOutlined />,
-            label: "Ирсэн төлөвлөгөө DIR",
+            label: "Ирсэн төлөвлөгөө",
             onClick: () => router.push("/dirplan"),
           }
         : {
@@ -174,32 +180,21 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
     },
   ];
 
-  const fetch = async function () {
-    const response = await axios.post("/api/sharenotification", {
-      authId: session?.user.id,
-    });
-    if (response.data.success) {
-      setSharecount(response.data.data.length);
-    }
-  };
-  const fetchpaper = async function () {
-    const response = await axios.post("/api/document/confirm", {
-      authId: session?.user.id,
-    });
-    if (response.data.success) {
-      getPaperCount(response.data.data);
-    }
-  };
-
   const content = (
     <div>
       <p>Ирсэн батлах хуудас: {papercount}</p>
     </div>
   );
 
+  const sharecontent = (
+    <div>
+      <p>Хуваалцсан хуудас: {sharecount}</p>
+    </div>
+  );
+
   useEffect(() => {
-    // session?.user.id && fetch();
-    session?.user.id && fetchpaper();
+    session?.user.id && fetchpaper(Number(session?.user.id));
+    session?.user.id && fetchshare(Number(session.user.id));
   }, [session?.user.id]);
 
   return (
@@ -228,12 +223,7 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
             />
             <Flex gap={10}>
               <Popover content={content}>
-                <Badge
-                  count={papercount}
-                  // onClick={() => {
-                  //   redirect("/home/shared");
-                  // }}
-                >
+                <Badge count={papercount}>
                   <Avatar
                     shape="square"
                     size="large"
@@ -241,14 +231,8 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
                   />
                 </Badge>
               </Popover>
-              <Popover content={1}>
-                <Badge
-                  count={0}
-                  className="hover:cursor-pointer"
-                  // onClick={() => {
-                  //   redirect("/home/shared");
-                  // }}
-                >
+              <Popover content={sharecontent}>
+                <Badge count={sharecount} className="hover:cursor-pointer">
                   <Avatar
                     shape="square"
                     size="large"

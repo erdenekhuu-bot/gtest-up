@@ -22,9 +22,10 @@ export async function PATCH(req: NextRequest) {
       });
       const update =
         user &&
-        (await tx.confirmPaper.updateMany({
+        (await tx.confirmPaper.update({
           where: {
-            employeeId: user.employee?.id,
+            // employeeId: user.employee?.id,
+            id: request.paperid,
           },
           data: {
             rode: { employee: convertName(user.employee), rode: true },

@@ -9,6 +9,10 @@ import { ThirdActionSchema } from "@/lib/validation";
 import { Prisma } from "@prisma/client";
 import { Checking, filterEmployee } from "./usable";
 
+function stripId(arr: any[]): any[] {
+  return arr.map(({ id, ...rest }) => rest);
+}
+
 export async function CreateDocument(data: any) {
   try {
     const validate = v.safeParse(DocumentSchema, data);
@@ -74,7 +78,6 @@ export async function SecondAction(data: any) {
     if (!validate.success) {
       return 0;
     }
-
     const customrelation = data.testteam
       .map((item: any) => {
         if (item.role === "Хяналт тавих, Асуудал шийдвэрлэх") {
@@ -91,40 +94,21 @@ export async function SecondAction(data: any) {
 
     await prisma.$transaction(async (tx) => {
       await tx.document.update({
-        where: {
-          id: Number(data.documentid),
-        },
+        where: { id: Number(data.documentid) },
         data: {
-          documentemployee: {
-            createMany: {
-              data: data.testteam,
-            },
-          },
+          documentemployee: { createMany: { data: stripId(data.testteam) } },
           departmentEmployeeRole: {
-            createMany: {
-              data: customrelation,
-            },
+            createMany: { data: stripId(customrelation) },
           },
-          attribute: {
-            createMany: {
-              data: data.attributeData,
-            },
-          },
-          budget: {
-            createMany: {
-              data: data.budgetdata,
-            },
-          },
-          riskassessment: {
-            createMany: {
-              data: data.riskdata,
-            },
-          },
+          attribute: { createMany: { data: stripId(data.attributeData) } },
+          budget: { createMany: { data: stripId(data.budgetdata) } },
+          riskassessment: { createMany: { data: stripId(data.riskdata) } },
           bank: bankData as Prisma.JsonObject,
           isFull: 1,
         },
       });
     });
+
     return 1;
   } catch (error) {
     console.log(error);
@@ -139,19 +123,22 @@ export async function ThirdAction(data: any) {
       return 0;
     }
 
-    await prisma.document.update({
-      where: {
-        id: Number(data.documentid),
-      },
-      data: {
-        testcase: {
-          createMany: {
-            data: data.testcase,
+    await prisma.$transaction(async (tx) => {
+      await tx.document.update({
+        where: {
+          id: Number(data.documentid),
+        },
+        data: {
+          testcase: {
+            createMany: {
+              data: data.testcase,
+              skipDuplicates: true,
+            },
           },
         },
-        isFull: 2,
-      },
+      });
     });
+
     return 1;
   } catch (error) {
     console.error(error);
@@ -478,6 +465,7 @@ export async function FullUpdate(data: any) {
           testcase: {
             createMany: {
               data: data.testcase,
+              skipDuplicates: true,
             },
           },
         },
@@ -498,8 +486,6 @@ export async function ConfirmDoc(data: any) {
           typeof item.employeeId !== "number"
             ? item.employeeId.value
             : item.employeeId,
-        startedDate: item.startedDate,
-        title: item.title,
         documentId: item.documentId,
         rode: {
           employeeId:
@@ -517,7 +503,6 @@ export async function ConfirmDoc(data: any) {
           documentId: Number(data[0].documentId),
         },
       });
-
       if (!document) {
         await tx.confirmPaper.createMany({
           data: result,
@@ -532,9 +517,48 @@ export async function ConfirmDoc(data: any) {
         data: result,
       });
     });
+
     return 1;
   } catch (error) {
     console.log(error);
+    return -1;
+  }
+}
+
+export async function ConfirmMember(data: any) {
+  try {
+    for (const item of data) {
+      await prisma.confirmPaper.updateMany({
+        where: {
+          documentId: item.documentid,
+          employeeId: item.employeeId,
+        },
+        data: {
+          system: item.system,
+          jobs: item.jobs,
+          module: item.module,
+          version: item.version,
+          description: item.description,
+        },
+      });
+    }
+    return 1;
+  } catch (error) {
+    console.error(error);
+    return -1;
+  }
+}
+
+export async function CheckActionPaper(data: any) {
+  try {
+    await prisma.confirmPaper.update({
+      where: { id: data },
+      data: {
+        check: true,
+      },
+    });
+    return 1;
+  } catch (error) {
     return -1;
   }
 }
