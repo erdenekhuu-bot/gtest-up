@@ -41,6 +41,7 @@ export default async function Page(props: {
           },
         },
       },
+      reject: true,
       file: true,
     },
     orderBy: {

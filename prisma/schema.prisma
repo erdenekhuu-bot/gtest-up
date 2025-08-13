@@ -127,8 +127,15 @@ model Document {
   report                 Report?                  @relation("report_document")
   shareGroup             ShareGroup[]             @relation("document_group")
   confirm                ConfirmPaper[]           @relation("confirm")
+  reject                 Rejection?               
 }
 
+model Rejection {
+  id Int @id @default(autoincrement())
+  documentId Int @unique
+  description String @db.VarChar(500)
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
 model DepartmentEmployeeRole {
   id            Int     @id @default(autoincrement())
   permissionLvl Int?    @map("permission_lvl")

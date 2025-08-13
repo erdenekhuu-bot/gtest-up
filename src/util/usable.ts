@@ -104,8 +104,18 @@ export const mongollabel = (label: string) => {
       return "Урьдчилсан төлбөрт";
     case "POSTPAID":
       return "Дараа төлбөрт";
+
     default:
       return "Хянаагүй";
+  }
+};
+
+export const papercheck = (arg: boolean) => {
+  switch (arg) {
+    case true:
+      return "Шалгагдсан";
+    default:
+      return "Шалгагдаагүй";
   }
 };
 

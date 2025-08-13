@@ -1,5 +1,15 @@
 "use client";
-import { Form, message, Table, Input, Select, Button, Flex, Steps } from "antd";
+import {
+  Form,
+  message,
+  Table,
+  Input,
+  Select,
+  Button,
+  Flex,
+  Steps,
+  Breadcrumb,
+} from "antd";
 import type { FormProps } from "antd";
 import Image from "next/image";
 import {
@@ -18,7 +28,7 @@ import { v4 as uuidv4 } from "uuid";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, redirect } from "next/navigation";
 import { ZUSTAND } from "@/zustand";
 import { PaperWindow } from "../../paperwindow";
 import { FullUpdate } from "@/util/action";
@@ -275,6 +285,26 @@ export function EditPage({ document, id, steps }: any) {
 
   return (
     <section className="w-3/4">
+      <Breadcrumb
+        style={{ margin: "16px 0" }}
+        items={[
+          {
+            title: (
+              <span
+                style={{
+                  cursor: "pointer",
+                }}
+              >
+                Үндсэн хуудас руу буцах
+              </span>
+            ),
+            onClick: () => redirect("/plan"),
+          },
+          {
+            title: "Төлөвлөгөө засварлах хуудас",
+          },
+        ]}
+      />
       {contextHolder}
       <p className="font-bold text-2xl mb-6">ЖИМОБАЙЛ ХХК</p>
       <Form form={mainForm} onFinish={onFinish}>

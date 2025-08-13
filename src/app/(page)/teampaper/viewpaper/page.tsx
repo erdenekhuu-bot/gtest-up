@@ -58,7 +58,6 @@ export default function ViewPaper(id: any) {
                 fontWeight: "bold",
               }}
               className="hover:cusror-pointer"
-              onClick={() => redirect(`viewplan/${item.id}`)}
             >
               {item?.document?.title}
             </div>

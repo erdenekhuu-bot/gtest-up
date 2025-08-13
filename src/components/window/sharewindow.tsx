@@ -8,7 +8,7 @@ import { useState, useCallback, useEffect } from "react";
 import axios from "axios";
 import { ShareGR } from "@/util/action";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 export function ShareWindow() {
   const [mainForm] = Form.useForm();
@@ -16,6 +16,7 @@ export function ShareWindow() {
   const handleCancel = () => {
     getCheckout(-1);
   };
+  const router = useRouter();
   const { data: session } = useSession();
   const onFinish: FormProps["onFinish"] = async (values) => {
     const sharegroup = values.sharegroup.map((item: any) => {
@@ -35,6 +36,7 @@ export function ShareWindow() {
     if (result > 0) {
       messageApi.success("Амжилттай хуваалцлаа!");
       getCheckout(-1);
+      router.refresh();
       // for (const share of values.sharegroup) {
       //   await axios.put("/api/otp/share", { employeeId: share.employeeId });
       // }

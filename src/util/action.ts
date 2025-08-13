@@ -562,3 +562,34 @@ export async function CheckActionPaper(data: any) {
     return -1;
   }
 }
+
+export async function RejectAction(data: any) {
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.rejection.upsert({
+        where: {
+          documentId: data.documentid,
+        },
+        update: {
+          description: data.values.description,
+        },
+        create: {
+          documentId: data.documentid,
+          description: data.values.description,
+        },
+      });
+      await tx.document.update({
+        where: {
+          id: data.documentid,
+        },
+        data: {
+          state: "DENY",
+        },
+      });
+    });
+
+    return 1;
+  } catch (error) {
+    return -1;
+  }
+}

@@ -36,7 +36,7 @@ import { subLetter } from "@/util/usable";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
-const { Header, Sider, Content } = Layout;
+const { Header, Sider, Content, Footer } = Layout;
 
 export default function RootPage({ children }: { children?: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -209,47 +209,58 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
         />
       </Sider>
       <Layout>
-        <Header className="px-1" style={{ background: colorBgContainer }}>
-          <Flex justify="space-between" gap={20} align="center">
-            <Button
-              type="text"
-              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              onClick={() => setCollapsed(!collapsed)}
-              style={{
-                fontSize: "16px",
-                width: 64,
-                height: 64,
-              }}
-            />
-            <Flex gap={10}>
-              <Popover content={content}>
-                <Badge count={papercount}>
-                  <Avatar
-                    shape="square"
-                    size="large"
-                    icon={<PieChartTwoTone className="text-3xl" />}
-                  />
-                </Badge>
-              </Popover>
-              <Popover content={sharecontent}>
-                <Badge count={sharecount} className="hover:cursor-pointer">
-                  <Avatar
-                    shape="square"
-                    size="large"
-                    icon={<DatabaseTwoTone className="text-3xl" />}
-                  />
-                </Badge>
-              </Popover>
-              <Avatar
-                shape="square"
-                size="large"
-                style={{ backgroundColor: "#00569E" }}
-              >
-                <span className="text-2xl">
-                  {subLetter(String(session?.user.name))}
-                </span>
-              </Avatar>
-            </Flex>
+        <Header
+          className="px-1"
+          style={{
+            background: colorBgContainer,
+            position: "sticky",
+            top: 0,
+            zIndex: 1,
+            width: "100%",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 20,
+          }}
+        >
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(!collapsed)}
+            style={{
+              fontSize: "16px",
+              width: 64,
+              height: 64,
+            }}
+          />
+          <Flex gap={10}>
+            <Popover content={content}>
+              <Badge count={papercount}>
+                <Avatar
+                  shape="square"
+                  size="large"
+                  icon={<PieChartTwoTone className="text-3xl" />}
+                />
+              </Badge>
+            </Popover>
+            <Popover content={sharecontent}>
+              <Badge count={sharecount} className="hover:cursor-pointer">
+                <Avatar
+                  shape="square"
+                  size="large"
+                  icon={<DatabaseTwoTone className="text-3xl" />}
+                />
+              </Badge>
+            </Popover>
+            <Avatar
+              shape="square"
+              size="large"
+              style={{ backgroundColor: "#00569E" }}
+            >
+              <span className="text-2xl">
+                {subLetter(String(session?.user.name))}
+              </span>
+            </Avatar>
           </Flex>
         </Header>
         <Content
@@ -264,6 +275,9 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
         >
           {children}
         </Content>
+        <Footer style={{ textAlign: "center" }}>
+          Ant Design ©{new Date().getFullYear()} made by Gmobile
+        </Footer>
       </Layout>
     </Layout>
   );

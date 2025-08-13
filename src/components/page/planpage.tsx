@@ -11,6 +11,7 @@ import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { DeleteAll } from "@/util/action";
 import { ShareWindow } from "../window/sharewindow";
 import { Badge } from "@/components/ui/badge";
+import { RejectCause } from "../window/reject/rejectcause";
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
@@ -106,7 +107,7 @@ export function PlanPage({ data, total, page, pageSize }: any) {
     {
       title: "Засах",
       dataIndex: "id",
-      render: (id: number, record: any) => {
+      render: (id: number) => {
         return (
           <Button
             type="primary"
@@ -134,6 +135,26 @@ export function PlanPage({ data, total, page, pageSize }: any) {
           >
             Хуваалцах
           </Button>
+        );
+      },
+    },
+    {
+      title: "Хариу",
+      dataIndex: "reject",
+      render: (record: any) => {
+        return record != null ? (
+          <Badge
+            variant="destructive"
+            className="hover:cursor-pointer"
+            onClick={() => {
+              getDocumentId(record.id);
+              getCheckout(13);
+            }}
+          >
+            Буцаагдсан
+          </Badge>
+        ) : (
+          <Badge variant="secondary">Хэвийн</Badge>
         );
       },
     },
@@ -191,6 +212,7 @@ export function PlanPage({ data, total, page, pageSize }: any) {
         <SecondDocument />
         <ThirdDocument />
         <ShareWindow />
+        <RejectCause />
       </Flex>
     </section>
   );

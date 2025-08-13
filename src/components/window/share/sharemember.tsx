@@ -1,5 +1,14 @@
 "use client";
-import { Form, message, Table, Input, Select, Button, Flex } from "antd";
+import {
+  Form,
+  message,
+  Table,
+  Input,
+  Select,
+  Button,
+  Flex,
+  Breadcrumb,
+} from "antd";
 import type { FormProps } from "antd";
 import Image from "next/image";
 import { convertUtil, capitalizeFirstLetter } from "@/util/usable";
@@ -18,7 +27,7 @@ import { useSession } from "next-auth/react";
 import { selectConvert } from "@/util/usable";
 import { FullUpdate } from "@/util/action";
 import { ZUSTAND } from "@/zustand";
-import { useRouter } from "next/navigation";
+import { useRouter, redirect } from "next/navigation";
 
 dayjs.extend(customParseFormat);
 
@@ -268,6 +277,26 @@ export function ShareMember({ document, id }: any) {
   return (
     <section>
       {contextHolder}
+      <Breadcrumb
+        style={{ margin: "16px 0" }}
+        items={[
+          {
+            title: (
+              <span
+                style={{
+                  cursor: "pointer",
+                }}
+              >
+                Хуваалцсан хуудас руу буцах
+              </span>
+            ),
+            onClick: () => redirect("/share"),
+          },
+          {
+            title: "Хуваалцсан төлөвлөгөө засварлах хуудас",
+          },
+        ]}
+      />
       <p className="font-bold text-2xl mb-6">ЖИМОБАЙЛ ХХК</p>
       <Form form={mainForm} onFinish={onFinish}>
         <Form.Item name="title">
