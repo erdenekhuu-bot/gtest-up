@@ -66,6 +66,7 @@ export default async function Page(props: {
         item.employee?.jobPosition?.jobPositionGroup?.name || ""
       ),
     }));
+
     const filteredData = filterByPermissionLevels(dataWithLevels).filter(
       (item: any) => item.employeeId === data?.employee?.id
     );

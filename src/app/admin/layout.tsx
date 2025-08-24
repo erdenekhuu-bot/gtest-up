@@ -43,6 +43,12 @@ export default function DashboardLayout({
               label: "Газрын нэр засварлах",
               onClick: () => router.push("/admin/department"),
             },
+            {
+              key: "3",
+              icon: <VideoCameraOutlined />,
+              label: "Буцаах эрхтэй хүмүүс",
+              onClick: () => router.push("/admin/super"),
+            },
           ]}
         />
       </Sider>

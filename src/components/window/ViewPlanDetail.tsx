@@ -1,6 +1,16 @@
 "use client";
 
-import { Form, Input, Table, Flex, Steps, Button, Modal, message } from "antd";
+import {
+  Form,
+  Input,
+  Table,
+  Flex,
+  Steps,
+  Button,
+  Modal,
+  message,
+  Popover,
+} from "antd";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { ActionDetail } from "./MemberPlanDetail";
@@ -14,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { ZUSTAND } from "@/zustand";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { Rejection } from "./reject/rejection";
 
 const columns = [
   {
@@ -30,17 +41,13 @@ const columns = [
 
 export function ViewPlanDetail({ document, steps }: any) {
   const [attributeForm] = Form.useForm();
-  const { checkout, getCheckout, documentid, getDocumentId } = ZUSTAND();
+  const { checkout, getCheckout, getDocumentId } = ZUSTAND();
   const reference = useRef<HTMLDivElement>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
   const { data: session } = useSession();
   const [messageApi, contextHolder] = message.useMessage();
   const [append, setAppend] = useState("");
   const router = useRouter();
-
-  const showOTP = () => {
-    getCheckout(7);
-  };
 
   const cancelOTP = () => {
     getCheckout(-1);
@@ -127,6 +134,29 @@ export function ViewPlanDetail({ document, steps }: any) {
           ?.value || "",
     });
   }, [transformStyle, scrollPosition]);
+
+  const content = (
+    <Flex gap={10}>
+      <Button
+        size="large"
+        onClick={() => {
+          getCheckout(7);
+        }}
+      >
+        Зөвшөөрөх
+      </Button>
+      <Button
+        size="large"
+        type="link"
+        onClick={() => {
+          getDocumentId(document.id);
+          getCheckout(12);
+        }}
+      >
+        Буцаах
+      </Button>
+    </Flex>
+  );
 
   return (
     <Form
@@ -263,16 +293,7 @@ export function ViewPlanDetail({ document, steps }: any) {
           <div className="font-bold my-2 text-lg mx-4">
             6. Түтгэлзүүлэх болон дахин эхлүүлэх шалгуур
           </div>
-          <div className="my-4">
-            <Form.Item name="adding">
-              <Input.TextArea
-                rows={1}
-                placeholder=""
-                maxLength={500}
-                readOnly
-              />
-            </Form.Item>
-          </div>
+
           <Table
             rowKey="id"
             dataSource={document.attribute.filter(
@@ -306,7 +327,7 @@ export function ViewPlanDetail({ document, steps }: any) {
         </section>
       </ActionDetail.Provider>
       <div
-        className="w-1/4 p-4 mt-8 h-fit"
+        className="w-1/4 p-4 h-[60vh] sm:h-[70vh] md:h-[80vh] overflow-y-auto"
         ref={reference}
         style={transformStyle}
       >
@@ -327,15 +348,31 @@ export function ViewPlanDetail({ document, steps }: any) {
                 <div className="mt-4">
                   {item.state === "ACCESS" ? (
                     <Badge variant="info">Баталгаажсан</Badge>
+                  ) : session?.user.employee.super === "REPORT" ? (
+                    <Popover content={content} title="" trigger="click">
+                      <Button
+                        type="primary"
+                        disabled={
+                          Number(session?.user.id) ===
+                          item.employee.authUser?.id
+                            ? false
+                            : true
+                        }
+                      >
+                        Баталгаажуулах
+                      </Button>
+                    </Popover>
                   ) : (
                     <Button
                       type="primary"
-                      onClick={showOTP}
                       disabled={
                         Number(session?.user.id) === item.employee.authUser?.id
                           ? false
                           : true
                       }
+                      onClick={() => {
+                        getCheckout(7);
+                      }}
                     >
                       Баталгаажуулах
                     </Button>
@@ -347,6 +384,7 @@ export function ViewPlanDetail({ document, steps }: any) {
           }))}
         />
       </div>
+      <Rejection />
       <Modal
         title=""
         open={checkout === 7}

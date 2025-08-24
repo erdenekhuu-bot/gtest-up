@@ -44,8 +44,15 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   const router = useRouter();
-  const { getBread, papercount, fetchpaper, fetchshare, sharecount } =
-    ZUSTAND();
+  const {
+    getBread,
+    papercount,
+    fetchpaper,
+    fetchshare,
+    sharecount,
+    checkcountdoc,
+    countdocument,
+  } = ZUSTAND();
   const { data: session } = useSession();
   const chekcout = session?.user.permission.kind?.length;
   const manager = session?.user.name;
@@ -54,35 +61,41 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
     chekcout > 1
       ? {
           key: "1",
-          icon: <HomeOutlined />,
+          icon: (
+            <Badge dot={countdocument > 0 ? true : false}>
+              <HomeOutlined />
+            </Badge>
+          ),
           label: "Хэлтсийн дарга",
           children: [
-            {
-              key: "s10",
-              icon: <FormOutlined />,
-              label: "Ирсэн төлөвлөгөө",
-              onClick: () => router.push("/teamplan"),
-            },
-            {
-              key: "s110",
-              icon: <HighlightOutlined />,
-              label: "Ирсэн тайлан",
-            },
-            {
-              key: "s111",
-              icon: <HighlightOutlined />,
-              label: "Баталгаажуулах хуудасууд",
-              onClick: () => router.push("/teampaper"),
-            },
-            {
-              key: "s55",
-              icon: <DesktopOutlined />,
-              label: "Хуваалцсан",
-              onClick: () => {
-                router.push("/share");
-                getBread("Хуваалцсан");
-              },
-            },
+            manager === "uuganbayar.ts"
+              ? {
+                  key: "s10",
+                  icon: <FormOutlined />,
+                  label: (
+                    <Flex align="center" gap={5}>
+                      Ирсэн төлөвлөгөө
+                      <Badge count={countdocument} size="small" />
+                    </Flex>
+                  ),
+                  onClick: () => router.push("/teamplan"),
+                }
+              : null,
+            manager === "uuganbayar.ts"
+              ? {
+                  key: "s110",
+                  icon: <HighlightOutlined />,
+                  label: "Ирсэн тайлан",
+                }
+              : null,
+            manager === "nyamkhuu"
+              ? {
+                  key: "s111",
+                  icon: <HighlightOutlined />,
+                  label: "Баталгаажуулах хуудасууд",
+                  onClick: () => router.push("/teampaper"),
+                }
+              : null,
           ],
         }
       : null,
@@ -167,11 +180,13 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
       : null,
     chekcout > 1 && chekcout < 2
       ? null
-      : {
+      : manager === "uuganbayar.ts"
+      ? {
           key: "6",
           icon: <DropboxOutlined />,
           label: "Ашигласан дугаарууд",
-        },
+        }
+      : null,
     {
       key: "7",
       icon: <LoginOutlined />,
@@ -195,11 +210,18 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
   useEffect(() => {
     session?.user.id && fetchpaper(Number(session?.user.id));
     session?.user.id && fetchshare(Number(session.user.id));
+    session?.user.id && checkcountdoc(Number(session.user.id));
   }, [session?.user.id]);
 
   return (
-    <Layout>
-      <Sider width={300} trigger={null} collapsible collapsed={collapsed}>
+    <Layout style={{ minHeight: "100vh" }}>
+      <Sider
+        width={300}
+        trigger={null}
+        collapsible
+        collapsed={collapsed}
+        className="sm:block hidden"
+      >
         <div className="demo-logo-vertical" />
         <Menu
           mode="inline"
@@ -223,16 +245,18 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
             gap: 20,
           }}
         >
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            style={{
-              fontSize: "16px",
-              width: 64,
-              height: 64,
-            }}
-          />
+          <div className="sm:block hidden">
+            <Button
+              type="text"
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={() => setCollapsed(!collapsed)}
+              style={{
+                fontSize: "16px",
+                width: 64,
+                height: 64,
+              }}
+            />
+          </div>
           <Flex gap={10}>
             <Popover content={content}>
               <Badge count={papercount}>

@@ -27,8 +27,13 @@ export function FirstDocument() {
   const router = useRouter();
 
   const onFinish: FormProps["onFinish"] = async (values) => {
+    // values.departmentemployee.push(
+    //   { employeeId: 43, role: "MIDDLE" },
+    //   { employeeId: 525, role: "MIDDLE" },
+    //   { employeeId: 113, role: "MIDDLE" }
+    // );
     getTitle(values.title);
-    const converting = {
+    let converting = {
       ...removeDepartment(values),
       authuserId: Number(session?.user.id),
     };
@@ -80,7 +85,7 @@ export function FirstDocument() {
         onOk={onFinish}
         onCancel={handleCancel}
         title="ЖИМОБАЙЛ ХХК"
-        width={800}
+        width="60%"
         className="scrollbar select-none"
         style={{ overflowY: "auto", maxHeight: "800px" }}
         footer={[
@@ -93,6 +98,7 @@ export function FirstDocument() {
         ]}
       >
         {contextHolder}
+
         <Form form={mainForm} onFinish={onFinish}>
           <div className="mt-8">
             <Form.Item

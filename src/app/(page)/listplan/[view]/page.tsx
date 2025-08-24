@@ -35,6 +35,11 @@ export default async function Page({
         },
         departmentEmployeeRole: {
           distinct: ["employeeId"],
+          where: {
+            role: {
+              not: "MIDDLE",
+            },
+          },
           select: {
             employee: {
               include: {
@@ -88,6 +93,9 @@ export default async function Page({
           },
         },
       },
+      orderBy: {
+        id: "asc",
+      },
     });
     const dataWithLevels = steps
       .map((item) => ({
@@ -97,6 +105,7 @@ export default async function Page({
         ),
       }))
       .sort((a, b) => b.level - a.level);
+
     return {
       data,
       steps: dataWithLevels,

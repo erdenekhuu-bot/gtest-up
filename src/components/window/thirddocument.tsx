@@ -11,7 +11,7 @@ export function ThirdDocument() {
     getCheckout(-1);
   };
   const onFinish: FormProps["onFinish"] = async (values) => {
-    const testcase = values.testcase.map(({ id, ...rest }: any) => ({
+    const testcase = (values.testcase || []).map(({ id, ...rest }: any) => ({
       ...rest,
     }));
     const merge = {
@@ -36,7 +36,7 @@ export function ThirdDocument() {
       onOk={onFinish}
       onCancel={handleCancel}
       title="ЖИМОБАЙЛ ХХК"
-      width={800}
+      width="60%"
       className="scrollbar select-none"
       style={{ overflowY: "auto", maxHeight: "800px" }}
       footer={[

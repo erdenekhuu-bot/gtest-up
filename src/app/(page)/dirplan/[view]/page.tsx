@@ -34,6 +34,11 @@ export default async function Page({
         },
         departmentEmployeeRole: {
           distinct: ["employeeId"],
+          where: {
+            role: {
+              not: "MIDDLE",
+            },
+          },
           select: {
             employee: {
               include: {

@@ -33,6 +33,7 @@ import { ZUSTAND } from "@/zustand";
 import { PaperWindow } from "../../paperwindow";
 import { FullUpdate } from "@/util/action";
 import { parseLocaleNumber, convertName } from "@/util/usable";
+import { Badge } from "@/components/ui/badge";
 
 dayjs.extend(customParseFormat);
 
@@ -46,6 +47,16 @@ export function EditPage({ document, id, steps }: any) {
   const router = useRouter();
   const { data: session } = useSession();
   const { getCheckout, getDocumentId } = ZUSTAND();
+  const reference = useRef<HTMLDivElement>(null);
+  const [scrollPosition, setScrollPosition] = useState(0);
+
+  const transformStyle = useMemo(
+    () => ({
+      transform: `translateY(${scrollPosition}px)`,
+      willChange: "transform",
+    }),
+    [scrollPosition]
+  );
 
   // convert department employee
 
@@ -230,6 +241,14 @@ export function EditPage({ document, id, steps }: any) {
   };
 
   useEffect(() => {
+    const handleScroll = () => {
+      setScrollPosition(window.scrollY);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
     mainForm.setFieldsValue({
       title: document.title,
       aim: document.detail.aim,
@@ -284,7 +303,7 @@ export function EditPage({ document, id, steps }: any) {
   }, [search]);
 
   return (
-    <section className="w-3/4">
+    <section className="">
       <Breadcrumb
         style={{ margin: "16px 0" }}
         items={[
@@ -307,210 +326,180 @@ export function EditPage({ document, id, steps }: any) {
       />
       {contextHolder}
       <p className="font-bold text-2xl mb-6">ЖИМОБАЙЛ ХХК</p>
-      <Form form={mainForm} onFinish={onFinish}>
-        <Form.Item name="title">
-          <Input size="large" placeholder="Тестийн нэр бичнэ үү..." />
-        </Form.Item>
-        <div className="my-2">
-          <p className="font-bold">Зөвшөөрөл</p>
-          <p className="mb-4">
-            Доор гарын үсэг зурсан албан тушаалтнууд нь тестийн үйл ажиллагааны
-            төлөвлөгөөний баримт бичигтэй танилцаж, түүнтэй санал нийлж
-            байгаагаа хүлээн зөвшөөрч, баталгаажуулсан болно. Энэхүү
-            төлөвлөгөөний өөрчлөлтийг доор гарын үсэг зурсан эсвэл тэдгээрийн
-            томилогдсон төлөөлөгчдийн зөвшөөрлийг үндэслэн зохицуулж, нэмэлтээр
-            батална.
-          </p>
-          <Form.List name="departmentemployee">
-            {(fields, { add, remove }) => (
-              <section>
-                <Table
-                  rowKey="id"
-                  dataSource={fields}
-                  pagination={false}
-                  bordered
-                  columns={[
-                    {
-                      title: "Нэр",
-                      dataIndex: "name",
-                      key: "name",
-                      render: (_, __, index) => (
-                        <Form.Item name={[index, "employeeId"]}>
-                          <Select
-                            options={convertUtil(getEmployee)}
-                            onSearch={handleSearch}
-                            filterOption={false}
-                            showSearch
-                            onChange={async (value, option) => {
-                              const selectedEmployee = await findEmployee(
-                                value
-                              );
-                              if (selectedEmployee) {
-                                mainForm.setFieldsValue({
-                                  departmentemployee: {
-                                    [index]: {
-                                      employeeId: value,
-                                      department:
-                                        selectedEmployee.jobPosition?.name ||
-                                        "",
+      <Form
+        form={mainForm}
+        onFinish={onFinish}
+        className="p-2 flex overflow-auto scrollbar"
+        onScroll={(e: React.UIEvent<HTMLFormElement>) => {
+          const currentScroll = e.currentTarget.scrollTop;
+          setScrollPosition(currentScroll);
+        }}
+      >
+        <section className="flex-1 w-3/4">
+          <Form.Item name="title">
+            <Input size="large" placeholder="Тестийн нэр бичнэ үү..." />
+          </Form.Item>
+          <div className="my-2">
+            <p className="font-bold">Зөвшөөрөл</p>
+            <p className="mb-4">
+              Доор гарын үсэг зурсан албан тушаалтнууд нь тестийн үйл
+              ажиллагааны төлөвлөгөөний баримт бичигтэй танилцаж, түүнтэй санал
+              нийлж байгаагаа хүлээн зөвшөөрч, баталгаажуулсан болно. Энэхүү
+              төлөвлөгөөний өөрчлөлтийг доор гарын үсэг зурсан эсвэл тэдгээрийн
+              томилогдсон төлөөлөгчдийн зөвшөөрлийг үндэслэн зохицуулж,
+              нэмэлтээр батална.
+            </p>
+            <Form.List name="departmentemployee">
+              {(fields, { add, remove }) => (
+                <section>
+                  <Table
+                    rowKey="id"
+                    dataSource={fields}
+                    pagination={false}
+                    bordered
+                    columns={[
+                      {
+                        title: "Нэр",
+                        dataIndex: "name",
+                        key: "name",
+                        render: (_, __, index) => (
+                          <Form.Item name={[index, "employeeId"]}>
+                            <Select
+                              options={convertUtil(getEmployee)}
+                              onSearch={handleSearch}
+                              filterOption={false}
+                              showSearch
+                              onChange={async (value, option) => {
+                                const selectedEmployee = await findEmployee(
+                                  value
+                                );
+                                if (selectedEmployee) {
+                                  mainForm.setFieldsValue({
+                                    departmentemployee: {
+                                      [index]: {
+                                        employeeId: value,
+                                        department:
+                                          selectedEmployee.jobPosition?.name ||
+                                          "",
+                                      },
                                     },
-                                  },
-                                });
-                              }
-                            }}
+                                  });
+                                }
+                              }}
+                            />
+                          </Form.Item>
+                        ),
+                      },
+                      {
+                        title: "Албан тушаал",
+                        dataIndex: "department",
+                        key: "department",
+
+                        render: (_, __, index) => (
+                          <Form.Item name={[index, "department"]}>
+                            <Input readOnly />
+                          </Form.Item>
+                        ),
+                      },
+                      {
+                        title: "Үүрэг",
+                        dataIndex: "role",
+                        key: "role",
+
+                        render: (_, __, index) => (
+                          <Form.Item name={[index, "role"]}>
+                            <Select
+                              tokenSeparators={[","]}
+                              options={[
+                                {
+                                  value: "ACCESSER",
+                                  label: "Тестийн төсвийг хянан баталгаажуулах",
+                                },
+                                {
+                                  value: "VIEWER",
+                                  label: "Баримт бичгийг хянан баталгаажуулах",
+                                },
+                              ]}
+                            />
+                          </Form.Item>
+                        ),
+                      },
+                      {
+                        title: "Устгах",
+                        key: "id",
+                        render: (_, __, index) => (
+                          <Image
+                            src="/trash.svg"
+                            alt=""
+                            className="hover:cursor-pointer"
+                            width={20}
+                            height={20}
+                            onClick={() => remove(index)}
                           />
-                        </Form.Item>
-                      ),
-                    },
-                    {
-                      title: "Албан тушаал",
-                      dataIndex: "department",
-                      key: "department",
-
-                      render: (_, __, index) => (
-                        <Form.Item name={[index, "department"]}>
-                          <Input readOnly />
-                        </Form.Item>
-                      ),
-                    },
-                    {
-                      title: "Үүрэг",
-                      dataIndex: "role",
-                      key: "role",
-
-                      render: (_, __, index) => (
-                        <Form.Item name={[index, "role"]}>
-                          <Select
-                            tokenSeparators={[","]}
-                            options={[
-                              {
-                                value: "ACCESSER",
-                                label: "Тестийн төсвийг хянан баталгаажуулах",
-                              },
-                              {
-                                value: "VIEWER",
-                                label: "Баримт бичгийг хянан баталгаажуулах",
-                              },
-                            ]}
-                          />
-                        </Form.Item>
-                      ),
-                    },
-                    {
-                      title: "Устгах",
-                      key: "id",
-                      render: (_, __, index) => (
-                        <Image
-                          src="/trash.svg"
-                          alt=""
-                          className="hover:cursor-pointer"
-                          width={20}
-                          height={20}
-                          onClick={() => remove(index)}
-                        />
-                      ),
-                    },
-                  ]}
-                />
-                <div className="text-end mt-4">
-                  <Button
-                    type="primary"
-                    onClick={() =>
-                      add({
-                        employeeId: "",
-                        department: "",
-                        role: "",
-                      })
-                    }
-                  >
-                    Мөр нэмэх
-                  </Button>
-                </div>
-              </section>
-            )}
-          </Form.List>
-        </div>
-        <div className="my-4">
-          <div className="font-bold my-2 text-lg mx-4">
-            1. Үйл ажиллагааны зорилго
+                        ),
+                      },
+                    ]}
+                  />
+                  <div className="text-end mt-4">
+                    <Button
+                      type="primary"
+                      onClick={() =>
+                        add({
+                          employeeId: "",
+                          department: "",
+                          role: "",
+                        })
+                      }
+                    >
+                      Мөр нэмэх
+                    </Button>
+                  </div>
+                </section>
+              )}
+            </Form.List>
           </div>
-          <Form.Item name="aim">
-            <Input.TextArea
-              rows={5}
-              placeholder="Тестийн зорилго бичнэ үү..."
-              style={{ resize: "none" }}
-              showCount
-              maxLength={500}
-            />
-          </Form.Item>
-        </div>
-        <div className="pb-4">
-          <div className="font-bold my-2 text-lg mx-4">
-            2. Тестийн танилцуулга
-          </div>
-          <Form.Item name="intro">
-            <Input.TextArea
-              maxLength={500}
-              rows={5}
-              placeholder="Тестийн танилцуулга бичнэ үү..."
-              style={{ resize: "none" }}
-              showCount
-            />
-          </Form.Item>
-        </div>
-        <TestSchedule />
-
-        <div className="font-bold my-2 text-lg">
-          4. Төслийн үр дүнгийн таамаглал, эрсдэл, хараат байдал
-        </div>
-        <li>
-          4.1 Таамаглал
-          <ul className="ml-8">
-            • Эхний оруулсан таамаглал энэ форматын дагуу харагдах. Хэдэн ч мөр
-            байх боломжтой.
-          </ul>
-        </li>
-        <div className="mt-2">
-          <Form.Item name="predict">
-            <Input.TextArea
-              rows={5}
-              style={{ resize: "none" }}
-              showCount
-              maxLength={500}
-            />
-          </Form.Item>
-        </div>
-        <TestRisk form={mainForm} />
-        <div>
-          <li>
-            4.3 Хараат байдал
-            <ul className="ml-8">
-              • Эхний оруулсан хараат байдал энэ форматын дагуу харагдах. Хэдэн
-              ч мөр байх боломжтой.
-            </ul>
-          </li>
-          <div className="mt-2">
-            <Form.Item name="dependecy">
+          <div className="my-4">
+            <div className="font-bold my-2 text-lg mx-4">
+              1. Үйл ажиллагааны зорилго
+            </div>
+            <Form.Item name="aim">
               <Input.TextArea
                 rows={5}
+                placeholder="Тестийн зорилго бичнэ үү..."
                 style={{ resize: "none" }}
                 showCount
                 maxLength={500}
               />
             </Form.Item>
           </div>
-        </div>
-        <div className="font-bold my-2 text-lg mx-4">5. Тестийн үе шат</div>
-        <div>
+          <div className="pb-4">
+            <div className="font-bold my-2 text-lg mx-4">
+              2. Тестийн танилцуулга
+            </div>
+            <Form.Item name="intro">
+              <Input.TextArea
+                maxLength={500}
+                rows={5}
+                placeholder="Тестийн танилцуулга бичнэ үү..."
+                style={{ resize: "none" }}
+                showCount
+              />
+            </Form.Item>
+          </div>
+          <TestSchedule />
+
+          <div className="font-bold my-2 text-lg">
+            4. Төслийн үр дүнгийн таамаглал, эрсдэл, хараат байдал
+          </div>
           <li>
-            5.1 Бэлтгэл үе
+            4.1 Таамаглал
             <ul className="ml-8">
-              • Эхний оруулсан бэлтгэл үе энэ форматын дагуу харагдах. Хэдэн ч
+              • Эхний оруулсан таамаглал энэ форматын дагуу харагдах. Хэдэн ч
               мөр байх боломжтой.
             </ul>
           </li>
           <div className="mt-2">
-            <Form.Item name="standby">
+            <Form.Item name="predict">
               <Input.TextArea
                 rows={5}
                 style={{ resize: "none" }}
@@ -519,103 +508,191 @@ export function EditPage({ document, id, steps }: any) {
               />
             </Form.Item>
           </div>
-        </div>
-        <div>
-          <li>
-            5.2 Тестийн гүйцэтгэл
-            <ul className="ml-8">
-              • Эхний оруулсан тестийн гүйцэтгэл энэ форматын дагуу харагдах.
-              Хэдэн ч мөр байх боломжтой.
-            </ul>
-          </li>
-          <div className="mt-2">
-            <Form.Item name="execute">
-              <Input.TextArea
-                rows={5}
-                style={{ resize: "none" }}
-                showCount
-                maxLength={500}
-              />
-            </Form.Item>
+          <TestRisk form={mainForm} />
+          <div>
+            <li>
+              4.3 Хараат байдал
+              <ul className="ml-8">
+                • Эхний оруулсан хараат байдал энэ форматын дагуу харагдах.
+                Хэдэн ч мөр байх боломжтой.
+              </ul>
+            </li>
+            <div className="mt-2">
+              <Form.Item name="dependecy">
+                <Input.TextArea
+                  rows={5}
+                  style={{ resize: "none" }}
+                  showCount
+                  maxLength={500}
+                />
+              </Form.Item>
+            </div>
           </div>
-        </div>
-        <div>
-          <li>
-            5.3 Тестийн хаалт
-            <ul className="ml-8">
-              • Эхний оруулсан тестийн хаалт энэ форматын дагуу харагдах. Хэдэн
-              ч мөр байх боломжтой.
-            </ul>
-          </li>
-          <div className="mt-2">
-            <Form.Item name="terminate">
-              <Input.TextArea
-                rows={5}
-                style={{ resize: "none" }}
-                showCount
-                maxLength={500}
-              />
-            </Form.Item>
+          <div className="font-bold my-2 text-lg mx-4">5. Тестийн үе шат</div>
+          <div>
+            <li>
+              5.1 Бэлтгэл үе
+              <ul className="ml-8">
+                • Эхний оруулсан бэлтгэл үе энэ форматын дагуу харагдах. Хэдэн ч
+                мөр байх боломжтой.
+              </ul>
+            </li>
+            <div className="mt-2">
+              <Form.Item name="standby">
+                <Input.TextArea
+                  rows={5}
+                  style={{ resize: "none" }}
+                  showCount
+                  maxLength={500}
+                />
+              </Form.Item>
+            </div>
           </div>
-        </div>
-        <div className="font-bold my-2 text-lg mx-4">
-          6. Түтгэлзүүлэх болон дахин эхлүүлэх шалгуур
-        </div>
-        <div className="my-4">
-          <Form.Item name="adding">
-            <Input placeholder="" />
-          </Form.Item>
-        </div>
-        <Addition form={mainForm} />
-        <TestBudget form={mainForm} />
-        <div className="">
-          <p className="my-4 font-bold">ТӨСӨВИЙН ДАНС</p>
-          <Flex gap={10}>
-            <Form.Item name="bankname" style={{ flex: 1 }}>
-              <Input size="middle" placeholder="Дансны эзэмшигч" />
-            </Form.Item>
-            <Form.Item name="bank" style={{ flex: 1 }}>
-              <Input size="middle" type="number" placeholder="Дансны дугаар" />
-            </Form.Item>
+          <div>
+            <li>
+              5.2 Тестийн гүйцэтгэл
+              <ul className="ml-8">
+                • Эхний оруулсан тестийн гүйцэтгэл энэ форматын дагуу харагдах.
+                Хэдэн ч мөр байх боломжтой.
+              </ul>
+            </li>
+            <div className="mt-2">
+              <Form.Item name="execute">
+                <Input.TextArea
+                  rows={5}
+                  style={{ resize: "none" }}
+                  showCount
+                  maxLength={500}
+                />
+              </Form.Item>
+            </div>
+          </div>
+          <div>
+            <li>
+              5.3 Тестийн хаалт
+              <ul className="ml-8">
+                • Эхний оруулсан тестийн хаалт энэ форматын дагуу харагдах.
+                Хэдэн ч мөр байх боломжтой.
+              </ul>
+            </li>
+            <div className="mt-2">
+              <Form.Item name="terminate">
+                <Input.TextArea
+                  rows={5}
+                  style={{ resize: "none" }}
+                  showCount
+                  maxLength={500}
+                />
+              </Form.Item>
+            </div>
+          </div>
+          <div className="font-bold my-2 text-lg mx-4">
+            6. Түтгэлзүүлэх болон дахин эхлүүлэх шалгуур
+          </div>
+
+          <Addition form={mainForm} />
+          <TestBudget form={mainForm} />
+          <div className="">
+            <p className="my-4 font-bold">ТӨСӨВИЙН ДАНС</p>
+            <Flex gap={10}>
+              <Form.Item name="bankname" style={{ flex: 1 }}>
+                <Input size="middle" placeholder="Дансны эзэмшигч" />
+              </Form.Item>
+              <Form.Item name="bank" style={{ flex: 1 }}>
+                <Input
+                  size="middle"
+                  type="number"
+                  placeholder="Дансны дугаар"
+                />
+              </Form.Item>
+            </Flex>
+          </div>
+          <TestCase form={mainForm} />
+          <Flex justify="space-between" gap={20} style={{ marginTop: 40 }}>
+            <Button
+              type="primary"
+              size="large"
+              onClick={() => {
+                getDocumentId(Number(id));
+                getCheckout(5);
+              }}
+            >
+              Батлах хуудас
+            </Button>
+            <Button
+              size="large"
+              type="link"
+              htmlType="submit"
+              onClick={() => mainForm.submit()}
+            >
+              Засаад, хадгалах
+            </Button>
+            <Button
+              size="large"
+              type="primary"
+              onClick={async () => {
+                await axios.put(`/api/final/`, {
+                  authuserId: session?.user.id,
+                  reject: 1,
+                  documentId: id,
+                });
+                router.refresh();
+                messageApi.success("Амжилттай илгээгдлээ");
+              }}
+            >
+              Алдаа байхгүй, Илгээх
+            </Button>
           </Flex>
+        </section>
+        <div
+          className="w-1/4 p-4 h-[60vh] sm:h-[70vh] md:h-[80vh] overflow-y-auto"
+          ref={reference}
+          style={transformStyle}
+        >
+          <Steps
+            current={steps.findIndex((item: any) => item.state === "ACCESS")}
+            direction="vertical"
+            items={steps.map((item: any, index: number) => ({
+              title: `${
+                item.state === "ACCESS" ? "Баталгаажсан" : "Хүлээгдэж байгаа"
+              }`,
+              description: (
+                <section key={index} className="text-[12px] mb-12">
+                  <p className="opacity-50">
+                    {item.employee.jobPosition?.name}
+                  </p>
+                  <p className="opacity-50">{convertName(item.employee)}</p>
+                  <p className="opacity-50">
+                    {new Date(item.startedDate).toLocaleString()}
+                  </p>
+                  <div className="mt-4">
+                    {item.state === "ACCESS" ? (
+                      <Badge variant="info">Баталгаажсан</Badge>
+                    ) : (
+                      <Button
+                        type="primary"
+                        disabled={
+                          Number(session?.user.id) ===
+                          item.employee.authUser?.id
+                            ? false
+                            : true
+                        }
+                        onClick={() => {
+                          getCheckout(7);
+                        }}
+                      >
+                        Баталгаажуулах
+                      </Button>
+                    )}
+                  </div>
+                </section>
+              ),
+              status: item.state === "ACCESS" ? "process" : "wait",
+            }))}
+          />
         </div>
-        <TestCase form={mainForm} />
-        <Flex justify="space-between" gap={20} style={{ marginTop: 40 }}>
-          <Button
-            type="primary"
-            size="large"
-            onClick={() => {
-              getDocumentId(Number(id));
-              getCheckout(5);
-            }}
-          >
-            Батлах хуудас
-          </Button>
-          <Button
-            size="large"
-            type="text"
-            htmlType="submit"
-            onClick={() => mainForm.submit()}
-          >
-            Засаад, хадгалах
-          </Button>
-          <Button
-            size="large"
-            type="primary"
-            onClick={async () => {
-              await axios.put(`/api/final/`, {
-                authuserId: session?.user.id,
-                reject: 1,
-                documentId: id,
-              });
-              router.refresh();
-              messageApi.success("Амжилттай илгээгдлээ");
-            }}
-          >
-            Алдаа байхгүй, Илгээх
-          </Button>
-        </Flex>
       </Form>
+
       <PaperWindow />
     </section>
   );

@@ -13,12 +13,11 @@ export function RejectCause() {
   const [mainForm] = Form.useForm();
 
   const detail = async function name(id: number) {
-    const response = await axios.get("/api/paper/" + id);
+    const response = await axios.get("/api/paper/reject/" + id);
     if (response.data.success) {
-      console.log(response.data.data);
-      // mainForm.setFieldsValue({
-      //   description: response.data.data.description,
-      // });
+      mainForm.setFieldsValue({
+        description: response.data.data.reject.description,
+      });
     }
   };
   useEffect(() => {

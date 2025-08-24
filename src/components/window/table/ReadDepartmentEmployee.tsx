@@ -19,18 +19,18 @@ export function ReadDepartmentEmployee() {
 
   const columns: ColumnsType<DataType> = [
     {
+      title: "Нэр",
+      dataIndex: "employee",
+      key: "employee",
+      render: (_, record: any) => record?.employee?.firstname,
+    },
+    {
       title: "Хэлтэс",
       dataIndex: "department",
       key: "department",
       render: (_, record: any) => {
         return record?.employee?.department.name;
       },
-    },
-    {
-      title: "Нэр",
-      dataIndex: "employee",
-      key: "employee",
-      render: (_, record: any) => record?.employee?.firstname,
     },
 
     {

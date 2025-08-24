@@ -19,6 +19,7 @@ export async function CreateDocument(data: any) {
     if (!validate.success) {
       return 0;
     }
+
     const record = await prisma.$transaction(async (tx) => {
       const authuser = await tx.authUser.findUnique({
         where: {
@@ -43,6 +44,7 @@ export async function CreateDocument(data: any) {
         ? parseInt(lastdocument.generate.replace(numbering, ""), 10)
         : 0;
       const generate = String(lastNumber + 1).padStart(3, "0") + numbering;
+
       const result = await tx.document.create({
         data: {
           authUserId: authuser?.id,
@@ -63,6 +65,7 @@ export async function CreateDocument(data: any) {
           },
         },
       });
+
       return result;
     });
 
@@ -81,7 +84,7 @@ export async function SecondAction(data: any) {
     const customrelation = data.testteam
       .map((item: any) => {
         if (item.role === "Хяналт тавих, Асуудал шийдвэрлэх") {
-          return { ...item, role: "VIEWER" };
+          return { ...item, role: "MIDDLE" };
         }
         return null;
       })
@@ -96,7 +99,11 @@ export async function SecondAction(data: any) {
       await tx.document.update({
         where: { id: Number(data.documentid) },
         data: {
-          documentemployee: { createMany: { data: stripId(data.testteam) } },
+          documentemployee: {
+            createMany: {
+              data: stripId(data.testteam),
+            },
+          },
           departmentEmployeeRole: {
             createMany: { data: stripId(customrelation) },
           },
@@ -111,7 +118,7 @@ export async function SecondAction(data: any) {
 
     return 1;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return -1;
   }
 }
@@ -389,6 +396,12 @@ export async function FullUpdate(data: any) {
       };
     });
 
+    // result.push(
+    //   { employeeId: 43, role: "MIDDLE" },
+    //   { employeeId: 525, role: "MIDDLE" },
+    //   { employeeId: 113, role: "MIDDLE" }
+    // );
+
     const team = data.testteam.map((item: any) => {
       return {
         employeeId:
@@ -494,9 +507,9 @@ export async function ConfirmDoc(data: any) {
               : item.employeeId,
           rode: false,
         },
+        title: item.title,
       };
     });
-
     await prisma.$transaction(async (tx) => {
       const document = await tx.confirmPaper.findFirst({
         where: {
@@ -527,24 +540,46 @@ export async function ConfirmDoc(data: any) {
 
 export async function ConfirmMember(data: any) {
   try {
-    for (const item of data) {
-      await prisma.confirmPaper.updateMany({
-        where: {
-          documentId: item.documentid,
-          employeeId: item.employeeId,
-        },
-        data: {
-          system: item.system,
-          jobs: item.jobs,
-          module: item.module,
-          version: item.version,
-          description: item.description,
-        },
+    await prisma.$transaction(async (tx) => {
+      const confirmId = Number(data[0].confirmId);
+
+      let paper = await tx.confirmPaper.findUnique({
+        where: { id: confirmId },
       });
-    }
+
+      if (!paper) {
+        paper = await tx.confirmPaper.create({
+          data: {
+            documentId: data[0].documentId,
+            employeeId: data[0].employeeId,
+          },
+        });
+      } else {
+        await tx.confirmSub.deleteMany({
+          where: { confirmId },
+        });
+      }
+
+      const subs = data.map((item: any) => ({
+        confirmId: paper!.id,
+        employeeId: item.employeeId,
+        system: item.system,
+        jobs: item.jobs,
+        module: item.module,
+        version: item.version,
+        description: item.description,
+        title: item.title,
+        check: true,
+      }));
+
+      await tx.confirmSub.createMany({
+        data: subs,
+      });
+    });
+
     return 1;
   } catch (error) {
-    console.error(error);
+    console.log(error);
     return -1;
   }
 }
@@ -555,7 +590,34 @@ export async function CheckActionPaper(data: any) {
       where: { id: data },
       data: {
         check: true,
+        sub: {
+          updateMany: {
+            where: {},
+            data: {
+              check: true,
+            },
+          },
+        },
       },
+    });
+
+    return 1;
+  } catch (error) {
+    return -1;
+  }
+}
+
+export async function BossCheckPaper(data: any) {
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.confirmPaper.updateMany({
+        where: {
+          documentId: Number(data.documentid),
+        },
+        data: {
+          check: true,
+        },
+      });
     });
     return 1;
   } catch (error) {
@@ -588,6 +650,22 @@ export async function RejectAction(data: any) {
       });
     });
 
+    return 1;
+  } catch (error) {
+    return -1;
+  }
+}
+
+export async function TriggerSuper(employeeId: number) {
+  try {
+    await prisma.employee.update({
+      where: {
+        id: employeeId,
+      },
+      data: {
+        super: "REPORT",
+      },
+    });
     return 1;
   } catch (error) {
     return -1;

@@ -6,7 +6,7 @@ declare module "next-auth" {
     user: {
       id: string;
       username: string;
-      employee?: {
+      employee: {
         jobPosition?: {
           jobPositionGroup?: {
             id: number;
@@ -16,6 +16,7 @@ declare module "next-auth" {
         departmentEmployeeRole?: {
           rode: boolean;
         }[];
+        super: string;
       };
       name?: string | null;
       email?: string | null;
@@ -32,7 +33,7 @@ declare module "next-auth/jwt" {
     username: string;
     permission: any;
     mobile?: string | null;
-    employee?: {
+    employee: {
       jobPosition?: {
         jobPositionGroup?: {
           id: number;
@@ -42,6 +43,7 @@ declare module "next-auth/jwt" {
       departmentEmployeeRole?: {
         rode: boolean;
       }[];
+      super: string;
     };
   }
 }

@@ -1,5 +1,5 @@
 "use client";
-import { Table, Flex, Input, Button } from "antd";
+import { Table, Flex, Input, Button, message } from "antd";
 import { useState } from "react";
 import type { TableProps } from "antd";
 import { ZUSTAND } from "@/zustand";
@@ -17,12 +17,14 @@ type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
 
 export function PlanPage({ data, total, page, pageSize }: any) {
+  const [messageApi, contextHolder] = message.useMessage();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [loading, setLoading] = useState(false);
   const { getCheckout, getDocumentId } = ZUSTAND();
+  const [pdfLoading, setPdfLoading] = useState<number | null>(null);
   const dataWithKeys = data.map((item: any) => ({
     ...item,
     key: item.id,
@@ -67,6 +69,30 @@ export function PlanPage({ data, total, page, pageSize }: any) {
     params.set("page", pagination.current.toString());
     params.set("pageSize", pagination.pageSize.toString());
     replace(`${pathname}?${params.toString()}`);
+  };
+
+  const handleDownloadPDF = async (id: number) => {
+    setPdfLoading(id);
+    messageApi.loading("Уншиж байна");
+    try {
+      const response = await fetch(`/api/download/${id}`);
+      if (!response.ok) {
+        messageApi.error("Болсонгүй");
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `paper_${id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      messageApi.error("Болсонгүй");
+    } finally {
+      setPdfLoading(null);
+    }
   };
 
   const columns = [
@@ -147,7 +173,7 @@ export function PlanPage({ data, total, page, pageSize }: any) {
             variant="destructive"
             className="hover:cursor-pointer"
             onClick={() => {
-              getDocumentId(record.id);
+              getDocumentId(record.documentId);
               getCheckout(13);
             }}
           >
@@ -158,10 +184,24 @@ export function PlanPage({ data, total, page, pageSize }: any) {
         );
       },
     },
+    // {
+    //   title: "PDF хувилбар",
+    //   dataIndex: "id",
+    //   render: (id: number) => (
+    //     <Button
+    //       onClick={() => handleDownloadPDF(id)}
+    //       type="link"
+    //       loading={pdfLoading === id}
+    //     >
+    //       PDF
+    //     </Button>
+    //   ),
+    // },
   ];
 
   return (
     <section>
+      {contextHolder}
       <div className="mb-8">
         <Flex gap={20} justify="space-between">
           <Input.Search

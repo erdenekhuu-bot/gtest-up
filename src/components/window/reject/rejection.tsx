@@ -4,9 +4,11 @@ import { ZUSTAND } from "@/zustand";
 import type { FormProps } from "antd";
 import { RejectAction } from "@/util/action";
 import { redirect } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export function Rejection() {
-  const { documentid, getCheckout, checkout } = ZUSTAND();
+  const { data: session } = useSession();
+  const { documentid, getCheckout, checkout, checkcountdoc } = ZUSTAND();
   const handleCancel = () => {
     getCheckout(-1);
   };
@@ -16,8 +18,9 @@ export function Rejection() {
     const result = await RejectAction(merge);
     if (result > 0) {
       messageApi.success("Амжилттай хадгалагдлаа!");
+      checkcountdoc(Number(session?.user.id));
       getCheckout(-1);
-      redirect("/teamplan");
+      redirect("/listplan");
     } else {
       messageApi.error("Алдаа гарлаа");
     }

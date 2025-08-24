@@ -60,15 +60,18 @@ export default async function Page(props: {
         },
       },
     });
+
     const dataWithLevels = list.map((item) => ({
       ...item,
       level: DefineLevel(
         item.employee?.jobPosition?.jobPositionGroup?.name || ""
       ),
     }));
+
     const filteredData = filterByPermissionLevels(dataWithLevels).filter(
       (item: any) => item.employeeId === data?.employee?.id
     );
+
     return filteredData;
   });
   const totalCount = record.length;

@@ -29,6 +29,8 @@ type GlobalStore = {
   sharecount: number;
   confirmpaperid: number;
   triggerPaper: (value: number) => void;
+  countdocument: number;
+  checkcountdoc: (value: number) => Promise<void>;
 };
 
 export const ZUSTAND = create<GlobalStore>((set) => ({
@@ -85,4 +87,13 @@ export const ZUSTAND = create<GlobalStore>((set) => ({
   },
   confirmpaperid: 0,
   triggerPaper: (value: number) => set({ confirmpaperid: value }),
+  countdocument: 0,
+  checkcountdoc: async function (id: number) {
+    const response = await axios.post("/api/document/list", {
+      user: id,
+    });
+    if (response.data.success) {
+      set({ countdocument: response.data.data });
+    }
+  },
 }));

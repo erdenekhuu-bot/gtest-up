@@ -61,6 +61,7 @@ export function PaperOthers() {
       await axios.patch("/api/document/paper", {
         authUser: session?.user.id,
         paperid: confirmId,
+        action: true,
       });
       fetchpaper(Number(session?.user.id));
       router.refresh();

@@ -24,11 +24,13 @@ export async function PATCH(req: NextRequest) {
         user &&
         (await tx.confirmPaper.update({
           where: {
-            // employeeId: user.employee?.id,
             id: request.paperid,
           },
           data: {
-            rode: { employee: convertName(user.employee), rode: true },
+            rode: {
+              employee: convertName(user.employee),
+              rode: request.action,
+            },
           },
         }));
       return update;

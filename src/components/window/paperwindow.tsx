@@ -18,7 +18,6 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useState, useCallback, useEffect } from "react";
 import { capitalizeFirstLetter, convertUtil } from "@/util/usable";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { ConfirmDoc } from "@/util/action";
 
 dayjs.extend(customParseFormat);
@@ -43,6 +42,7 @@ export function PaperWindow() {
           rode: false,
         },
         documentId: documentid,
+        title: values.title,
       };
     });
 
@@ -58,7 +58,7 @@ export function PaperWindow() {
   const detail = async ({ id }: { id: number }) => {
     const request = await axios.get(`/api/document/confirm/${id}`);
     if (request.data.success) {
-      const updatedData = request.data.data.confirm.map((data: any) => ({
+      const updatedData = request.data.data?.confirm.map((data: any) => ({
         key: uuidv4(),
         id: data.id,
         employeeId: {
@@ -123,6 +123,12 @@ export function PaperWindow() {
       </div>
       <Form form={caseForm} className="p-6" onFinish={onFinish}>
         <div className="mt-8">
+          <div className="">
+            <p className="font-bold mb-2">Гарчиг</p>
+            <Form.Item name="title">
+              <Input />
+            </Form.Item>
+          </div>
           <Form.List name="confirms">
             {(fields, { add, remove }) => (
               <section>

@@ -11,7 +11,11 @@ import {
 } from "antd";
 import type { FormProps } from "antd";
 import Image from "next/image";
-import { convertUtil, capitalizeFirstLetter } from "@/util/usable";
+import {
+  convertUtil,
+  capitalizeFirstLetter,
+  parseGermanNumber,
+} from "@/util/usable";
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { TestSchedule } from "../creation/Schedule";
@@ -186,13 +190,14 @@ export function ShareMember({ document, id }: any) {
         riskLevel: selectConvert(item.riskLevel),
       };
     });
-    const budgetdata = (values.testenv || []).map((item: any) => ({
+    const budgetdata = (values.testbudget || []).map((item: any) => ({
       productCategory: String(item.productCategory),
       product: String(item.product),
       priceUnit: Number(item.priceUnit),
       priceTotal: Number(item.priceTotal),
       amount: Number(item.amount),
     }));
+
     const testcase = (values.testcase || []).map((item: any) => {
       return {
         category: item.category,
@@ -297,7 +302,7 @@ export function ShareMember({ document, id }: any) {
           },
         ]}
       />
-      <p className="font-bold text-2xl mb-6">ЖИМОБАЙЛ ХХК</p>
+
       <Form form={mainForm} onFinish={onFinish}>
         <Form.Item name="title">
           <Input size="large" placeholder="Тестийн нэр бичнэ үү..." />
@@ -551,11 +556,6 @@ export function ShareMember({ document, id }: any) {
         </div>
         <div className="font-bold my-2 text-lg mx-4">
           6. Түтгэлзүүлэх болон дахин эхлүүлэх шалгуур
-        </div>
-        <div className="my-4">
-          <Form.Item name="adding">
-            <Input placeholder="" />
-          </Form.Item>
         </div>
         <Addition form={mainForm} />
         <TestBudget form={mainForm} />

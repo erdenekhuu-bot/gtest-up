@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "antd";
 
 export default function Error({
   error,
@@ -11,7 +12,9 @@ export default function Error({
     <div>
       <h2 className="text-center text-4xl">Ямар нэг зүйл буруу байна</h2>
       <p className="my-8">{error.message}</p>
-      <button onClick={() => reset()}>Ахин оролдоно уу !!</button>
+      <Button size="large" type="primary" onClick={() => reset()}>
+        Ахин оролдоно уу !!
+      </Button>
     </div>
   );
 }

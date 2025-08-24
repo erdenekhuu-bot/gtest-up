@@ -78,6 +78,7 @@ export async function GET(
           },
         },
       });
+
       return detail;
     });
 

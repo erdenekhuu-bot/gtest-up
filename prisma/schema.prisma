@@ -65,32 +65,7 @@ model JobPositionGroup {
   jobPositions JobPosition[]
 }
 
-model Employee {
-  id                     Int                      @id @default(autoincrement())
-  departmentId           Int                      @map("department_id")
-  jobPositionId          Int?                     @map("job_position_id")
-  firstname              String                   @db.VarChar(80)
-  lastname               String                   @db.VarChar(80)
-  familyName             String                   @map("family_name") @db.VarChar(80)
-  gender                 String?                  @db.VarChar(10)
-  regNum                 String                   @unique @map("reg_num") @db.VarChar(10)
-  birthDate              DateTime                 @map("birth_date") @db.Date
-  stateId                Int?                     @map("state_id")
-  authUserId             Int?                     @unique @map("auth_user_id")
-  isDeleted              Boolean                  @default(false) @map("is_deleted")
-  userCreatedId          Int?                     @map("user_created_id")
-  note                   String?                  @db.VarChar(255)
-  timeCreated            DateTime                 @default(now()) @map("time_created")
-  timeUpdated            DateTime                 @updatedAt
-  DocumentEmployee       DocumentEmployee[]
-  authUser               AuthUser?                @relation(fields: [authUserId], references: [id], onDelete: Cascade)
-  department             Department               @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  jobPosition            JobPosition?             @relation(fields: [jobPositionId], references: [id], onDelete: Cascade)
-  departmentEmployeeRole DepartmentEmployeeRole[]
-  report                 Report[]                 @relation("employee_report")
-  shareGroup             ShareGroup[]             @relation("share_group")
-  confirm                ConfirmPaper[]
-}
+
 
 model AuthUserData {
   authUserId  Int        @id @map("auth_user_id")
@@ -117,7 +92,7 @@ model Document {
   userData               AuthUserData?            @relation(fields: [userDataId], references: [authUserId], onDelete: Cascade)
   attribute              DocumentAttribute[]      @relation("attribute")
   budget                 DocumentBudget[]         @relation("budget")
-  detail                 DocumentDetail?         @relation("detail")
+  detail                 DocumentDetail?          @relation("detail")
   documentemployee       DocumentEmployee[]       @relation("documentemployee")
   file                   File[]
   riskassessment         RiskAssessment[]         @relation("assessent")
@@ -127,14 +102,43 @@ model Document {
   report                 Report?                  @relation("report_document")
   shareGroup             ShareGroup[]             @relation("document_group")
   confirm                ConfirmPaper[]           @relation("confirm")
-  reject                 Rejection?               
+  reject                 Rejection?            
 }
-
 model Rejection {
   id Int @id @default(autoincrement())
   documentId Int @unique
   description String @db.VarChar(500)
   document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
+
+model Employee {
+  id                     Int                      @id @default(autoincrement())
+  departmentId           Int                      @map("department_id")
+  jobPositionId          Int?                     @map("job_position_id")
+  firstname              String                   @db.VarChar(80)
+  lastname               String                   @db.VarChar(80)
+  familyName             String                   @map("family_name") @db.VarChar(80)
+  gender                 String?                  @db.VarChar(10)
+  regNum                 String                   @unique @map("reg_num") @db.VarChar(10)
+  birthDate              DateTime                 @map("birth_date") @db.Date
+  stateId                Int?                     @map("state_id")
+  authUserId             Int?                     @unique @map("auth_user_id")
+  isDeleted              Boolean                  @default(false) @map("is_deleted")
+  userCreatedId          Int?                     @map("user_created_id")
+  note                   String?                  @db.VarChar(255)
+  timeCreated            DateTime                 @default(now()) @map("time_created")
+  timeUpdated            DateTime                 @updatedAt
+  DocumentEmployee       DocumentEmployee[]
+  authUser               AuthUser?                @relation(fields: [authUserId], references: [id], onDelete: Cascade)
+  department             Department               @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  jobPosition            JobPosition?             @relation(fields: [jobPositionId], references: [id], onDelete: Cascade)
+  departmentEmployeeRole DepartmentEmployeeRole[]
+  report                 Report[]                 @relation("employee_report")
+  shareGroup             ShareGroup[]             @relation("share_group")
+  confirm                ConfirmPaper[]
+  sub                    ConfirmSub[]
+  super                  EROLE                    @default(VIEWER)
+  
 }
 model DepartmentEmployeeRole {
   id            Int     @id @default(autoincrement())
@@ -148,7 +152,6 @@ model DepartmentEmployeeRole {
   document      Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
   startedDate   DateTime     @default(now()) @map("time_created")
   endDate   DateTime     @updatedAt
- 
 }
 
 model DocumentDetail {
@@ -196,7 +199,6 @@ model DocumentEmployee {
   document      Document     @relation("documentemployee", fields: [documentId], references: [id], onDelete: Cascade)
   employee      Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   jobPosition   JobPosition? @relation(fields: [jobPositionId], references: [id])
- 
 }
 
 model RiskAssessment {
@@ -211,11 +213,11 @@ model RiskAssessment {
 }
 
 model TestCase {
-  category      String?          @db.VarChar(500)
-  types         String?          @db.VarChar(500)
-  steps         String?          @db.VarChar(500)
-  result        String?          @db.VarChar(500)
-  division      String?          @db.VarChar(500)
+  category      String?         
+  types         String?         
+  steps         String?          
+  result        String?          
+  division      String?         
   testType      StateTestCase   @default(CREATED)
   timeCreated   DateTime        @default(now())
   timeUpdate    DateTime        @updatedAt
@@ -338,17 +340,27 @@ model ConfirmPaper {
   documentId Int 
   employee Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId Int 
-  system String? @db.VarChar(100)
-  description String? @db.VarChar(500)
-  module String? @db.VarChar(200)
-  version String? @db.VarChar(100)
-  jobs    String?
-  title   String? @db.VarChar(200)
   startedDate DateTime @default(now())
   endData     DateTime @updatedAt
+  title String? @db.VarChar(100)
   rode    Json?
   check  Boolean @default(false)
-  @@index([documentId, employeeId])
+  sub ConfirmSub[]
+}
+
+model ConfirmSub {
+  id Int @id @default(autoincrement())
+  paper ConfirmPaper @relation(fields: [confirmId], references: [id], onDelete: Cascade)
+  confirmId Int
+  employee Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId Int 
+  system String? @db.VarChar(500)
+  description String? @db.VarChar(500)
+  module String? @db.VarChar(500)
+  version String? @db.VarChar(500)
+  jobs    String?
+  title   String? @db.VarChar(200)
+  check  Boolean @default(false)
 }
 
 enum PhoneType {
@@ -388,6 +400,7 @@ enum ActionType {
 enum Role {
   ACCESSER
   VIEWER
+  MIDDLE
 }
 
 enum StateTestCase {

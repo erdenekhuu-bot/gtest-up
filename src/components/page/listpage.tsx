@@ -1,5 +1,5 @@
 "use client";
-import { Table, Flex, Input, Button, Badge } from "antd";
+import { Table, Flex, Input, Button, Badge, Card } from "antd";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { convertName, formatHumanReadable } from "@/util/usable";
 
@@ -42,7 +42,6 @@ export function ListPage({ data, total, page, pageSize }: any) {
       dataIndex: "document",
       render: (record: any) => <span>{record.title}</span>,
     },
-    // { title: "Тушаал", dataIndex: "statement" },
     {
       title: "Үүсгэсэн ажилтан",
       dataIndex: "document",
@@ -82,7 +81,7 @@ export function ListPage({ data, total, page, pageSize }: any) {
               router.push("listplan/" + record.id);
             }}
           >
-            View
+            Шалгах
           </Button>
         );
       },
@@ -103,16 +102,18 @@ export function ListPage({ data, total, page, pageSize }: any) {
         </Flex>
       </div>
 
-      <Table<DataType>
-        columns={columns}
-        dataSource={dataWithKeys}
-        pagination={{
-          current: page,
-          pageSize: pageSize,
-          total: total,
-        }}
-        onChange={handleTableChange}
-      />
+      <div className="sm:block hidden">
+        <Table<DataType>
+          columns={columns}
+          dataSource={dataWithKeys}
+          pagination={{
+            current: page,
+            pageSize: pageSize,
+            total: total,
+          }}
+          onChange={handleTableChange}
+        />
+      </div>
     </section>
   );
 }

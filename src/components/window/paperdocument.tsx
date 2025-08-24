@@ -3,22 +3,18 @@ import { useRouter } from "next/navigation";
 import { Card, Flex, theme, Button, Pagination } from "antd";
 import { ZUSTAND } from "@/zustand";
 import { PaperOthers } from "./paperothers";
+import { Badge } from "../ui/badge";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { Badge } from "../ui/badge";
 
 const { useToken } = theme;
 
 export function PaperDocument({ data, total, page, pageSize }: any) {
   const { token } = useToken();
   const router = useRouter();
-  const {
-    fetchpaper,
-    getCheckout,
-    getEmployeeId,
-    getDocumentId,
-    takeConfirmId,
-  } = ZUSTAND();
+  const { data: session } = useSession();
+  const { getCheckout, getEmployeeId, getDocumentId, takeConfirmId } =
+    ZUSTAND();
 
   return (
     <section>
@@ -74,15 +70,30 @@ export function PaperDocument({ data, total, page, pageSize }: any) {
                 <Button
                   type="primary"
                   onClick={async () => {
-                    getCheckout(10);
+                    // getCheckout(10);
                     getEmployeeId(item.employeeId);
                     getDocumentId(item.document.id);
                     takeConfirmId(item.id);
+                    router.push("/paper/action");
                   }}
                 >
                   {item.rode?.rode ? <span>Үзсэн</span> : <span>Үзээгүй</span>}
                 </Button>
               )}
+
+              <Button
+                size="large"
+                onClick={async () => {
+                  await axios.patch("/api/document/paper", {
+                    authUser: session?.user.id,
+                    paperid: Number(item.id),
+                    action: false,
+                  });
+                  router.refresh();
+                }}
+              >
+                Буцаах
+              </Button>
             </div>
           </Card>
         ))}

@@ -1,100 +1,128 @@
 "use client";
-import axios from "axios";
 import { redirect } from "next/navigation";
-import { useState, useEffect } from "react";
-import { Card, Flex, Badge, theme, Button } from "antd";
-import { FinalCheck } from "@/components/window/confirm/finalcheck";
+import { Flex, Button, message, Form, Table, Breadcrumb } from "antd";
+import type { FormProps } from "antd";
 import { ZUSTAND } from "@/zustand";
+import { someConvertName } from "@/util/usable";
+import { BossCheckPaper } from "@/util/action";
+import { Badge } from "@/components/ui/badge";
 
-const { useToken } = theme;
-
-export default function ViewPaper(id: any) {
-  const { token } = useToken();
-  const [document, setDocument] = useState<any>([]);
-  const { getCheckout, getEmployeeId, triggerPaper, checkout } = ZUSTAND();
-
-  const fetchData = async () => {
-    const response = await axios.put("/api/paper", { tm: id.id });
-    if (response.data.success) {
-      setDocument(response.data.data);
+export default function ViewPaper(data: any) {
+  const [caseForm] = Form.useForm();
+  const [messageApi, contextHolder] = message.useMessage();
+  const onFinish: FormProps["onFinish"] = async () => {
+    const merge = {
+      documentid,
+    };
+    const response = await BossCheckPaper(merge);
+    if (response > 0) {
+      messageApi.success("Амжилттай хадгалагдлаа!");
+      redirect("/teampaper");
+    } else {
+      messageApi.error("Болсонгүй");
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [Number(id.id)]);
+  const { documentid } = ZUSTAND();
 
-  useEffect(() => {
-    if (checkout === -1) {
-      fetchData();
-    }
-  }, [checkout]);
+  const tableData = data.document.confirm.flatMap((confirm: any) =>
+    confirm.sub.map((sub: any) => {
+      return {
+        key: `${confirm.id}-${sub.id}`,
+        confirmTitle: confirm.title,
+        employee: `${sub.employee.firstname} ${sub.employee.lastname}`,
+        system: sub.system,
+        jobs: sub.jobs,
+        module: sub.module,
+        version: sub.version,
+        description: sub.description,
+        check: sub.check,
+      };
+    })
+  );
+
+  const columns = [
+    {
+      title: "Баталгаажуулах хуудас",
+      dataIndex: "confirmTitle",
+      key: "confirmTitle",
+    },
+    { title: "Систем нэр", dataIndex: "system", key: "system", width: 200 },
+    { title: "Хийгдсэн ажлууд", dataIndex: "jobs", key: "jobs", width: 300 },
+    { title: "Шинэчлэлт хийгдсэн модул", dataIndex: "module", key: "module" },
+    { title: "Хувилбар", dataIndex: "version", key: "version" },
+    {
+      title: "Тайлбар",
+      dataIndex: "description",
+      key: "description",
+      width: 300,
+    },
+    {
+      title: "Ажилтан",
+      dataIndex: "employee",
+      key: "employee",
+      render: (record: any) => {
+        return <span>{someConvertName(record)}</span>;
+      },
+    },
+    {
+      title: "Шалгагдсан",
+      dataIndex: "check",
+      key: "check",
+      render: (record: any) => {
+        return record === true ? (
+          <Badge variant="info">Шалгагдсан</Badge>
+        ) : (
+          <Badge variant="secondary">Шалгагдаагүй</Badge>
+        );
+      },
+    },
+  ];
 
   return (
-    <Flex gap={20} wrap="wrap" style={{ padding: 24 }}>
-      {document?.confirm?.map((item: any, index: number) => (
-        <Card
-          key={index}
-          title="Баталгаажуулах хуудас"
-          className="m-4 transition-all duration-300 hover:shadow-lg"
-          style={{
-            width: 320,
-            viewTransitionName: `card-${item.id}`,
-            border: `1px solid ${token.colorBorderSecondary}`,
-            borderRadius: token.borderRadiusLG,
-            boxShadow: token.boxShadowSecondary,
-            transition: "all 0.3s ease",
-          }}
-          cover={
-            <div
-              style={{
-                height: 160,
-                background: `linear-gradient(135deg, ${token.colorPrimaryBg} 0%, ${token.colorPrimaryBgHover} 100%)`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: token.colorPrimary,
-                fontSize: 24,
-                fontWeight: "bold",
-              }}
-              className="hover:cusror-pointer"
-            >
-              {item?.document?.title}
-            </div>
-          }
-        >
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-            }}
-          >
-            <div
-              style={{
-                height: 4,
-                background: `linear-gradient(90deg, ${token.colorPrimary} 0%, ${token.colorSuccess} 100%)`,
-                borderRadius: 2,
-              }}
-            />
-            {item.check ? (
-              <Badge status="success" text="Уншсан" />
-            ) : (
-              <Button
-                type="primary"
-                onClick={() => {
-                  getCheckout(11);
-                  getEmployeeId(item.employeeId);
-                  triggerPaper(item.id);
+    <Form form={caseForm} className="p-6" onFinish={onFinish}>
+      <Breadcrumb
+        style={{ margin: "16px 0" }}
+        items={[
+          {
+            title: (
+              <span
+                style={{
+                  cursor: "pointer",
                 }}
               >
-                Хянах
-              </Button>
-            )}
-          </div>
-        </Card>
-      ))}
-      <FinalCheck />
-    </Flex>
+                Үндсэн хуудас руу буцах
+              </span>
+            ),
+            onClick: () => redirect("/teampaper"),
+          },
+          {
+            title: "Баталгаажуулах",
+          },
+        ]}
+      />
+      {contextHolder}
+      <div className="my-8">
+        <Table
+          dataSource={tableData}
+          columns={columns}
+          pagination={false}
+          bordered
+          rowKey="key"
+        />
+      </div>
+
+      <Flex justify="end">
+        <Button
+          size="large"
+          type="primary"
+          onClick={() => {
+            caseForm.submit();
+          }}
+        >
+          Дуусгах
+        </Button>
+      </Flex>
+    </Form>
   );
 }

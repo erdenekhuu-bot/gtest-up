@@ -16,6 +16,18 @@ export const convertName = (arg: any) => {
   return arg?.lastname[0] + "." + arg?.firstname;
 };
 
+export const someConvertName = (arg: string) => {
+  const parts = arg.split(" ");
+  if (parts.length >= 2) {
+    return toInitialName([parts[1], parts[0]]);
+  }
+  return arg;
+};
+
+function toInitialName([first, last]: [string, string]): string {
+  return `${first[0]}.${last}`;
+}
+
 export const capitalizeFirstLetter = (arg: any) => {
   return arg.charAt(0).toUpperCase() + arg.slice(1);
 };
@@ -85,7 +97,7 @@ export const mongollabel = (label: string) => {
     case "DENY":
       return "Буцаагдсан";
     case "FORWARD":
-      return "Хянагдсан";
+      return "Хуваалцаж байгаа";
     case "wait":
       return "Бүрэн бус";
     case "finish":
@@ -125,77 +137,6 @@ export const formatHumanReadable = (arg: string) => {
   );
 };
 
-// export const filterEmployee = async (id: any): Promise<number | undefined> => {
-//   if (typeof id !== "string" || id.split(" ").length < 2) {
-//     return undefined;
-//   }
-
-//   try {
-//     const result = await prisma.employee.findFirst({
-//       where: {
-//         AND: [{ firstname: id.split(" ")[0] }, { lastname: id.split(" ")[1] }],
-//       },
-//       select: {
-//         id: true,
-//       },
-//     });
-
-//     if (!result) {
-//       return undefined;
-//     }
-
-//     return result.id;
-//   } catch (error) {
-//     return undefined;
-//   }
-// };
-// export const filterEmployee = async (id: any): Promise<number | undefined> => {
-//   // Ensure id is a string and has at least two parts
-//   if (typeof id !== "string" || !id.trim()) {
-//     console.warn(
-//       `Invalid id format: ${id} (expected a non-empty string with firstname and lastname)`
-//     );
-//     return undefined;
-//   }
-
-//   // Split the id and trim to handle extra spaces
-//   const nameParts = id.trim().split(/\s+/);
-//   if (nameParts.length < 2) {
-//     console.warn(
-//       `Invalid id format: ${id} (expected at least two parts: firstname lastname)`
-//     );
-//     return undefined;
-//   }
-
-//   const firstname = nameParts[0];
-//   const lastname = nameParts[1];
-
-//   try {
-//     const result = await prisma.employee.findFirst({
-//       where: {
-//         AND: [
-//           { firstname: { equals: firstname, mode: "insensitive" } },
-//           { lastname: { equals: lastname, mode: "insensitive" } },
-//         ],
-//       },
-//       select: {
-//         id: true,
-//       },
-//     });
-
-//     if (!result) {
-//       console.warn(
-//         `No employee found for firstname: ${firstname}, lastname: ${lastname}`
-//       );
-//       return undefined;
-//     }
-
-//     return result.id;
-//   } catch (error) {
-//     console.error(`Error querying employee with id: ${id}`, error);
-//     return undefined;
-//   }
-// };
 export const filterEmployee = async (id: any): Promise<number | undefined> => {
   if (typeof id !== "string") return undefined;
 
@@ -249,4 +190,8 @@ export const mergeLetter = (letter: any) => {
 };
 export const parseLocaleNumber = (value: any): number => {
   return Number(String(value).replace(/[.\s]/g, ""));
+};
+
+export const parseGermanNumber = (str: string): number => {
+  return parseFloat(str.replace(/\./g, "").replace(",", "."));
 };

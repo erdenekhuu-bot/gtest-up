@@ -51,7 +51,7 @@ export function MemberPlanDetail({ document, steps }: any) {
   useEffect(() => {
     const handleScroll = () => {
       setScrollPosition(window.scrollY);
-      if (Number(window.scrollY) + Number(window.innerHeight) >= 2000) {
+      if (Number(window.scrollY) + Number(window.innerHeight) >= 500) {
         setAlertShown(true);
       } else {
         setAlertShown(false);
@@ -308,10 +308,53 @@ export function MemberPlanDetail({ document, steps }: any) {
             </div>
             <div className="font-bold my-2 text-lg mx-4">5.3. Тестийн кэйс</div>
             <ReadTestCase />
+            {alertShown && session?.user.employee.super == "REPORT" ? (
+              <div className="fixed bottom-0 w-full h-20 bg-white flex items-center gap-40 transition-transform">
+                <Button
+                  type="primary"
+                  size="large"
+                  onClick={() => {
+                    getDocumentId(document.id);
+                    getCheckout(14);
+                  }}
+                >
+                  Баталгаажуулах хуудас
+                </Button>
+                <Button
+                  type="link"
+                  size="large"
+                  onClick={() => {
+                    getDocumentId(document.id);
+                    getCheckout(12);
+                  }}
+                >
+                  Буцаах
+                </Button>
+                <Button
+                  size="large"
+                  type="primary"
+                  onClick={async () => {
+                    await axios.put(`/api/final/`, {
+                      authuserId: session?.user.id,
+                      reject: 2,
+                      documentId: document.id,
+                    });
+                    await axios.patch(`/api/final`, {
+                      authuserId: session?.user.id,
+                      reject: 3,
+                      documentId: document.id,
+                    });
+                    router.refresh();
+                  }}
+                >
+                  Зөвшөөрөх
+                </Button>
+              </div>
+            ) : null}
           </section>
         </ActionDetail.Provider>
         <div
-          className="w-1/4 p-4 mt-8 h-[700px] overflow-auto scrollbar"
+          className="w-1/4 p-4 h-[60vh] sm:h-[70vh] md:h-[80vh] overflow-y-auto"
           ref={reference}
           style={transformStyle}
         >
@@ -354,49 +397,7 @@ export function MemberPlanDetail({ document, steps }: any) {
           />
         </div>
       </Form>
-      {alertShown && (
-        <div className="fixed bottom-0 w-full h-20 bg-white flex items-center gap-40 transition-transform">
-          <Button
-            type="primary"
-            size="large"
-            onClick={() => {
-              getDocumentId(document.id);
-              getCheckout(14);
-            }}
-          >
-            Баталгаажуулах хуудас
-          </Button>
-          <Button
-            type="link"
-            size="large"
-            onClick={() => {
-              getDocumentId(document.id);
-              getCheckout(12);
-            }}
-          >
-            Буцаах
-          </Button>
-          <Button
-            size="large"
-            type="primary"
-            onClick={async () => {
-              await axios.put(`/api/final/`, {
-                authuserId: session?.user.id,
-                reject: 2,
-                documentId: document.id,
-              });
-              await axios.patch(`/api/final`, {
-                authuserId: session?.user.id,
-                reject: 3,
-                documentId: document.id,
-              });
-              router.refresh();
-            }}
-          >
-            Зөвшөөрөх
-          </Button>
-        </div>
-      )}
+
       <Rejection />
       <PaperRegister />
     </section>

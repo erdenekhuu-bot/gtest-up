@@ -23,14 +23,14 @@ export function SecondDocument() {
       bank: values.bank || "",
     };
 
-    const testteam = values.testschedule.map((item: any) => ({
+    const testteam = (values.testschedule || []).map((item: any) => ({
       employeeId: item.employeeId,
       role: item.role,
       startedDate: dayjs(item.startedDate).format("YYYY-MM-DDTHH:mm:ssZ"),
       endDate: dayjs(item.endDate).format("YYYY-MM-DDTHH:mm:ssZ"),
     }));
 
-    const riskdata = values.testrisk.map((item: any) => {
+    const riskdata = (values.testrisk || []).map((item: any) => {
       return {
         affectionLevel: selectConvert(item.affectionLevel),
         mitigationStrategy: item.mitigationStrategy,
@@ -71,7 +71,7 @@ export function SecondDocument() {
       },
     ];
 
-    const addition = values.attribute.map((item: any) => {
+    const addition = (values.attribute || []).map((item: any) => {
       return {
         categoryMain: "Түтгэлзүүлэх болон дахин эхлүүлэх шалгуур",
         category: item.category,
@@ -116,7 +116,7 @@ export function SecondDocument() {
       onOk={onFinish}
       onCancel={handleCancel}
       title="ЖИМОБАЙЛ ХХК"
-      width={800}
+      width="60%"
       className="scrollbar select-none"
       style={{ overflowY: "auto", maxHeight: "800px" }}
       footer={[
@@ -142,10 +142,7 @@ export function SecondDocument() {
           </ul>
         </li>
         <div className="mt-2">
-          <Form.Item
-            name="predict"
-            rules={[{ required: true, message: "Таамаглалаа бичнэ үү" }]}
-          >
+          <Form.Item name="predict">
             <Input.TextArea
               rows={5}
               style={{ resize: "none" }}
@@ -164,10 +161,7 @@ export function SecondDocument() {
             </ul>
           </li>
           <div className="mt-2">
-            <Form.Item
-              name="dependecy"
-              rules={[{ required: true, message: "Хараат байдлыг бичнэ үү" }]}
-            >
+            <Form.Item name="dependecy">
               <Input.TextArea
                 rows={5}
                 style={{ resize: "none" }}
@@ -187,10 +181,7 @@ export function SecondDocument() {
             </ul>
           </li>
           <div className="mt-2">
-            <Form.Item
-              name="standby"
-              rules={[{ required: true, message: "Бэлтгэл үеийг бичнэ үү" }]}
-            >
+            <Form.Item name="standby">
               <Input.TextArea
                 rows={5}
                 style={{ resize: "none" }}
@@ -209,12 +200,7 @@ export function SecondDocument() {
             </ul>
           </li>
           <div className="mt-2">
-            <Form.Item
-              name="execute"
-              rules={[
-                { required: true, message: "Тестийн гүйцэтгэлээ бичнэ үү" },
-              ]}
-            >
+            <Form.Item name="execute">
               <Input.TextArea
                 rows={5}
                 style={{ resize: "none" }}
@@ -233,10 +219,7 @@ export function SecondDocument() {
             </ul>
           </li>
           <div className="mt-2">
-            <Form.Item
-              name="terminate"
-              rules={[{ required: true, message: "Тестийн хаалт бичнэ үү" }]}
-            >
+            <Form.Item name="terminate">
               <Input.TextArea
                 rows={5}
                 style={{ resize: "none" }}

@@ -21,7 +21,11 @@ export async function POST(req: NextRequest) {
               employeeId: Number(user?.employee?.id),
             },
             select: {
-              employee: true,
+              sub: {
+                include: {
+                  employee: true,
+                },
+              },
             },
           },
         },

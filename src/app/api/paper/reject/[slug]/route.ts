@@ -10,18 +10,7 @@ export async function GET(
     const record = await prisma.document.findUnique({
       where: { id: Number(slug) },
       include: {
-        confirm: {
-          select: {
-            sub: {
-              where: {
-                check: true,
-              },
-              include: {
-                employee: true,
-              },
-            },
-          },
-        },
+        reject: true,
       },
     });
 

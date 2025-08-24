@@ -10,7 +10,6 @@ const { useToken } = theme;
 
 export default function ViewPlan(id: any) {
   const { token } = useToken();
-  const { data: session } = useSession();
   const [document, setDocument] = useState<any>([]);
 
   const fetchData = async () => {
@@ -104,25 +103,6 @@ export default function ViewPlan(id: any) {
                   borderRadius: 2,
                 }}
               />
-              {/* <Button
-                type="primary"
-                disabled={item.state !== "PENDING"}
-                onClick={async () => {
-                  await axios.put(`/api/final/`, {
-                    authuserId: session?.user.id,
-                    reject: 2,
-                    documentId: item.id,
-                  });
-                  await axios.patch(`/api/final`, {
-                    authuserId: session?.user.id,
-                    reject: 3,
-                    documentId: item.id,
-                  });
-                  fetchData();
-                }}
-              >
-                Зөвшөөрөх
-              </Button> */}
             </div>
           </Card>
         ))}
