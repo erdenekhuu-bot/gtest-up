@@ -58,8 +58,8 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
   const manager = session?.user.name;
 
   const items: MenuItem[] = [
-    chekcout > 1
-      ? {
+
+       {
           key: "1",
           icon: (
             <Badge dot={countdocument > 0 ? true : false}>
@@ -68,8 +68,7 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
           ),
           label: "Хэлтсийн дарга",
           children: [
-            manager === "uuganbayar.ts"
-              ? {
+             {
                   key: "s10",
                   icon: <FormOutlined />,
                   label: (
@@ -80,7 +79,7 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
                   ),
                   onClick: () => router.push("/teamplan"),
                 }
-              : null,
+              ,
             manager === "uuganbayar.ts"
               ? {
                   key: "s110",
@@ -97,8 +96,8 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
                 }
               : null,
           ],
-        }
-      : null,
+        },
+      
     chekcout > 1
       ? null
       : {

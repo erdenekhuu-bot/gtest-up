@@ -94,7 +94,7 @@ export default function ViewPlan(id: any) {
                 gap: 8,
               }}
             >
-              <Badge status="success" text={mongollabel(item.state)} />
+              {item.state}
 
               <div
                 style={{

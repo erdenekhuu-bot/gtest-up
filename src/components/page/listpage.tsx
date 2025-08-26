@@ -4,6 +4,7 @@ import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { convertName, formatHumanReadable } from "@/util/usable";
 
 export function ListPage({ data, total, page, pageSize }: any) {
+  
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
