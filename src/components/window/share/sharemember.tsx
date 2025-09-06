@@ -28,7 +28,6 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { PaperWindow } from "../paperwindow";
 import { useSession } from "next-auth/react";
-import { selectConvert } from "@/util/usable";
 import { FullUpdate } from "@/util/action";
 import { ZUSTAND } from "@/zustand";
 import { useRouter, redirect } from "next/navigation";
@@ -184,10 +183,10 @@ export function ShareMember({ document, id }: any) {
     });
     const riskdata = (values.testrisk || []).map((item: any) => {
       return {
-        affectionLevel: selectConvert(item.affectionLevel),
+        affectionLevel: item.affectionLevel,
         mitigationStrategy: item.mitigationStrategy,
         riskDescription: item.riskDescription,
-        riskLevel: selectConvert(item.riskLevel),
+        riskLevel: item.riskLevel,
       };
     });
     const budgetdata = (values.testbudget || []).map((item: any) => ({

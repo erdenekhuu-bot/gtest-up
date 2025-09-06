@@ -27,11 +27,6 @@ export function FirstDocument() {
   const router = useRouter();
 
   const onFinish: FormProps["onFinish"] = async (values) => {
-    // values.departmentemployee.push(
-    //   { employeeId: 43, role: "MIDDLE" },
-    //   { employeeId: 525, role: "MIDDLE" },
-    //   { employeeId: 113, role: "MIDDLE" }
-    // );
     getTitle(values.title);
     let converting = {
       ...removeDepartment(values),

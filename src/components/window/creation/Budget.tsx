@@ -3,7 +3,7 @@ import { Form, Input, Table, Flex } from "antd";
 import Image from "next/image";
 import * as XLSX from "xlsx";
 import type { FormInstance } from "antd/es/form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function TestBudget({ form }: { form: FormInstance }) {
   const [tableData, setTableData] = useState<any[]>([]);
@@ -40,6 +40,11 @@ export function TestBudget({ form }: { form: FormInstance }) {
 
     reader.readAsBinaryString(file);
   };
+
+  useEffect(() => {
+    const testBudgetData = form.getFieldValue("testbudget") || [];
+    setTableData(testBudgetData);
+  }, [form.getFieldValue("testbudget"), form]);
 
   return (
     <section>

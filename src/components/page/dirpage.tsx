@@ -2,11 +2,13 @@
 import { Table, Flex, Input, Button, Badge, Card } from "antd";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { convertName, formatHumanReadable } from "@/util/usable";
+import { useSession } from "next-auth/react";
 
-export function ListPage({ data, total, page, pageSize }: any) {
+export function DirPage({ data, total, page, pageSize }: any) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
+  const { data: session } = useSession();
   const dataWithKeys = (data || []).map((item: any) => ({
     ...item,
     key: item.id,
@@ -34,51 +36,56 @@ export function ListPage({ data, total, page, pageSize }: any) {
   const columns = [
     {
       title: "Тоот",
-      dataIndex: "document",
-      render: (record: any) => <span>{record.generate}</span>,
+      dataIndex: "generate",
     },
     {
       title: "Тестийн нэр",
-      dataIndex: "document",
-      render: (record: any) => <span>{record.title}</span>,
+      dataIndex: "title",
     },
     {
       title: "Үүсгэсэн ажилтан",
-      dataIndex: "document",
-      render: (record: any) => convertName(record.user.employee),
+      dataIndex: "user",
+      render: (record: any) => convertName(record.employee),
     },
     {
       title: "Огноо",
-      dataIndex: "startedDate",
+      dataIndex: "timeCreated",
       sorter: (a: any, b: any) =>
-        new Date(a.startedDate).getTime() - new Date(b.startedDate).getTime(),
-      render: (startedDate: string) =>
-        formatHumanReadable(new Date(startedDate).toISOString()),
+        new Date(a.timeCreated).getTime() - new Date(b.timeCreated).getTime(),
+      render: (timeCreated: string) => {
+        return formatHumanReadable(new Date(timeCreated).toISOString());
+      },
     },
     {
       title: "Төлөв",
-      dataIndex: "rode",
-      render: (rode: boolean) => {
+      dataIndex: "departmentEmployeeRole",
+      render: (record: any) => {
+        let checkout = false;
+        for (const i in record)
+          if (record[i].employee.authUser.id === Number(session?.user.id))
+            checkout = record[i].rode;
+
         return (
           <div>
-            {rode ? (
+            {checkout ? (
               <Badge status="success" text="Уншсан" />
             ) : (
               <Badge status="processing" text="Шинэ" />
             )}
           </div>
         );
+        return <span>1</span>;
       },
     },
     {
       title: "Шалгах",
-      dataIndex: "document",
-      render: (record: any) => {
+      dataIndex: "id",
+      render: (id: number) => {
         return (
           <Button
             type="primary"
             onClick={() => {
-              router.push("listplan/" + record.id);
+              router.push("listplan/" + id);
             }}
           >
             Шалгах

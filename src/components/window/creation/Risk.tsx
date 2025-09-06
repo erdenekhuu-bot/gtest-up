@@ -19,6 +19,7 @@ export function TestRisk({ form }: { form: FormInstance }) {
         ...item,
         id: index.toString(),
       }));
+
       form.setFieldsValue({ testrisk: dataWithKeys });
     };
 
@@ -68,15 +69,15 @@ export function TestRisk({ form }: { form: FormInstance }) {
                         options={[
                           {
                             label: "HIGH",
-                            value: 1,
+                            value: "HIGH",
                           },
                           {
                             label: "MEDIUM",
-                            value: 2,
+                            value: "HIGH",
                           },
                           {
                             label: "LOW",
-                            value: 3,
+                            value: "HIGH",
                           },
                         ]}
                         showSearch

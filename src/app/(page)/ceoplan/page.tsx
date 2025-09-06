@@ -3,8 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/util/prisma";
 import { ListPage } from "@/components/page/listpage";
-import { DefineLevel } from "@/util/checkout";
-import { filterByPermissionLevels } from "@/util/checkout";
+import { DirPage } from "@/components/page/dirpage";
 
 export default async function Page(props: {
   searchParams?: Promise<{
@@ -27,58 +26,82 @@ export default async function Page(props: {
         employee: true,
       },
     });
-    const list = await tx.departmentEmployeeRole.findMany({
-      distinct: ["employeeId"],
-      orderBy: {
-        document: {
-          timeCreated: "desc",
+    const documents = await tx.document.findMany({
+      where: {
+        departmentEmployeeRole: {
+          some: {
+            rode: true,
+          },
         },
       },
-      include: {
-        employee: {
-          include: {
-            jobPosition: {
-              select: {
-                jobPositionGroup: true,
+      select: {
+        id: true,
+        title: true,
+        generate: true,
+        state: true,
+        departmentEmployeeRole: {
+          distinct: ["employeeId"],
+          where: {
+            rode: true,
+            employee: {
+              jobPosition: {
+                jobPositionGroup: {
+                  jobAuthRank: 4,
+                },
               },
             },
           },
-        },
-        document: {
-          include: {
-            user: {
+          select: {
+            rode: true,
+            employee: {
               select: {
-                employee: {
-                  select: {
-                    firstname: true,
-                    lastname: true,
-                  },
-                },
+                firstname: true,
               },
             },
           },
         },
       },
     });
-    const dataWithLevels = list.map((item) => ({
-      ...item,
-      level: DefineLevel(
-        item.employee?.jobPosition?.jobPositionGroup?.name || ""
-      ),
-    }));
 
-    const filteredData = filterByPermissionLevels(dataWithLevels).filter(
-      (item: any) => item.employeeId === data?.employee?.id
+    const checkout = documents[0].departmentEmployeeRole.every(
+      (item) => item.rode === true
     );
-    return filteredData;
+    const record = checkout
+      ? await prisma.document.findMany({
+          where: {
+            departmentEmployeeRole: {
+              some: {
+                rode: true,
+              },
+            },
+          },
+          include: {
+            user: {
+              include: {
+                employee: true,
+              },
+            },
+            departmentEmployeeRole: {
+              select: {
+                rode: true,
+                employee: {
+                  select: {
+                    authUser: {
+                      select: {
+                        id: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        })
+      : [];
+    return record;
   });
   const totalCount = record.length;
   return (
-    <ListPage
-      data={record}
-      total={totalCount}
-      page={page}
-      pageSize={pageSize}
-    />
+    <DirPage data={record} total={totalCount} page={page} pageSize={pageSize} />
   );
 }

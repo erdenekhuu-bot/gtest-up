@@ -32,7 +32,7 @@ export function TeamPaperPage({ data, total, page, pageSize }: any) {
             render: (record: any) => {
               return (
                 <span>
-                  {record[0].title !== null
+                  {record[0].title !== null || record[0].title===""
                     ? record[0].title
                     : "Баталгаажуулах хуудас"}
                 </span>

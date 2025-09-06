@@ -12,6 +12,8 @@ import { ReportCard } from "../window/report/ReportCard";
 const { Dragger } = Upload;
 
 export function TestCaseReportPage({ data, total, page, pageSize }: any) {
+  console.log(data)
+  const router = useRouter()
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
@@ -85,6 +87,12 @@ export function TestCaseReportPage({ data, total, page, pageSize }: any) {
         return formatHumanReadable(new Date(timeCreated).toISOString());
       },
     },
+    {
+      title: "Тайлан үүсгэх",
+      dataIndex: "id",
+      render:(id:number)=><Button type="primary" onClick={()=>{router.push("testcase/" + id);}}>Тайлан</Button>
+    }
+    
   ];
   return (
     <section>

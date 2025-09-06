@@ -65,8 +65,6 @@ model JobPositionGroup {
   jobPositions JobPosition[]
 }
 
-
-
 model AuthUserData {
   authUserId  Int        @id @map("auth_user_id")
   permissions Json       @default("[]") @map("permissions")
@@ -102,7 +100,7 @@ model Document {
   report                 Report?                  @relation("report_document")
   shareGroup             ShareGroup[]             @relation("document_group")
   confirm                ConfirmPaper[]           @relation("confirm")
-  reject                 Rejection?            
+  reject                 Rejection?          
 }
 model Rejection {
   id Int @id @default(autoincrement())
@@ -138,6 +136,7 @@ model Employee {
   confirm                ConfirmPaper[]
   sub                    ConfirmSub[]
   super                  EROLE                    @default(VIEWER)
+
   
 }
 model DepartmentEmployeeRole {
@@ -153,6 +152,9 @@ model DepartmentEmployeeRole {
   startedDate   DateTime     @default(now()) @map("time_created")
   endDate   DateTime     @updatedAt
 }
+
+
+
 
 model DocumentDetail {
   intro      String   @db.VarChar(500)
@@ -376,6 +378,7 @@ enum DocumentStateEnum {
   PENDING
   MIDDLE
   SHARED
+  CONFIRMED
 }
 
 enum Risk {

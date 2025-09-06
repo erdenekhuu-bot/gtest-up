@@ -12,6 +12,7 @@ import { Report } from "@/util/action";
 
 export function ReportMake({ id, data }: any) {
   const [dataSource, setDataSource] = useState<any[]>([]);
+  const [messageApi, contextHolder] = message.useMessage();
   const [nextKey, setNextKey] = useState(1);
   const { data: session } = useSession();
   const handleAdd = () => {
@@ -174,11 +175,16 @@ export function ReportMake({ id, data }: any) {
       documentId: Number(id),
       authuserId: Number(session?.user.id),
     };
-
-    const request = await Report(requestData);
+    const update = await Report(requestData);
+        if (update > 0) {
+          messageApi.success("Амжилттай засагдсан");
+        } else {
+          messageApi.error("Алдаа гарлаа");
+        }
   };
   return (
     <Form className="p-6" form={mainForm} onFinish={onFinish}>
+       {contextHolder}
       <div className="flex justify-between text-xl">
         <b>"ЖИМОБАЙЛ" ХХК</b>
       </div>

@@ -134,25 +134,3 @@ export function filterByPermissionLevels(dataWithLevels: any[]) {
 
   return result;
 }
-// export function filterByPermissionLevels(dataWithLevels: any[]) {
-//   if (!dataWithLevels?.length) return [];
-
-//   const levels = dataWithLevels.reduce((acc, item) => {
-//     if (!acc[item.level]) acc[item.level] = [];
-//     acc[item.level].push(item);
-//     return acc;
-//   }, {} as Record<number, any[]>);
-
-//   const result = [...(levels[2] || [])];
-
-//   if (result.length > 0 && result.every((item) => item.rode)) {
-//     const level4Items = levels[4] || [];
-//     result.push(...level4Items);
-
-//     if (level4Items.length > 0 && level4Items.every((item: any) => item.rode)) {
-//       result.push(...(levels[6] || []));
-//     }
-//   }
-
-//   return result;
-// }

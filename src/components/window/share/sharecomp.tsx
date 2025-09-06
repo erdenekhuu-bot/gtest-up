@@ -1,7 +1,6 @@
 "use client";
-import { Card, Flex, Popover, Button } from "antd";
+import { Card, Flex, Popover, Button, Pagination } from "antd";
 import { redirect } from "next/navigation";
-import { convertName } from "@/util/usable";
 import { ZUSTAND } from "@/zustand";
 import { EditShareWindow } from "./shareEditWindow";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
@@ -45,7 +44,7 @@ const Useitself = ({
   );
 };
 
-export function ShareComp({ document }: any) {
+export function ShareComp({ document,total, page, pageSize }: any) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
@@ -61,15 +60,15 @@ export function ShareComp({ document }: any) {
     replace(`${pathname}?${params.toString()}`);
   };
 
-  const handleTableChange = (pagination: any) => {
+   const handlePaginationChange = (newPage: number, newPageSize: number) => {
     const params = new URLSearchParams(searchParams);
-    params.set("page", pagination.current.toString());
-    params.set("pageSize", pagination.pageSize.toString());
+    params.set("page", newPage.toString());
+    params.set("pageSize", newPageSize.toString());
     replace(`${pathname}?${params.toString()}`);
   };
   return (
     <section>
-      <Flex gap={20}>
+      <Flex gap={20} wrap>
         {document.map((item: any, index: number) => (
           <Useitself
             key={index}
@@ -80,6 +79,14 @@ export function ShareComp({ document }: any) {
         ))}
       </Flex>
       <EditShareWindow />
+      <Flex justify="end">
+        <Pagination 
+        current={page} 
+        pageSize={pageSize} 
+        total={total} 
+        onChange={handlePaginationChange}
+      />
+      </Flex>
     </section>
   );
 }

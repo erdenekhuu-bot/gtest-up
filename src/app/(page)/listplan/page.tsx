@@ -23,20 +23,9 @@ export default async function Page(props: {
         id: Number(session?.user.id),
       },
       include: {
-        employee: {
-          select: {
-            id: true,
-            jobPosition: {
-              select: {
-                jobPositionGroup: true
-              }
-            }
-          }
-        },
-        
+        employee: true,
       },
     });
-    
     const list = await tx.departmentEmployeeRole.findMany({
       where: {
         AND: [
@@ -83,7 +72,7 @@ export default async function Page(props: {
   });
 
   const totalCount = record.length;
-  
+
   return (
     <ListPage
       data={record}

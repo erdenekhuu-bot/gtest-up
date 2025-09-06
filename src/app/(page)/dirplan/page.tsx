@@ -1,10 +1,8 @@
 "use server";
-import { DefineLevel } from "@/util/checkout";
-import { filterByPermissionLevels } from "@/util/checkout";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/util/prisma";
-import { ListPage } from "@/components/page/listpage";
+import { DirPage } from "@/components/page/dirpage";
 
 export default async function Page(props: {
   searchParams?: Promise<{
@@ -18,7 +16,8 @@ export default async function Page(props: {
   const page = Number(searchParams?.page) || 1;
   const pageSize = Number(searchParams?.pageSize) || 10;
   const session = await getServerSession(authOptions);
-  const data = await prisma.authUser.findUnique({
+  const record = await prisma.$transaction(async (tx) => {
+    const data = await tx.authUser.findUnique({
       where: {
         id: Number(session?.user.id),
       },
@@ -26,127 +25,84 @@ export default async function Page(props: {
         employee: true,
       },
     });
-    const record = await prisma.employee.findUnique({
+    const documents = await tx.document.findMany({
       where: {
-        id: data?.employee?.id
+        departmentEmployeeRole: {
+          some: {
+            rode: true,
+          },
+        },
       },
       select: {
-        jobPosition: {
-          select: {
-            jobPositionGroup: true
-          }
-        },
+        id: true,
+        title: true,
+        generate: true,
+        state: true,
         departmentEmployeeRole: {
+          distinct: ["employeeId"],
+          where: {
+            rode: true,
+            employee: {
+              jobPosition: {
+                jobPositionGroup: {
+                  jobAuthRank: 2,
+                },
+              },
+            },
+          },
+          select: {
+            rode: true,
+            employee: {
+              select: {
+                firstname: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    const checkout = documents[0].departmentEmployeeRole.every(
+      (item) => item.rode === true
+    );
+
+    const record = checkout
+      ? await prisma.document.findMany({
+          where: {
+            departmentEmployeeRole: {
+              some: {
+                rode: true,
+              },
+            },
+          },
           include: {
-            document: {
+            user: {
               include: {
-                user: {
+                employee: true,
+              },
+            },
+            departmentEmployeeRole: {
+              select: {
+                rode: true,
+                employee: {
                   select: {
-                    employee: {
+                    authUser: {
                       select: {
-                        firstname: true,
-                        lastname: true,
+                        id: true,
                       },
                     },
                   },
                 },
               },
             },
-    
-          }
-        }
-      }
-    })
+          },
+        })
+      : [];
+    return record;
+  });
 
- 
-     
-  const level2 = Array(record).filter((item)=>item?.jobPosition?.jobPositionGroup?.jobAuthRank === 2)
-  const level4 = Array(record).filter((item)=>item?.jobPosition?.jobPositionGroup?.jobAuthRank === 4)
-  const level6 = Array(record).filter((item)=>item?.jobPosition?.jobPositionGroup?.jobAuthRank === 6)
-  let result = [...level4]
-
-  if (level2.length && level2.every((item:any) => item.rode === true)) {
-    result = result.concat(level4);
-
-    if (level4.length && level4.every((item:any) => item.rode === true)) {
-      result = result.concat(level6);
-    }
-  }
-
-  console.log(result)
-  //const record = await prisma.$transaction(async (tx) => {
-    // const data = await tx.authUser.findUnique({
-    //   where: {
-    //     id: Number(session?.user.id),
-    //   },
-    //   include: {
-    //     employee: true,
-    //   },
-    // });
-    
-    
-    // const list = await tx.departmentEmployeeRole.findMany({
-    //   distinct: ["employeeId"],
-    //   orderBy: {
-    //     document: {
-    //       timeCreated: "desc",
-    //     },
-    //   },
-    //   where:{
-    //     employeeId: data?.employee?.id
-    //   },
-    //   include: {
-    //     employee: {
-    //       include: {
-    //         jobPosition: {
-    //           select: {
-    //             jobPositionGroup: true,
-    //           },
-    //         },
-    //       },
-    //     },
-    //     document: {
-    //       include: {
-    //         user: {
-    //           select: {
-    //             employee: {
-    //               select: {
-    //                 firstname: true,
-    //                 lastname: true,
-    //               },
-    //             },
-    //           },
-    //         },
-    //       },
-    //     },
-    //   },
-    // });
-
-    // const dataWithLevels = list.map((item) => ({
-    //   ...item,
-    //   level: DefineLevel(
-    //     item.employee?.jobPosition?.jobPositionGroup?.name || ""
-    //   ),
-    // }));
-
-    // const filteredData = filterByPermissionLevels(dataWithLevels).filter(
-    //   (item: any) => item.employeeId === data?.employee?.id
-    // );
-
-    // return list;
-  //});
-
-  
-
-  // const totalCount = record.length;
-  const totalCount=result.length
+  const totalCount = record.length;
 
   return (
-    <ListPage
-      data={result}
-      total={totalCount}
-      page={page}
-      pageSize={pageSize}
-    />
+    <DirPage data={record} total={totalCount} page={page} pageSize={pageSize} />
   );
 }

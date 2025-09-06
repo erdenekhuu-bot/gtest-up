@@ -8,6 +8,7 @@ import { BossCheckPaper } from "@/util/action";
 import { Badge } from "@/components/ui/badge";
 
 export default function ViewPaper(data: any) {
+  
   const [caseForm] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const onFinish: FormProps["onFinish"] = async () => {
@@ -40,6 +41,7 @@ export default function ViewPaper(data: any) {
       };
     })
   );
+  console.log(tableData)
 
   const columns = [
     {

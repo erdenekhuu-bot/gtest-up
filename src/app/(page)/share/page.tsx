@@ -17,8 +17,7 @@ export default async function Page(props: {
   const page = Number(searchParams?.page) || 1;
   const pageSize = Number(searchParams?.pageSize) || 10;
 
-  const record = await prisma.$transaction(async (tx) => {
-    const authUser = await tx.authUser.findUnique({
+  const authUser = await prisma.authUser.findUnique({
       where: {
         id: Number(session?.user.id),
       },
@@ -26,21 +25,17 @@ export default async function Page(props: {
         employee: true,
       },
     });
+
+  const record = await prisma.$transaction(async (tx) => {
+   
     const document =
       authUser &&
       (await tx.shareGroup.findMany({
         where: {
-          AND: [
-            {
-              document: {
-                state: "SHARED",
-              },
-            },
-            {
-              employeeId: authUser.employee?.id,
-            },
-          ],
+          employeeId: authUser.employee?.id,
         },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
         distinct: ["documentId"],
         include: {
           employee: true,
@@ -54,5 +49,17 @@ export default async function Page(props: {
     return document;
   });
 
-  return <ShareComp document={record} />;
+   const totalCount = await prisma.shareGroup.count({
+    where: {
+      employeeId: Number(authUser?.employee?.id)
+    },
+  });
+
+ 
+  return <ShareComp 
+          document={record} 
+          total={totalCount}
+          page={page}
+          pageSize={pageSize}
+          />;
 }

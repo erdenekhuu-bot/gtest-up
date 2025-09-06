@@ -15,7 +15,6 @@ import Image from "next/image";
 import {
   convertUtil,
   capitalizeFirstLetter,
-  selectConvert,
 } from "@/util/usable";
 import { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import axios from "axios";
@@ -198,10 +197,10 @@ export function EditPage({ document, id, steps }: any) {
     });
     const riskdata = (values.testrisk || []).map((item: any) => {
       return {
-        affectionLevel: selectConvert(item.affectionLevel),
+        affectionLevel: item.affectionLevel,
         mitigationStrategy: item.mitigationStrategy,
         riskDescription: item.riskDescription,
-        riskLevel: selectConvert(item.riskLevel),
+        riskLevel: item.riskLevel,
       };
     });
     const budgetdata = (values.testbudget || []).map((item: any) => ({

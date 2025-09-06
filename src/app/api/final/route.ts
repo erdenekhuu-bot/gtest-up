@@ -57,7 +57,6 @@ export async function POST(req: NextRequest) {
           rode: true,
         },
       });
-
       return updating;
     });
 
@@ -139,6 +138,41 @@ export async function PATCH(req: NextRequest) {
     });
 
     return NextResponse.json({ success: true, data: record });
+  } catch (error) {
+    return NextResponse.json({ success: false, data: error });
+  }
+}
+
+export async function GET() {
+  try {
+    const record = await prisma.departmentEmployeeRole.findMany({
+      include: {
+        employee: {
+          select: {
+            firstname: true,
+            jobPosition: {
+              select: {
+                jobPositionGroup: true,
+              },
+            },
+          },
+        },
+        document: {
+          select: {
+            title: true,
+          },
+        },
+      },
+    });
+    console.log(record);
+    const result = record.filter(
+      (item) =>
+        Number(item.employee?.jobPosition?.jobPositionGroup?.jobAuthRank) < 4
+    );
+
+    const merge = result.every((item) => item.rode === true);
+
+    return NextResponse.json({ success: true, data: merge ? result : 0 });
   } catch (error) {
     return NextResponse.json({ success: false, data: error });
   }

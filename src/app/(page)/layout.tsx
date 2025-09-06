@@ -16,7 +16,6 @@ import {
   DesktopOutlined,
   DatabaseTwoTone,
   PieChartTwoTone,
-  CheckOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -58,8 +57,8 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
   const manager = session?.user.name;
 
   const items: MenuItem[] = [
-
-       {
+    chekcout > 1
+      ? {
           key: "1",
           icon: (
             <Badge dot={countdocument > 0 ? true : false}>
@@ -68,7 +67,8 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
           ),
           label: "Хэлтсийн дарга",
           children: [
-             {
+            manager === "uuganbayar.ts"
+              ? {
                   key: "s10",
                   icon: <FormOutlined />,
                   label: (
@@ -79,7 +79,7 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
                   ),
                   onClick: () => router.push("/teamplan"),
                 }
-              ,
+              : null,
             manager === "uuganbayar.ts"
               ? {
                   key: "s110",
@@ -96,8 +96,8 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
                 }
               : null,
           ],
-        },
-      
+        }
+      : null,
     chekcout > 1
       ? null
       : {
@@ -128,14 +128,7 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
                 router.push("/testcase");
               },
             },
-            {
-              key: "s8",
-              icon: <CheckOutlined />,
-              label: "Тайлан",
-              onClick: () => {
-                router.push("/report");
-              },
-            },
+            
             {
               key: "s5",
               icon: <DesktopOutlined />,
@@ -267,7 +260,7 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
               </Badge>
             </Popover>
             <Popover content={sharecontent}>
-              <Badge count={sharecount} className="hover:cursor-pointer">
+              <Badge count={sharecount}>
                 <Avatar
                   shape="square"
                   size="large"

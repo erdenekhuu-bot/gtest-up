@@ -61,18 +61,6 @@ export const filterDepartment = (department: any) => {
     .join("");
 };
 
-export const selectConvert = (arg: number) => {
-  switch (arg) {
-    case 1:
-      return "HIGH";
-    case 2:
-      return "MEDIUM";
-    case 3:
-      return "LOW";
-    default:
-      return "LOW";
-  }
-};
 export function Checking(arg: any) {
   switch (arg) {
     case 0:
@@ -97,7 +85,7 @@ export const mongollabel = (label: string) => {
     case "DENY":
       return "Буцаагдсан";
     case "FORWARD":
-      return "Хуваалцаж байгаа";
+      return "Уншсан";
     case "wait":
       return "Бүрэн бус";
     case "finish":

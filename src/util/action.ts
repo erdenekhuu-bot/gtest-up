@@ -65,7 +65,6 @@ export async function CreateDocument(data: any) {
           },
         },
       });
-
       return result;
     });
 
@@ -265,11 +264,6 @@ export async function EditShareGRP(data: any) {
 export async function Report(datas: any) {
   try {
     await prisma.$transaction(async (tx) => {
-      const document = await tx.document.findUnique({
-        where: { id: Number(datas.documentId) },
-        include: { testcase: true },
-      });
-      const testCaseIds = document?.testcase.map((tc) => tc.id);
       const user = await tx.authUser.findUnique({
         where: {
           id: datas.authuserId,
@@ -283,9 +277,9 @@ export async function Report(datas: any) {
           documentId: datas.documentId,
         },
       });
-      let report;
+   
       if (existingReport) {
-        report = await tx.report.update({
+          await tx.report.update({
           where: {
             documentId: datas.documentId,
           },
@@ -313,7 +307,7 @@ export async function Report(datas: any) {
           },
         });
       } else {
-        report = await tx.report.create({
+        await tx.report.create({
           data: {
             reportname: datas.reportname,
             reportpurpose: datas.reportpurpose,
@@ -332,36 +326,17 @@ export async function Report(datas: any) {
             reportconclusion: datas.reportconclusion,
             issue: {
               createMany: {
-                data: datas.reporttesterror,
+                data: datas.reporttesterror || [],
               },
             },
             budget: {
               createMany: {
-                data: datas.reportbudget,
+                data: datas.reportbudget || [],
               },
             },
           },
         });
       }
-      // if (testCaseIds && testCaseIds.length > 0) {
-      //   await tx.report.update({
-      //     where: { id: datas.reportId },
-      //     data: {
-      //       testcase: {
-      //         connect: testCaseIds.map((testCaseId) => ({ id: testCaseId })),
-      //       },
-      //       usedphone: {
-      //         createMany: {
-      //           data: datas.usedphone,
-      //         },
-      //       },
-      //     },
-      //   });
-      // }
-      // await tx.report.findUnique({
-      //   where: { id: datas.reportId },
-      //   include: { testcase: true },
-      // });
     });
     return 1;
   } catch (error) {
@@ -386,6 +361,7 @@ export async function DeleteAll(data: any[]) {
 
 export async function FullUpdate(data: any) {
   try {
+  
     const result = data.departmentemployee.map((item: any) => {
       return {
         employeeId:
@@ -395,12 +371,6 @@ export async function FullUpdate(data: any) {
         role: item.role,
       };
     });
-
-    // result.push(
-    //   { employeeId: 43, role: "MIDDLE" },
-    //   { employeeId: 525, role: "MIDDLE" },
-    //   { employeeId: 113, role: "MIDDLE" }
-    // );
 
     const team = data.testteam.map((item: any) => {
       return {
@@ -413,6 +383,23 @@ export async function FullUpdate(data: any) {
         endDate: item.endDate,
       };
     });
+    const customrelation = data.testteam
+      .map((item: any) => {
+        if (item.role === "Хяналт тавих, Асуудал шийдвэрлэх") {
+          return {
+            employeeId:
+              typeof item.employeeId !== "number"
+                ? item.employeeId.value
+                : item.employeeId,
+
+            role: "MIDDLE",
+          };
+        }
+        return null;
+      })
+      .filter((item: any) => item !== null);
+
+    const finalMerged = [...result, ...customrelation];
 
     await prisma.$transaction(async (tx) => {
       await tx.documentAttribute.deleteMany({
@@ -452,7 +439,7 @@ export async function FullUpdate(data: any) {
           },
           departmentEmployeeRole: {
             createMany: {
-              data: result,
+              data: finalMerged,
             },
           },
           documentemployee: {
@@ -483,6 +470,7 @@ export async function FullUpdate(data: any) {
           },
         },
       });
+     
     });
     return 1;
   } catch (error) {

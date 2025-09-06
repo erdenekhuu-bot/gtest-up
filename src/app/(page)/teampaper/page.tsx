@@ -31,6 +31,7 @@ export default async function Page(props: {
     return result;
   });
 
+
   const totalCount = record.length;
   return (
     <TeamPaperPage
