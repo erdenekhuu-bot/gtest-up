@@ -1,0 +1,42 @@
+SELECT emp.id,
+       emp.firstname,
+       jpg."job_auth_rank",
+       doc.id AS document_id,
+       doc.title,
+       doc.state
+FROM "Employee" emp
+JOIN "JobPosition" jp ON emp."job_position_id" = jp.id
+JOIN "JobPositionGroup" jpg ON jp."jobGroupId" = jpg.id
+JOIN "DepartmentEmployeeRole" der ON der."employee_id" = emp.id
+JOIN "Document" doc ON doc.id = der."documentId"
+WHERE emp."is_deleted" = false
+  AND emp.id = 3
+  AND doc.state = 'FORWARD'   -- document зөвхөн FORWARD байвал харагдана
+  AND (
+    -- auth_rank 2 хүмүүс заавал харах боломжтой
+    (jpg."job_auth_rank" = 2)
+    OR
+    -- rank=4: departmentEmployeeRole дотор rank=2 бүх хүмүүс rode=true байх ёстой
+    (jpg."job_auth_rank" = 4 AND NOT EXISTS (
+        SELECT 1 
+        FROM "DepartmentEmployeeRole" der2
+        JOIN "Employee" e2 ON der2."employee_id" = e2.id
+        JOIN "JobPosition" jp2 ON e2."job_position_id" = jp2.id
+        JOIN "JobPositionGroup" jpg2 ON jp2."jobGroupId" = jpg2.id
+        WHERE der2."documentId" = der."documentId"
+          AND jpg2."job_auth_rank" = 2
+          AND der2.rode = false
+    ))
+    OR
+    -- rank=6: departmentEmployeeRole дотор rank=2 болон 4 бүх хүмүүс rode=true байх ёстой
+    (jpg."job_auth_rank" = 6 AND NOT EXISTS (
+        SELECT 1 
+        FROM "DepartmentEmployeeRole" der2
+        JOIN "Employee" e2 ON der2."employee_id" = e2.id
+        JOIN "JobPosition" jp2 ON e2."job_position_id" = jp2.id
+        JOIN "JobPositionGroup" jpg2 ON jp2."jobGroupId" = jpg2.id
+        WHERE der2."documentId" = der."documentId"
+          AND jpg2."job_auth_rank" IN (2,4)
+          AND der2.rode = false
+    ))
+  );
