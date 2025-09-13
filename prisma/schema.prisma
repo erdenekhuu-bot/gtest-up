@@ -107,8 +107,8 @@ model Rejection {
   documentId Int @unique
   description String @db.VarChar(500)
   document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  employee Json?
 }
-
 model Employee {
   id                     Int                      @id @default(autoincrement())
   departmentId           Int                      @map("department_id")
@@ -135,9 +135,7 @@ model Employee {
   shareGroup             ShareGroup[]             @relation("share_group")
   confirm                ConfirmPaper[]
   sub                    ConfirmSub[]
-  super                  EROLE                    @default(VIEWER)
-
-  
+  super                  EROLE                    @default(VIEWER)          
 }
 model DepartmentEmployeeRole {
   id            Int     @id @default(autoincrement())
@@ -153,9 +151,6 @@ model DepartmentEmployeeRole {
   endDate   DateTime     @updatedAt
 }
 
-
-
-
 model DocumentDetail {
   intro      String   @db.VarChar(500)
   aim        String   @db.VarChar(500)
@@ -165,9 +160,9 @@ model DocumentDetail {
 }
 
 model DocumentAttribute {
-  categoryMain String?   @db.VarChar(500)
-  category     String?   @db.VarChar(500)
-  value        String?   @db.Text
+  categoryMain String?  
+  category     String?  
+  value        String?  @db.Text
   orderIndex   Int      @default(1)
   timeCreated  DateTime @default(now())
   updateTimed  DateTime @updatedAt

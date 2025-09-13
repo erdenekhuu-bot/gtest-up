@@ -212,7 +212,7 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
         trigger={null}
         collapsible
         collapsed={collapsed}
-        className="sm:block hidden"
+        className="md:block hidden"
       >
         <div className="demo-logo-vertical" />
         <Menu

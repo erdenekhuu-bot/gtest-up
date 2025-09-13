@@ -41,7 +41,7 @@ export default function ViewPaper(data: any) {
       };
     })
   );
-  console.log(tableData)
+
 
   const columns = [
     {

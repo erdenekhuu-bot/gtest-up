@@ -12,7 +12,7 @@ import { ReportCard } from "../window/report/ReportCard";
 const { Dragger } = Upload;
 
 export function TestCaseReportPage({ data, total, page, pageSize }: any) {
-  console.log(data)
+
   const router = useRouter()
   const searchParams = useSearchParams();
   const pathname = usePathname();

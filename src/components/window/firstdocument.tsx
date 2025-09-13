@@ -239,9 +239,6 @@ export function FirstDocument() {
               <Input.TextArea
                 rows={5}
                 placeholder="Тестийн зорилго бичнэ үү..."
-                style={{ resize: "none" }}
-                showCount
-                maxLength={500}
               />
             </Form.Item>
           </div>
@@ -259,11 +256,10 @@ export function FirstDocument() {
               ]}
             >
               <Input.TextArea
-                maxLength={500}
+               
                 rows={5}
                 placeholder="Тестийн танилцуулга бичнэ үү..."
-                style={{ resize: "none" }}
-                showCount
+                
               />
             </Form.Item>
           </div>

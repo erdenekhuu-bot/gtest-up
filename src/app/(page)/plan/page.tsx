@@ -41,6 +41,7 @@ export default async function Page(props: {
           },
         },
       },
+      departmentEmployeeRole: true,
       reject: true,
       file: true,
     },

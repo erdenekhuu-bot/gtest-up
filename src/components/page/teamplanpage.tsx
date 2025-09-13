@@ -53,6 +53,7 @@ export function TeamPlanPage({ data, total, page, pageSize }: any) {
         );
       },
     },
+    
   ];
   return (
     <Flex gap="middle" vertical>

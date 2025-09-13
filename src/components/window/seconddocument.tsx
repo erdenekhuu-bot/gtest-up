@@ -135,38 +135,20 @@ export function SecondDocument() {
         </div>
         <li>
           4.1 Таамаглал
-          <ul className="ml-8">
-            • Эхний оруулсан таамаглал энэ форматын дагуу харагдах. Хэдэн ч мөр
-            байх боломжтой.
-          </ul>
         </li>
         <div className="mt-2">
           <Form.Item name="predict">
-            <Input.TextArea
-              rows={5}
-              style={{ resize: "none" }}
-              showCount
-              maxLength={500}
-            />
+            <Input.TextArea rows={5}/>
           </Form.Item>
         </div>
         <TestRisk form={mainForm} />
         <div>
           <li>
             4.3 Хараат байдал
-            <ul className="ml-8">
-              • Эхний оруулсан хараат байдал энэ форматын дагуу харагдах. Хэдэн
-              ч мөр байх боломжтой.
-            </ul>
           </li>
           <div className="mt-2">
             <Form.Item name="dependecy">
-              <Input.TextArea
-                rows={5}
-                style={{ resize: "none" }}
-                showCount
-                maxLength={500}
-              />
+              <Input.TextArea rows={5}/>
             </Form.Item>
           </div>
         </div>
@@ -174,57 +156,30 @@ export function SecondDocument() {
         <div>
           <li>
             5.1 Бэлтгэл үе
-            <ul className="ml-8">
-              • Эхний оруулсан бэлтгэл үе энэ форматын дагуу харагдах. Хэдэн ч
-              мөр байх боломжтой.
-            </ul>
           </li>
           <div className="mt-2">
             <Form.Item name="standby">
-              <Input.TextArea
-                rows={5}
-                style={{ resize: "none" }}
-                showCount
-                maxLength={500}
-              />
+              <Input.TextArea rows={5}/>
             </Form.Item>
           </div>
         </div>
         <div>
           <li>
             5.2 Тестийн гүйцэтгэл
-            <ul className="ml-8">
-              • Эхний оруулсан тестийн гүйцэтгэл энэ форматын дагуу харагдах.
-              Хэдэн ч мөр байх боломжтой.
-            </ul>
           </li>
           <div className="mt-2">
             <Form.Item name="execute">
-              <Input.TextArea
-                rows={5}
-                style={{ resize: "none" }}
-                showCount
-                maxLength={500}
-              />
+              <Input.TextArea rows={5}/>
             </Form.Item>
           </div>
         </div>
         <div>
           <li>
             5.3 Тестийн хаалт
-            <ul className="ml-8">
-              • Эхний оруулсан тестийн хаалт энэ форматын дагуу харагдах. Хэдэн
-              ч мөр байх боломжтой.
-            </ul>
           </li>
           <div className="mt-2">
             <Form.Item name="terminate">
-              <Input.TextArea
-                rows={5}
-                style={{ resize: "none" }}
-                showCount
-                maxLength={500}
-              />
+              <Input.TextArea rows={5}/>
             </Form.Item>
           </div>
         </div>
@@ -239,7 +194,7 @@ export function SecondDocument() {
         <Addition form={mainForm} />
         <TestBudget form={mainForm} />
         <div className="">
-          <p className="my-4 font-bold">ТӨСӨВИЙН ДАНС</p>
+          <p className="my-4 font-bold">ТӨСВИЙН ДАНС</p>
           <Flex gap={10}>
             <Form.Item name="bankname" style={{ flex: 1 }}>
               <Input size="middle" placeholder="Дансны эзэмшигч" />

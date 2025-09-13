@@ -45,8 +45,7 @@ export function ReadTestRisk() {
 
   return (
     <div>
-      <li className="mb-2 mt-4">4.1 Хараат байдал</li>
-
+      <li className="mb-2 mt-4">4.1 Эрсдэл</li>
       <Table
         rowKey="id"
         dataSource={detailContext?.riskassessment}

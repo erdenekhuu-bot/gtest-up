@@ -1,5 +1,4 @@
 import { prisma } from "@/util/prisma";
-import { DefineLevel } from "@/util/checkout";
 import { ViewPlanDetail } from "@/components/window/ViewPlanDetail";
 
 export const dynamic = "force-dynamic";
@@ -97,18 +96,10 @@ export default async function Page({
         id: "asc",
       },
     });
-    const dataWithLevels = steps
-      .map((item) => ({
-        ...item,
-        level: DefineLevel(
-          item.employee?.jobPosition?.jobPositionGroup?.name || ""
-        ),
-      }))
-      .sort((a, b) => b.level - a.level);
 
     return {
       data,
-      steps: dataWithLevels,
+      steps,
     };
   });
   return <ViewPlanDetail document={record.data} steps={record.steps} />;

@@ -1,7 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/util/prisma";
-import { EditPage } from "@/components/window/document/editpage/Editing";
 import { ShareMember } from "@/components/window/share/sharemember";
 
 export const dynamic = "force-dynamic";
@@ -81,5 +78,24 @@ export default async function Page({
     },
   });
 
-  return <ShareMember document={record} id={Number(view)} />;
+  const steps = await prisma.departmentEmployeeRole.findMany({
+      where: { documentId: Number(view) },
+      distinct: ["employeeId"],
+      include: {
+        employee: {
+          include: {
+            jobPosition: {
+              select: { jobPositionGroup: true },
+            },
+            department: true,
+            authUser: true,
+          },
+        },
+      },
+      orderBy: {
+        id: "asc",
+      },
+    });
+ 
+  return <ShareMember document={record} id={Number(view)} steps={steps}/>;
 }

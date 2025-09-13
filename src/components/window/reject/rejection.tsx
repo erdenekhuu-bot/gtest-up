@@ -14,7 +14,9 @@ export function Rejection() {
   };
   const [mainForm] = Form.useForm();
   const onFinish: FormProps["onFinish"] = async (values) => {
-    const merge = { values, documentid };
+    const userid=Number(session?.user.id)
+    const merge = { values, documentid,userid };
+    
     const result = await RejectAction(merge);
     if (result > 0) {
       messageApi.success("Амжилттай хадгалагдлаа!");

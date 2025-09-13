@@ -79,6 +79,7 @@ export default async function Page({
         },
       },
     });
+
     const steps = await tx.departmentEmployeeRole.findMany({
       where: { documentId: Number(edit) },
       distinct: ["employeeId"],
@@ -93,18 +94,14 @@ export default async function Page({
           },
         },
       },
+      orderBy: {
+        id: "asc",
+      },
     });
-    const dataWithLevels = steps
-      .map((item) => ({
-        ...item,
-        level: DefineLevel(
-          item.employee?.jobPosition?.jobPositionGroup?.name || ""
-        ),
-      }))
-      .sort((a, b) => b.level - a.level);
+    
     return {
       data,
-      steps: dataWithLevels,
+      steps,
     };
   });
 

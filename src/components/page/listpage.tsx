@@ -4,6 +4,7 @@ import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { convertName, formatHumanReadable } from "@/util/usable";
 
 export function ListPage({ data, total, page, pageSize }: any) {
+
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
@@ -34,26 +35,27 @@ export function ListPage({ data, total, page, pageSize }: any) {
   const columns = [
     {
       title: "Тоот",
-      dataIndex: "document",
-      render: (record: any) => <span>{record.generate}</span>,
+      dataIndex: "generate",
+      key: "generate"
     },
     {
       title: "Тестийн нэр",
-      dataIndex: "document",
-      render: (record: any) => <span>{record.title}</span>,
+      dataIndex: "title",
+      key: "title"
     },
     {
       title: "Үүсгэсэн ажилтан",
-      dataIndex: "document",
-      render: (record: any) => convertName(record.user.employee),
+      dataIndex: "firstname",
+      key: "firstname",
+      render: (record: any) => record,
     },
     {
       title: "Огноо",
-      dataIndex: "startedDate",
+      dataIndex: "timeCreated",
       sorter: (a: any, b: any) =>
-        new Date(a.startedDate).getTime() - new Date(b.startedDate).getTime(),
-      render: (startedDate: string) =>
-        formatHumanReadable(new Date(startedDate).toISOString()),
+        new Date(a.timeCreated).getTime() - new Date(b.timeCreated).getTime(),
+      render: (timeCreated: string) =>
+        formatHumanReadable(new Date(timeCreated).toISOString()),
     },
     {
       title: "Төлөв",
@@ -72,13 +74,13 @@ export function ListPage({ data, total, page, pageSize }: any) {
     },
     {
       title: "Шалгах",
-      dataIndex: "document",
-      render: (record: any) => {
+      dataIndex: "id",
+      render: (id: number) => {
         return (
           <Button
             type="primary"
             onClick={() => {
-              router.push("listplan/" + record.id);
+              router.push("listplan/" + id);
             }}
           >
             Шалгах

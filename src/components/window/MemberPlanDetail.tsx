@@ -291,7 +291,7 @@ export function MemberPlanDetail({ document, steps }: any) {
             />
             <ReadTestEnv />
             <div className="">
-              <p className="my-4 font-bold">ТӨСӨВИЙН ДАНС</p>
+              <p className="my-4 font-bold">ТӨСВИЙН ДАНС</p>
               <Flex gap={10}>
                 <Form.Item name="bankname" style={{ flex: 1 }}>
                   <Input size="middle" placeholder="Дансны эзэмшигч" readOnly />
@@ -397,7 +397,6 @@ export function MemberPlanDetail({ document, steps }: any) {
           />
         </div>
       </Form>
-
       <Rejection />
       <PaperRegister />
     </section>

@@ -56,10 +56,10 @@ export default async function Page(props: {
   });
 
  
-  return <ShareComp 
-          document={record} 
-          total={totalCount}
-          page={page}
-          pageSize={pageSize}
-          />;
+    return <ShareComp 
+            document={record} 
+            total={totalCount}
+            page={page}
+            pageSize={pageSize}
+            />;
 }

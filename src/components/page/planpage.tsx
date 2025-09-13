@@ -31,6 +31,7 @@ export function PlanPage({ data, total, page, pageSize }: any) {
   }));
   const router = useRouter();
 
+
   const start = async () => {
     setLoading(true);
     const record = await DeleteAll(selectedRowKeys);
@@ -116,13 +117,15 @@ export function PlanPage({ data, total, page, pageSize }: any) {
     {
       title: "Төлөв",
       dataIndex: "state",
-      render: (state: string) => {
+      render: (state: string, record: any) => {
+        const checkout = record.departmentEmployeeRole.every((item: any) => item.state==='ACCESS');
+        if (state === "FORWARD" && checkout) {
+          return <Badge variant="info">Зөвшөөрөгдсөн</Badge>;
+        }
         return state === "PENDING" ? (
           <Badge variant="default">Хүлээгдэж байна</Badge>
         ) : state === "FORWARD" ? (
           <Badge variant="viewing">Хянагдаж байна</Badge>
-        ) : state === "ACCESS" ? (
-          <Badge variant="info">Хянагдаж байна</Badge>
         ) : state === "SHARED" ? (
           <Badge variant="viewing">Хуваалцаж байна</Badge>
         ) : (
@@ -133,15 +136,18 @@ export function PlanPage({ data, total, page, pageSize }: any) {
     {
       title: "Засах",
       dataIndex: "id",
-      render: (id: number) => {
+      render: (id: number, record:any) => {
+        const checkout = record.departmentEmployeeRole.every((item: any) => item.state==='ACCESS');
         return (
           <Button
             type="primary"
             onClick={() => {
               router.push("plan/" + id);
             }}
+            disabled={checkout}
           >
             Хянах
+            
           </Button>
         );
       },
@@ -167,7 +173,11 @@ export function PlanPage({ data, total, page, pageSize }: any) {
     {
       title: "Хариу",
       dataIndex: "reject",
-      render: (record: any) => {
+      render: (record: any, adding:any) => {
+        const checkout = adding.departmentEmployeeRole.every((item: any) => item.state);
+        if (checkout) {
+          return record=null;
+        }
         return record != null ? (
           <Badge
             variant="destructive"

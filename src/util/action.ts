@@ -1,6 +1,6 @@
 "use server";
 import { prisma } from "@/util/prisma";
-import { filterDepartment } from "./usable";
+import { filterDepartment,convertName } from "./usable";
 import * as v from "valibot";
 import { DocumentStateEnum } from "@prisma/client";
 import { DocumentSchema } from "@/lib/validation";
@@ -420,6 +420,7 @@ export async function FullUpdate(data: any) {
       await tx.documentEmployee.deleteMany({
         where: { documentId: Number(data.id) },
       });
+     
       await tx.document.update({
         where: { id: Number(data.id) },
         data: {
@@ -470,7 +471,7 @@ export async function FullUpdate(data: any) {
           },
         },
       });
-     
+       
     });
     return 1;
   } catch (error) {
@@ -616,16 +617,31 @@ export async function BossCheckPaper(data: any) {
 export async function RejectAction(data: any) {
   try {
     await prisma.$transaction(async (tx) => {
+      const user=await tx.authUser.findUnique({
+        where:{
+          id: Number(data.userid)
+        },
+        include: {
+          employee: {
+            select: {
+              firstname: true,
+              lastname: true
+            }
+          }
+        }
+      });
       await tx.rejection.upsert({
         where: {
           documentId: data.documentid,
         },
         update: {
           description: data.values.description,
+          employee: {employee: convertName(user?.employee)} as  Prisma.JsonObject
         },
         create: {
           documentId: data.documentid,
           description: data.values.description,
+          employee: {employee: convertName(user?.employee)} as  Prisma.JsonObject
         },
       });
       await tx.document.update({
@@ -637,7 +653,6 @@ export async function RejectAction(data: any) {
         },
       });
     });
-
     return 1;
   } catch (error) {
     return -1;

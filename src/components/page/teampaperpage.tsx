@@ -4,10 +4,11 @@ import { ZUSTAND } from "@/zustand";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { Badge } from "../ui/badge";
 import { formatHumanReadable } from "@/util/usable";
+import { record } from "valibot";
 
 export function TeamPaperPage({ data, total, page, pageSize }: any) {
   const searchParams = useSearchParams();
-  const [messageApi, contextHolder] = message.useMessage();
+
   const { getDocumentId } = ZUSTAND();
   const pathname = usePathname();
   const { replace } = useRouter();
@@ -19,72 +20,55 @@ export function TeamPaperPage({ data, total, page, pageSize }: any) {
     if (pageSize) params.set("pageSize", pageSize.toString());
     replace(`${pathname}?${params.toString()}`);
   };
-
   return (
     <section>
-      {contextHolder}
       <Table
         columns={[
           {
             title: "Баталгаажуулах хуудас",
-            dataIndex: "confirm",
-            key: "confirm",
-            render: (record: any) => {
-              return (
-                <span>
-                  {record[0].title !== null || record[0].title===""
-                    ? record[0].title
-                    : "Баталгаажуулах хуудас"}
-                </span>
-              );
-            },
+            dataIndex: "title",
           },
           {
             title: "Хугацаа",
-            dataIndex: "confirm",
-            key: "confirm",
+            dataIndex: "timeCreated",
             render: (record: any) => {
               return (
                 <span>
                   {formatHumanReadable(
-                    new Date(record[0].startedDate).toISOString()
+                    new Date(record).toISOString()
                   )}
                 </span>
               );
             },
           },
-
           {
-            title: "Танилцах",
-            dataIndex: "id",
-            key: "id",
-            render: (id: number, record: any) => {
-              const allChecked =
-                Array.isArray(record.confirm) &&
-                record.confirm.length > 0 &&
-                record.confirm.every((item: any) => item.check === true);
-
-              return allChecked ? (
+            title: "Төлөв",
+            dataIndex: "check_status",
+            render:(check:boolean, record:any)=>{
+                   return check ? (
                 <Badge variant="info">Танилцсан</Badge>
               ) : (
                 <Button
                   type="primary"
                   size="large"
                   onClick={() => {
-                    getDocumentId(id);
+                    getDocumentId(record.id);
                     router.push("/teampaper/" + record.id);
+                  
                   }}
                 >
                   Танилцах
                 </Button>
               );
             },
-          },
+            }
+          
         ]}
         dataSource={data.map((c: any) => ({
           ...c,
           key: c.id,
         }))}
+        
         pagination={false}
         bordered
       />

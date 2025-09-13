@@ -50,6 +50,9 @@ export default async function Page(props: {
                   not: "DENY",
                 },
               },
+              include: {
+                reject: true
+              }
             },
           },
         },

@@ -16,6 +16,7 @@ export function RejectCause() {
     const response = await axios.get("/api/paper/reject/" + id);
     if (response.data.success) {
       mainForm.setFieldsValue({
+        employee: response.data.data.reject.employee.employee,
         description: response.data.data.reject.description,
       });
     }
@@ -27,10 +28,13 @@ export function RejectCause() {
     <Modal
       open={checkout === 13}
       onCancel={handleCancel}
-      title="Буцаасан шалтгаан"
+      title="Буцаасагдсан"
       onOk={handleCancel}
     >
       <Form form={mainForm}>
+        <Form.Item name="employee">
+          <Input readOnly/>
+        </Form.Item>
         <Form.Item name="description">
           <Input.TextArea rows={10} maxLength={500} showCount readOnly />
         </Form.Item>

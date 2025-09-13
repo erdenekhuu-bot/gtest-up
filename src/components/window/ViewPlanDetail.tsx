@@ -25,6 +25,7 @@ import { ZUSTAND } from "@/zustand";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { Rejection } from "./reject/rejection";
+import { DefineLevel } from "@/util/checkout";
 
 const columns = [
   {
@@ -133,7 +134,18 @@ export function ViewPlanDetail({ document, steps }: any) {
         document.attribute.find((attr: any) => attr.category === "Нэмэлт")
           ?.value || "",
     });
+    
   }, [transformStyle, scrollPosition]);
+
+  const sortedSteps = steps
+    .map((item:any) => ({
+      ...item,
+      level: DefineLevel(
+        item.employee?.jobPosition?.jobPositionGroup?.name || ""
+      ),
+    }))
+    .sort((a:any, b:any) => b.level - a.level);
+
 
   const content = (
     <Flex gap={10}>
@@ -307,7 +319,7 @@ export function ViewPlanDetail({ document, steps }: any) {
           />
           <ReadTestEnv />
           <div className="">
-            <p className="my-4 font-bold">ТӨСӨВИЙН ДАНС</p>
+            <p className="my-4 font-bold">ТӨСВИЙН ДАНС</p>
             <Flex gap={10}>
               <Form.Item name="bankname" style={{ flex: 1 }}>
                 <Input size="middle" placeholder="Дансны эзэмшигч" readOnly />
@@ -332,9 +344,9 @@ export function ViewPlanDetail({ document, steps }: any) {
         style={transformStyle}
       >
         <Steps
-          current={steps.findIndex((item: any) => item.state === "ACCESS")}
+          current={sortedSteps.findIndex((item: any) => item.state === "ACCESS")}
           direction="vertical"
-          items={steps.map((item: any, index: number) => ({
+          items={sortedSteps.map((item: any, index: number) => ({
             title: `${
               item.state === "ACCESS" ? "Баталгаажсан" : "Хүлээгдэж байгаа"
             }`,
@@ -348,7 +360,7 @@ export function ViewPlanDetail({ document, steps }: any) {
                 <div className="mt-4">
                   {item.state === "ACCESS" ? (
                     <Badge variant="info">Баталгаажсан</Badge>
-                  ) : session?.user.employee.super === "REPORT" ? (
+                  ) :  (
                     <Popover content={content} title="" trigger="click">
                       <Button
                         type="primary"
@@ -362,20 +374,6 @@ export function ViewPlanDetail({ document, steps }: any) {
                         Баталгаажуулах
                       </Button>
                     </Popover>
-                  ) : (
-                    <Button
-                      type="primary"
-                      disabled={
-                        Number(session?.user.id) === item.employee.authUser?.id
-                          ? false
-                          : true
-                      }
-                      onClick={() => {
-                        getCheckout(7);
-                      }}
-                    >
-                      Баталгаажуулах
-                    </Button>
                   )}
                 </div>
               </section>
