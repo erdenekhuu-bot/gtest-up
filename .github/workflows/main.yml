@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20 # эсвэл төслөө ашиглаж байгаа Node version
+          node-version: 20
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
