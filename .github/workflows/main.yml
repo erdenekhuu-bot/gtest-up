@@ -1,0 +1,25 @@
+name: Next.js Build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20 # эсвэл төслөө ашиглаж байгаа Node version
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build Next.js app
+        run: yarn build
