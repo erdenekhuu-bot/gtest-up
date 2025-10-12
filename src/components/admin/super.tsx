@@ -1,8 +1,9 @@
 "use client";
-import { Table, Flex, Input, Button, message } from "antd";
+import { Table, Flex, Input, Button, message,Switch  } from "antd";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { TriggerSuper } from "@/util/action";
-import {setAdmin} from "@/util/action";
+import { setAdmin } from "@/util/action";
+import { useState } from "react";
 
 export function SuperComponent({ data, total, page, pageSize }: any) {
   const searchParams = useSearchParams();
@@ -10,6 +11,7 @@ export function SuperComponent({ data, total, page, pageSize }: any) {
   const { replace } = useRouter();
   const router = useRouter();
   const [messageApi, contextHolder] = message.useMessage();
+  const [trigger, setTrigger] = useState(0);
 
   const dataWithKeys = data.map((item: any) => ({
     ...item,
@@ -44,54 +46,79 @@ export function SuperComponent({ data, total, page, pageSize }: any) {
         return <span>{record.jobPosition?.name}</span>;
       },
     },
+    // {
+    //   title: "Засварлах",
+    //   dateIndex: "id",
+    //   render: (record: any) => {
+    //     return (
+    //       <Button
+    //         type={
+    //           record.super === "REPORT" || record.super === "ADMIN"
+    //             ? "primary"
+    //             : "dashed"
+    //         }
+    //         onClick={async () => {
+    //           const result = await TriggerSuper(record.id);
+    //           if (result > 0) {
+    //             messageApi.success("Амжилттай хадгалагдлаа!");
+    //           } else {
+    //             messageApi.error("Болсонгүй");
+    //           }
+    //           router.refresh();
+    //         }}
+    //       >
+    //         Буцаах эрх
+    //         {record.super === "REPORT" || record.super === "ADMIN"
+    //           ? " байгаа"
+    //           : " байхгүй"}
+    //       </Button>
+    //     );
+    //   },
+    // },
     {
-      title: "Газар",
-      dateIndex: "department",
-      render: (record: any) => {
-        return <span>{record.department.name}</span>;
-      },
-    },
-    {
-      title: "Засварлах",
+      title: "Админ эрх",
       dateIndex: "id",
       render: (record: any) => {
         return (
-            <Button
-                type={record.super === "REPORT" || record.super === "ADMIN" ? "primary" : "dashed"}
-                onClick={async () => {
-                    const result = await TriggerSuper(record.id);
-                    if (result > 0) {
-                        messageApi.success("Амжилттай хадгалагдлаа!");
-                    } else {
-                        messageApi.error("Болсонгүй");
-                    }
-                    router.refresh();
-                }}
-            >
-                Буцаах эрх {record.super === "REPORT" || record.super === "ADMIN" ? "байгаа" : "байхгүй"}
-            </Button>
-
+          <Button
+            type={record.super === "ADMIN" ? "primary" : "dashed"}
+            onClick={async () => {
+              const result = await setAdmin(record.id);
+              if (result > 0) {
+                messageApi.success("Амжилттай хадгалагдлаа!");
+              } else {
+                messageApi.error("Болсонгүй");
+              }
+              router.refresh();
+            }}
+          >
+            Админ {record.super === "ADMIN" ? "мөн" : "биш"}
+          </Button>
         );
       },
     },
-      {
-          title: "Set Admin",
-          dateIndex: "id",
-          render:(record:any)=><Button
-              type={record.super === "ADMIN" ? "primary" : "dashed"}
-              onClick={async () => {
-                  const result = await setAdmin(record.id);
-                  if (result > 0) {
-                      messageApi.success("Амжилттай хадгалагдлаа!");
-                  } else {
-                      messageApi.error("Болсонгүй");
-                  }
-                  router.refresh();
-              }}
-          >
-              i am {record.super === "ADMIN" ? "admin" : "no admin"}
-          </Button>
+    {
+      title: "Идэвхтэй эсэх",
+      dateIndex: "id",
+      render: (record: any) => {
+        const initialChecked = record.super === "ADMIN" ? true : false
+        return (
+          <Switch
+            checkedChildren="Админ"
+            unCheckedChildren="Энгийн"
+            defaultChecked={initialChecked}
+            onChange={(checked) => {
+              // Show 1 when active (checked), 0 when inactive (unchecked)
+              if (checked) {
+                alert(1);
+              } else {
+                alert(0);
+              }
+            }}
+          />
+        );
       }
+    }
   ];
   return (
     <section>
