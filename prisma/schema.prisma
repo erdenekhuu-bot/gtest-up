@@ -22,37 +22,38 @@ model AuthUser {
   Document Document[]
   employee Employee?
   otp      Int?
-  checkotp OTP?        @default(DENY)
+  checkotp OTP?       @default(DENY)
 }
+
 model Department {
-  id                     Int                      @id @default(autoincrement())
-  parentId               Int                      @map("parent_id")
-  name                   String?                  @db.VarChar(255)
-  description            String?                  @db.VarChar(255)
-  authDivision           Boolean                  @default(false) @map("auth_division")
-  isDeleted              Boolean                  @default(false) @map("is_deleted")
-  parentsNesting         String?                  @map("parents_nesting") @db.VarChar(255)
-  timeCreated            DateTime                 @default(now()) @map("time_created")
-  timeUpdated            DateTime                 @updatedAt
-  employees              Employee[]
-  jobPositions           JobPosition[]
-  permission             Permission[]             @relation("department")
+  id             Int           @id @default(autoincrement())
+  parentId       Int           @map("parent_id")
+  name           String?       @db.VarChar(255)
+  description    String?       @db.VarChar(255)
+  authDivision   Boolean       @default(false) @map("auth_division")
+  isDeleted      Boolean       @default(false) @map("is_deleted")
+  parentsNesting String?       @map("parents_nesting") @db.VarChar(255)
+  timeCreated    DateTime      @default(now()) @map("time_created")
+  timeUpdated    DateTime      @updatedAt
+  employees      Employee[]
+  jobPositions   JobPosition[]
+  permission     Permission[]  @relation("department")
 }
 
 model JobPosition {
-  id                     Int                      @id @default(autoincrement())
-  departmentId           Int
-  jobGroupId             Int?
-  name                   String?                  @db.VarChar(100)
-  description            String?                  @db.VarChar(255)
-  isDeleted              Boolean                  @default(false) @map("is_deleted")
-  timeCreated            DateTime                 @default(now()) @map("time_created")
-  timeUpdated            DateTime                 @updatedAt
-  DocumentEmployee       DocumentEmployee[]
-  employee               Employee[]
-  department             Department               @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  jobPositionGroup       JobPositionGroup?        @relation(fields: [jobGroupId], references: [id], onDelete: Cascade)
-  permission             Permission[]             @relation("jobposition")
+  id               Int                @id @default(autoincrement())
+  departmentId     Int
+  jobGroupId       Int?
+  name             String?            @db.VarChar(100)
+  description      String?            @db.VarChar(255)
+  isDeleted        Boolean            @default(false) @map("is_deleted")
+  timeCreated      DateTime           @default(now()) @map("time_created")
+  timeUpdated      DateTime           @updatedAt
+  DocumentEmployee DocumentEmployee[]
+  employee         Employee[]
+  department       Department         @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  jobPositionGroup JobPositionGroup?  @relation(fields: [jobGroupId], references: [id], onDelete: Cascade)
+  permission       Permission[]       @relation("jobposition")
 }
 
 model JobPositionGroup {
@@ -77,7 +78,7 @@ model Document {
   generate               String                   @db.VarChar(30)
   state                  DocumentStateEnum        @default(DENY)
   statement              String?                  @db.VarChar(500)
-  rejection              Json?                    
+  rejection              Json?
   bank                   Json?
   authUserId             Int?
   userDataId             Int?
@@ -94,21 +95,23 @@ model Document {
   documentemployee       DocumentEmployee[]       @relation("documentemployee")
   file                   File[]
   riskassessment         RiskAssessment[]         @relation("assessent")
-  testcase               TestCase[]               @relation("testcase")
+  testcase               TestCase[]               @relation("addcase")
   departmentEmployeeRole DepartmentEmployeeRole[]
   permission             Permission[]             @relation("document")
   report                 Report?                  @relation("report_document")
   shareGroup             ShareGroup[]             @relation("document_group")
   confirm                ConfirmPaper[]           @relation("confirm")
-  reject                 Rejection?          
+  reject                 Rejection?
 }
+
 model Rejection {
-  id Int @id @default(autoincrement())
-  documentId Int @unique
-  description String @db.VarChar(500)
-  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  employee Json?
+  id          Int      @id @default(autoincrement())
+  documentId  Int      @unique
+  description String   @db.VarChar(500)
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  employee    Json?
 }
+
 model Employee {
   id                     Int                      @id @default(autoincrement())
   departmentId           Int                      @map("department_id")
@@ -133,35 +136,38 @@ model Employee {
   departmentEmployeeRole DepartmentEmployeeRole[]
   report                 Report[]                 @relation("employee_report")
   shareGroup             ShareGroup[]             @relation("share_group")
-  confirm                ConfirmPaper[]
-  sub                    ConfirmSub[]
-  super                  EROLE                    @default(VIEWER)          
+  shareReport            ShareReport[]            @relation("share_report")
+
+  confirm ConfirmPaper[]
+  sub     ConfirmSub[]
+  super   EROLE          @default(VIEWER)
 }
+
 model DepartmentEmployeeRole {
-  id            Int     @id @default(autoincrement())
-  permissionLvl Int?    @map("permission_lvl")
-  state         DocumentStateEnum     @default(DENY)
-  role          Role         @default(VIEWER)
-  employeeId    Int?         @map("employee_id")
-  employee      Employee?    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  rode          Boolean      @default(false)
+  id            Int               @id @default(autoincrement())
+  permissionLvl Int?              @map("permission_lvl")
+  state         DocumentStateEnum @default(DENY)
+  role          Role              @default(VIEWER)
+  employeeId    Int?              @map("employee_id")
+  employee      Employee?         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  rode          Boolean           @default(false)
   documentId    Int
-  document      Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  startedDate   DateTime     @default(now()) @map("time_created")
-  endDate   DateTime     @updatedAt
+  document      Document          @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  startedDate   DateTime          @default(now()) @map("time_created")
+  endDate       DateTime          @updatedAt
 }
 
 model DocumentDetail {
   intro      String   @db.VarChar(500)
   aim        String   @db.VarChar(500)
   id         Int      @id @default(autoincrement())
-  documentId Int @unique
+  documentId Int      @unique
   document   Document @relation("detail", fields: [documentId], references: [id], onDelete: Cascade)
 }
 
 model DocumentAttribute {
-  categoryMain String?  
-  category     String?  
+  categoryMain String?
+  category     String?
   value        String?  @db.Text
   orderIndex   Int      @default(1)
   timeCreated  DateTime @default(now())
@@ -172,11 +178,11 @@ model DocumentAttribute {
 }
 
 model DocumentBudget {
-  productCategory String?   @db.VarChar(500)
-  product         String?   @db.VarChar(500)
-  amount          Int?      @default(0)
-  priceUnit       Int?      @default(0)
-  priceTotal      Int?      @default(0)
+  productCategory String?  @db.VarChar(500)
+  product         String?  @db.VarChar(500)
+  amount          Int?     @default(0)
+  priceUnit       Int?     @default(0)
+  priceTotal      Int?     @default(0)
   isFull          Int?     @default(0)
   id              Int      @id @default(autoincrement())
   documentId      Int
@@ -200,7 +206,7 @@ model DocumentEmployee {
 
 model RiskAssessment {
   riskDescription    String?  @db.VarChar(500)
-  riskLevel          Risk?  
+  riskLevel          Risk?
   affectionLevel     Risk?
   mitigationStrategy String?  @db.VarChar(500)
   isFull             Int?     @default(0)
@@ -210,20 +216,20 @@ model RiskAssessment {
 }
 
 model TestCase {
-  category      String?         
-  types         String?         
-  steps         String?          
-  result        String?          
-  division      String?         
+  category      String?
+  types         String?
+  steps         String?
+  result        String?
+  division      String?
   testType      StateTestCase   @default(CREATED)
   timeCreated   DateTime        @default(now())
   timeUpdate    DateTime        @updatedAt
-  description   String?
+  description   String?         @db.Text
   id            Int             @id @default(autoincrement())
   documentId    Int
-  document      Document        @relation("testcase", fields: [documentId], references: [id], onDelete: Cascade)
+  document      Document        @relation("addcase", fields: [documentId], references: [id], onDelete: Cascade)
   testCaseImage TestCaseImage[]
-  report        Report[] 
+  report        Report[]
 }
 
 model TestCaseImage {
@@ -231,14 +237,15 @@ model TestCaseImage {
   createdAt  DateTime @default(now())
   id         Int      @id @default(autoincrement())
   testCaseId Int
+  type       FILETYPE @default(WEB)
   testCase   TestCase @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
 }
 
 model File {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   fileName   String?   @db.VarChar(200)
   path       String
-  createdAt  DateTime @default(now())
+  createdAt  DateTime  @default(now())
   documentId Int?
   reportId   Int?
   document   Document? @relation(fields: [documentId], references: [id], onDelete: Cascade)
@@ -256,34 +263,37 @@ model Permission {
 }
 
 model Report {
-  reportname       String           @db.VarChar(500)
-  reportpurpose    String           @db.VarChar(500)
+  reportname       String
+  reportpurpose    String
   reportprocessing String
-  reportconclusion String?          @db.VarChar(500)
-  reportadvice     String?          @db.VarChar(500)             
-  isFull           Int?             @default(0)
-  id               Int              @id @default(autoincrement())
-  documentId       Int              @unique
-  document         Document         @relation("report_document", fields: [documentId], references: [id], onDelete: Cascade)
-  issue            ReportIssue[]    @relation("reportissue") 
-  team             ReportTeam[]     @relation("reportteam")
+  reportconclusion String?
+  reportadvice     String?
+  state            DocumentStateEnum  @default(PENDING)
+  isFull           Int?               @default(0)
+  id               Int                @id @default(autoincrement())
+  documentId       Int                @unique
+  document         Document           @relation("report_document", fields: [documentId], references: [id], onDelete: Cascade)
+  issue            ReportIssue[]      @relation("reportissue")
+  team             ReportTeam[]       @relation("reportteam")
   testcase         TestCase[]
-  employee         Employee[]       @relation("employee_report")       
-  file             File[]           @relation("report_file")
-  usedphone        UsedPhone[]      @relation("used_phone")
-  budget           ReportBudget[]   @relation("reportbudget")
+  employee         Employee[]         @relation("employee_report")
+  file             File[]             @relation("report_file")
+  usedphone        UsedPhone[]        @relation("used_phone")
+  budget           ReportBudget[]     @relation("reportbudget")
   documentEmployee DocumentEmployee[] @relation("report_document_team")
-  rode          Json?                
-  started  DateTime @default(now())
+  share            ShareReport[]
+  rode             Json?
+  started          DateTime           @default(now())
+
   @@map("report_document")
 }
 
 model ReportBudget {
-  id Int @id @default(autoincrement())
-  total Int 
-  spent Int
-  excess Int
-  report Report @relation("reportbudget", fields: [reportId], references: [id], onDelete: Cascade)
+  id       Int    @id @default(autoincrement())
+  total    Int
+  spent    Int
+  excess   Int
+  report   Report @relation("reportbudget", fields: [reportId], references: [id], onDelete: Cascade)
   reportId Int
 
   @@map("report_budget")
@@ -314,50 +324,58 @@ model ReportIssue {
 }
 
 model UsedPhone {
-  id Int @id @default(autoincrement())
-  type PhoneType @default(PERPAID)
-  phone String @db.VarChar(10)
-  description String? 
-  serial String?
-  report Report  @relation("used_phone", fields: [reportId], references: [id], onDelete: Cascade)
-  reportId Int
+  id          Int       @id @default(autoincrement())
+  type        PhoneType @default(PERPAID)
+  phone       String    @db.VarChar(10)
+  description String?
+  serial      String?
+  report      Report    @relation("used_phone", fields: [reportId], references: [id], onDelete: Cascade)
+  reportId    Int
 }
 
 model ShareGroup {
-  id Int @id @default(autoincrement())
-  document Document @relation("document_group", fields: [documentId], references: [id], onDelete: Cascade)
-  documentId Int 
-  employee Employee @relation("share_group", fields: [employeeId], references: [id], onDelete: Cascade)
+  id         Int      @id @default(autoincrement())
+  document   Document @relation("document_group", fields: [documentId], references: [id], onDelete: Cascade)
+  documentId Int
+  employee   Employee @relation("share_group", fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId Int
 }
 
+model ShareReport {
+  id         Int      @id @default(autoincrement())
+  employee   Employee @relation("share_report", fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId Int
+  report     Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  reportId   Int
+}
+
 model ConfirmPaper {
-  id Int @id @default(autoincrement())
-  document Document @relation("confirm",fields: [documentId], references: [id], onDelete: Cascade)
-  documentId Int 
-  employee Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  employeeId Int 
-  startedDate DateTime @default(now())
-  endData     DateTime @updatedAt
-  title String? @db.VarChar(100)
-  rode    Json?
-  check  Boolean @default(false)
-  sub ConfirmSub[]
+  id          Int          @id @default(autoincrement())
+  document    Document     @relation("confirm", fields: [documentId], references: [id], onDelete: Cascade)
+  documentId  Int
+  employee    Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId  Int
+  startedDate DateTime     @default(now())
+  endData     DateTime     @updatedAt
+  title       String?      @db.VarChar(100)
+  rode        Json?
+  check       Boolean      @default(false)
+  sub         ConfirmSub[]
 }
 
 model ConfirmSub {
-  id Int @id @default(autoincrement())
-  paper ConfirmPaper @relation(fields: [confirmId], references: [id], onDelete: Cascade)
-  confirmId Int
-  employee Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  employeeId Int 
-  system String? @db.VarChar(500)
-  description String? @db.VarChar(500)
-  module String? @db.VarChar(500)
-  version String? @db.VarChar(500)
-  jobs    String?
-  title   String? @db.VarChar(200)
-  check  Boolean @default(false)
+  id          Int          @id @default(autoincrement())
+  paper       ConfirmPaper @relation(fields: [confirmId], references: [id], onDelete: Cascade)
+  confirmId   Int
+  employee    Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId  Int
+  system      String?      @db.VarChar(500)
+  description String?      @db.VarChar(500)
+  module      String?      @db.VarChar(500)
+  version     String?      @db.VarChar(500)
+  jobs        String?
+  title       String?      @db.VarChar(200)
+  check       Boolean      @default(false)
 }
 
 enum PhoneType {
@@ -408,7 +426,7 @@ enum StateTestCase {
 }
 
 enum OTP {
-  PENDING 
+  PENDING
   DENY
   ACCESS
 }
@@ -417,4 +435,10 @@ enum EROLE {
   VIEWER
   DEV
   REPORT
+  ADMIN
+}
+
+enum FILETYPE {
+  WEB
+  MOBILE
 }

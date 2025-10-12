@@ -116,7 +116,7 @@ export function SecondDocument() {
       onCancel={handleCancel}
       title="ЖИМОБАЙЛ ХХК"
       width="60%"
-      className="scrollbar select-none"
+      className="scrollbar"
       style={{ overflowY: "auto", maxHeight: "800px" }}
       footer={[
         <Button key="back" onClick={handleCancel}>

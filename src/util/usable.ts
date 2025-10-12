@@ -11,11 +11,19 @@ export const convertUtil = (data: any[]) => {
   });
   return converting;
 };
-
+export const convertAdmin = (data: any[])=>{
+  const converting = data.map((index:any, key:number)=>{
+     return {
+      id: key,
+      value: index.id,
+      label: index.name,
+    };
+  })
+  return converting
+}
 export const convertName = (arg: any) => {
   return arg?.lastname[0] + "." + arg?.firstname;
 };
-
 export const someConvertName = (arg: string) => {
   const parts = arg.split(" ");
   if (parts.length >= 2) {
@@ -23,15 +31,12 @@ export const someConvertName = (arg: string) => {
   }
   return arg;
 };
-
 function toInitialName([first, last]: [string, string]): string {
   return `${first[0]}.${last}`;
 }
-
 export const capitalizeFirstLetter = (arg: any) => {
   return arg.charAt(0).toUpperCase() + arg.slice(1);
 };
-
 export const filterEmployeeStat = async (name: any): Promise<any> => {
   try {
     const { value } = name;
@@ -40,7 +45,6 @@ export const filterEmployeeStat = async (name: any): Promise<any> => {
     return undefined;
   }
 };
-
 export const removeDepartment = (data: any) => {
   if (data && Array.isArray(data.departmentemployee)) {
     data.departmentemployee = data.departmentemployee.map((item: any) => {
@@ -53,14 +57,12 @@ export const removeDepartment = (data: any) => {
   }
   return data;
 };
-
 export const filterDepartment = (department: any) => {
   return department
     .split(" ")
     .map((word: string) => word[0].toUpperCase())
     .join("");
 };
-
 export function Checking(arg: any) {
   switch (arg) {
     case 0:
@@ -77,7 +79,6 @@ export function Checking(arg: any) {
       return "DENY";
   }
 }
-
 export const mongollabel = (label: string) => {
   switch (label) {
     case "ACCESS":
@@ -109,7 +110,6 @@ export const mongollabel = (label: string) => {
       return "Хянаагүй";
   }
 };
-
 export const papercheck = (arg: boolean) => {
   switch (arg) {
     case true:
@@ -118,13 +118,11 @@ export const papercheck = (arg: boolean) => {
       return "Шалгагдаагүй";
   }
 };
-
 export const formatHumanReadable = (arg: string) => {
   return (
     arg.substring(0, 4) + "/" + arg.substring(5, 7) + "/" + arg.substring(8, 10)
   );
 };
-
 export const filterEmployee = async (id: any): Promise<number | undefined> => {
   if (typeof id !== "string") return undefined;
 
@@ -148,11 +146,9 @@ export const filterEmployee = async (id: any): Promise<number | undefined> => {
     return undefined;
   }
 };
-
 export const subLetter = (arg: string) => {
   return arg.substring(0, 2).toUpperCase();
 };
-
 export function MiddleCheck(arg: any) {
   switch (arg) {
     case 1:
@@ -179,7 +175,7 @@ export const mergeLetter = (letter: any) => {
 export const parseLocaleNumber = (value: any): number => {
   return Number(String(value).replace(/[.\s]/g, ""));
 };
-
 export const parseGermanNumber = (str: string): number => {
   return parseFloat(str.replace(/\./g, "").replace(",", "."));
 };
+

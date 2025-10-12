@@ -10,21 +10,28 @@ export async function middleware(req: NextRequest) {
     "/_next",
     "/favicon.ico",
     "/upload/images",
+    "/listplan",
+    "/dirplan",
+    "/ceoplan",
+    "/admin",
+    "/plan"
   ];
-  const isPublic = publicPaths.some((path) => pathname.startsWith(path));
 
+  const isPublic = publicPaths.some((path) => pathname.startsWith(path));
   if (isPublic) return NextResponse.next();
 
   const token = await getToken({ req, secret: process.env.SECRET });
-
-  if (req.nextUrl.pathname === "/") {
-    return NextResponse.redirect(new URL("/plan", req.nextUrl));
-  }
-
+  
   if (!token) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
+  const checkout = token?.permission?.kind?.length || 0;
+
+  if (req.nextUrl.pathname === "/") {
+    return NextResponse.redirect(new URL("/plan", req.nextUrl));
+  }
+  
   return NextResponse.next();
 }
 

@@ -1,42 +1,21 @@
 "use client";
-import React, { useState, useCallback } from "react";
-import { Table, Button, Flex, Input, Upload, message } from "antd";
-import axios from "axios";
-import Image from "next/image";
-import { UploadOutlined } from "@ant-design/icons";
+import React, { useState } from "react";
+import { Table, Button } from "antd";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { formatHumanReadable } from "@/util/usable";
-import type { UploadProps } from "antd";
-import { ReportCard } from "../window/report/ReportCard";
-
-const { Dragger } = Upload;
+import { EditCaseCard } from "@/components/window/case/editcase";
+import { ShareReportWindow } from "@/components/window/sharereportwindow";
+import { ZUSTAND } from "@/zustand";
 
 export function TestCaseReportPage({ data, total, page, pageSize }: any) {
-
-  const router = useRouter()
+  const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
-  const [messageApi, contextHolder] = message.useMessage();
   const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(
     null
   );
-  const [ordering, setOrder] = useState<any | null>();
-
-  const props: UploadProps = {
-    name: "file",
-    multiple: true,
-    action: `/api/image/${selectedDocumentId}`,
-    onChange(info) {
-      const { status } = info.file;
-      if (status === "done") {
-        messageApi.success(`${info.file.name} файл амжилттай хадгалагдлаа`);
-      } else if (status === "error") {
-        messageApi.error(`${info.file.name} файл оруулахад ажилтгүй боллоо.`);
-      }
-    },
-    onDrop(e) {},
-  };
+  const { getCheckout, getDocumentId } = ZUSTAND();
 
   const generateSearch = (term: string) => {
     const params = new URLSearchParams(searchParams);
@@ -64,8 +43,6 @@ export function TestCaseReportPage({ data, total, page, pageSize }: any) {
           <div
             className="hover:cursor-pointer"
             onClick={() => {
-              //   handleTestCaseClick(record.id);
-              setOrder(generate);
               setSelectedDocumentId(record.id);
             }}
           >
@@ -90,10 +67,34 @@ export function TestCaseReportPage({ data, total, page, pageSize }: any) {
     {
       title: "Тайлан үүсгэх",
       dataIndex: "id",
-      render:(id:number)=><Button type="primary" onClick={()=>{router.push("testcase/" + id);}}>Тайлан</Button>
-    }
-    
+      render: (id: number) => (
+        <Button
+          type="primary"
+          onClick={() => {
+            router.push("testcase/" + id);
+          }}
+        >
+          Тайлан
+        </Button>
+      ),
+    },
+    {
+      title: "Хуваалцах",
+      dataIndex: "id",
+      render: (id: number, record: any) => (
+        <Button
+          type="dashed"
+          onClick={() => {
+            getDocumentId(record.report.id);
+            getCheckout(16);
+          }}
+        >
+          SHARE
+        </Button>
+      ),
+    },
   ];
+  console.log(selectedDocumentId)
   return (
     <section>
       <Table
@@ -106,19 +107,8 @@ export function TestCaseReportPage({ data, total, page, pageSize }: any) {
         }}
         onChange={handleTableChange}
       />
-      {selectedDocumentId && (
-        <Dragger {...props}>
-          <p className="my-6">
-            <Button icon={<UploadOutlined />} type="primary" className="p-6">
-              Файл оруулах
-            </Button>
-          </p>
-          <p className="opacity-50">
-            Уг тесттэй хамаарал бүхий тушаал оруулна уу. <b>{ordering}</b>
-          </p>
-        </Dragger>
-      )}
-      {selectedDocumentId && <ReportCard documentId={selectedDocumentId} />}
+      {selectedDocumentId && <EditCaseCard documentId={selectedDocumentId} />}
+      <ShareReportWindow />
     </section>
   );
 }

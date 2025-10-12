@@ -34,3 +34,54 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+
+export async function PUT(req:NextRequest) {
+    try {
+        const {id} = await req.json();
+        const userid= await prisma.authUser.findUnique({
+            where: {id},
+            select: {
+                employee: {
+                    select: {
+                        id: true
+                    }
+                }
+            }
+        })
+        const sharegroup = await prisma.shareGroup.findMany({
+            where: {employeeId: userid?.employee?.id},
+
+        })
+        const sharereport=await prisma.shareReport.findMany({
+            where: {employeeId: userid?.employee?.id},
+
+        })
+
+        const merge={
+            sharegroup,
+            sharereport
+        }
+
+        return NextResponse.json(
+            {
+                success: true,
+                data: merge,
+            },
+            {
+                status: 200,
+            }
+        );
+    } catch (error){
+        console.error(error);
+        return NextResponse.json(
+            {
+                success: false,
+                data: error,
+            },
+            {
+                status: 500,
+            }
+        );
+    }
+}

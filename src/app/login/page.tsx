@@ -1,17 +1,14 @@
 "use client";
 import type { FormProps } from "antd";
 import { Button, Form, Input, message } from "antd";
-import { signIn, signOut } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import background from "../../../public/background.png";
-import { useSession } from "next-auth/react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { data: session } = useSession();
   const [messageApi, contextHolder] = message.useMessage();
-  const checkout = session?.user.permission.kind;
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     const result = await signIn("localauth", {

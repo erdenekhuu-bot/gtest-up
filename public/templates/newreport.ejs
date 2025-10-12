@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Тайлан</title>
+    <style>
+        table.custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid black;
+            page-break-inside: auto;
+        }
+
+        table.custom-table tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+
+        table.custom-table td,
+        table.custom-table th {
+            border: 1px solid black;
+            padding: 8px;
+            vertical-align: top;
+        }
+
+
+        table.custom-table th.header,
+        table.custom-table td.header {
+            text-align: center;
+            font-weight: bold;
+            background-color: rgb(122, 175, 236);
+            font-size: 13px;
+        }
+
+        .ck-content {
+            width: 100%;
+            word-break: break-word;
+        }
+        .ck-content figure.image {
+            display: inline-block !important;
+            margin: 2px !important;
+            vertical-align: middle !important;
+        }
+        .ck-content img {
+            display: inline-block !important;
+            height: auto !important;
+            max-width: 100% !important;
+            vertical-align: middle !important;
+        }
+
+    </style>
+
+</head>
+<body>
+<main style="padding: 20px 40px; font-family: Arial, Helvetica, sans-serif">
+    <div class="header-section">
+        <p style="opacity: 70%;">ЖИМОБАЙЛ ХХК</p>
+        <p style="font-weight: bold;">
+            <%= document?.title %>
+        </p>
+    </div>
+    <div>
+        <p style="font-weight: bold;">ЗОРИЛГО:</p>
+        <p><%= document?.detail?.aim %></p>
+    </div>
+    <div>
+        <p style="font-weight: bold;">
+            ТЕСТИЙН ҮЙЛ АЖИЛЛАГААНД АШИГЛАСАН ДУГААРУУД:
+        </p>
+        <table class="custom-table">
+            <tbody>
+            <tr>
+                <th class="header">№</th>
+                <th class="header">Үйлчилгээний төрөл</th>
+                <th class="header">Утасны дугаар</th>
+                <th class="header">Дугаарын нөхцөл</th>
+                <th class="header">Сиреал дугаар</th>
+            </tr>
+            <% document?.report?.usedphone.forEach((data, index) => { %>
+                <tr>
+                    <td><%= index+1 %></td>
+                    <td><%= convertPhoneType(data?.type) %></td>
+                    <td><%= data?.phone %></td>
+                    <td><%= data?.description %></td>
+                    <td><%= data?.serial %></td>
+                </tr>
+            <% }) %>
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <p style="font-weight: bold;">
+            ТЕСТИЙН БАГИЙН БҮРЭЛДЭХҮҮН, ТЕСТ ХИЙСЭН ХУВААРЬ
+        </p>
+        <table class="custom-table">
+            <tbody>
+            <tr>
+                <th class="header">№</th>
+                <th class="header">Албан тушаал</th>
+                <th class="header">Ажилтны нэр</th>
+                <th class="header">Үүрэг</th>
+                <th class="header">Эхлэх хугацаа</th>
+                <th class="header">Дуусах хугацаа</th>
+            </tr>
+            <% document?.documentemployee?.forEach((data, index) => { %>
+                <tr>
+                    <td><%= index+1 %></td>
+                    <td>
+                        <%= filterDepartment(data?.employee?.department?.name) %> - <%=
+                            data?.employee?.jobPosition?.name %>
+                    </td>
+                    <td>
+                        <%= convertFirst(data?.employee?.lastname) %>
+                        <%=data?.employee?.firstname %>
+                    </td>
+                    <td><%= data?.role %></td>
+                    <td><%= new Date(data?.startedDate).toLocaleDateString() %></td>
+                    <td><%= new Date(data?.endDate).toLocaleDateString() %></td>
+                </tr>
+            <% }) %>
+            </tbody>
+        </table>
+    </div>
+    <div style="margin-top: 20px; margin-bottom: 20px">
+        <p style="font-weight: bold;">ТЕСТИЙН ЯВЦЫН ТОЙМ:</p>
+        <%= document?.report?.reportprocessing %>
+    </div>
+    <table class="custom-table">
+        <tbody>
+        <% document.testcase.forEach(tc => { %>
+            <tr>
+                <td class="header"><%= tc.types %></td>
+            </tr>
+            <tr>
+                <td class="ck-content">
+                    <%- tc.description %>
+                </td>
+            </tr>
+        <% }) %>
+        </tbody>
+    </table>
+</main>
+<% function convertFirst(lastname){ return lastname[0]+"." } %> <% function
+filterDepartment(department){ return department .split(" ") .map((word) =>
+        word[0].toUpperCase()) .join(""); } %> <% const roles = { "VIEWER": "Хянах",
+    "DEV": "Нөхцөлөөр хангах", "TESTER": "eБоловсруулах" }; function
+convertPhoneType(type) { return type === "PERPAID" ? "Урьдчилсан төлбөрт" :
+        "Дараа төлбөрт"} %>
+</body>
+</html>

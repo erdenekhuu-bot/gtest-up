@@ -12,7 +12,7 @@ import { EditShareGRP } from "@/util/action";
 
 export function EditShareWindow() {
   const [mainForm] = Form.useForm();
-  const { checkout, getCheckout, documentid } = ZUSTAND();
+  const { checkout, getCheckout, documentid,getAllShare } = ZUSTAND();
   const handleCancel = () => {
     getCheckout(-1);
   };
@@ -34,6 +34,7 @@ export function EditShareWindow() {
     const result = await EditShareGRP(merge);
     if (result > 0) {
       messageApi.success("Амжилттай хуваалцлаа!");
+      getAllShare(Number(session?.user.id));
       getCheckout(-1);
     } else {
       messageApi.error("Алдаа гарлаа");
@@ -68,6 +69,7 @@ export function EditShareWindow() {
   const detail = async (id: number) => {
     const response = await axios.get("/api/document/share/" + id);
     if (response.data.success) {
+     console.log(response.data.data);
       const data = response.data?.data?.shareGroup.map((item: any) => {
         return {
           key: uuidv4(),
@@ -85,6 +87,7 @@ export function EditShareWindow() {
 
   useEffect(() => {
     detail(Number(documentid));
+
   }, [documentid]);
 
   return (
@@ -93,7 +96,7 @@ export function EditShareWindow() {
       onOk={onFinish}
       onCancel={handleCancel}
       title="ЖИМОБАЙЛ ХХК"
-      className="scrollbar select-none"
+      className="scrollbar"
       style={{ overflowY: "auto", maxHeight: "800px" }}
       footer={[
         <Button key="back" onClick={handleCancel}>

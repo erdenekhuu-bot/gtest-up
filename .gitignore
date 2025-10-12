@@ -43,4 +43,5 @@ next-env.d.ts
 /src/generated/prisma
 
 # Next.js public folder
-/public
+#/public
+.idea

@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import axios from "axios";
-import { useSession } from "next-auth/react";
 
 type GlobalStore = {
   checkout: number;
@@ -31,6 +30,13 @@ type GlobalStore = {
   triggerPaper: (value: number) => void;
   countdocument: number;
   checkcountdoc: (value: number) => Promise<void>;
+  filename: string;
+  takeFilename:(value:string)=>void;
+  getOTP: (value:number)=>Promise<void>;
+  takeAllShare: any;
+  getAllShare: (value:number) => Promise<void>;
+    countPlan: number;
+    countReport: number;
 };
 
 export const ZUSTAND = create<GlobalStore>((set) => ({
@@ -96,4 +102,24 @@ export const ZUSTAND = create<GlobalStore>((set) => ({
       set({ countdocument: response.data.data });
     }
   },
+  filename: "",
+  takeFilename:(value:string)=>set({filename:value}),
+  getOTP: async function(id: number){
+      await axios.put("/api/otp/created", {
+        authuserId: id,
+      });
+  },
+    takeAllShare: {},
+    getAllShare: async function(id: number) {
+      const response = await axios.put(`/api/employee`,{
+          id
+      });
+      if (response.data.success) {
+          set({ takeAllShare: response.data.data });
+          set({countPlan: response.data.data !== null ? response.data.data.sharegroup.length : 0 });
+          set({countReport: response.data.data !== null ? response.data.data.sharereport.length : 0 });
+      }
+    },
+    countPlan: 0,
+    countReport: 0
 }));

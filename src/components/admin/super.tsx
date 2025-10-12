@@ -2,6 +2,7 @@
 import { Table, Flex, Input, Button, message } from "antd";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { TriggerSuper } from "@/util/action";
+import {setAdmin} from "@/util/action";
 
 export function SuperComponent({ data, total, page, pageSize }: any) {
   const searchParams = useSearchParams();
@@ -55,24 +56,42 @@ export function SuperComponent({ data, total, page, pageSize }: any) {
       dateIndex: "id",
       render: (record: any) => {
         return (
-          <Button
-            size="large"
-            type={record.super === "REPORT" ? "primary" : "dashed"}
-            onClick={async () => {
-              const result = await TriggerSuper(record.id);
-              if (result > 0) {
-                messageApi.success("Амжилттай хадгалагдлаа!");
-              } else {
-                messageApi.error("Болсонгүй");
-              }
-              router.refresh();
-            }}
-          >
-            Буцаах эрх {record.super === "REPORT" ? "байгаа" : "байхгүй"}
-          </Button>
+            <Button
+                type={record.super === "REPORT" || record.super === "ADMIN" ? "primary" : "dashed"}
+                onClick={async () => {
+                    const result = await TriggerSuper(record.id);
+                    if (result > 0) {
+                        messageApi.success("Амжилттай хадгалагдлаа!");
+                    } else {
+                        messageApi.error("Болсонгүй");
+                    }
+                    router.refresh();
+                }}
+            >
+                Буцаах эрх {record.super === "REPORT" || record.super === "ADMIN" ? "байгаа" : "байхгүй"}
+            </Button>
+
         );
       },
     },
+      {
+          title: "Set Admin",
+          dateIndex: "id",
+          render:(record:any)=><Button
+              type={record.super === "ADMIN" ? "primary" : "dashed"}
+              onClick={async () => {
+                  const result = await setAdmin(record.id);
+                  if (result > 0) {
+                      messageApi.success("Амжилттай хадгалагдлаа!");
+                  } else {
+                      messageApi.error("Болсонгүй");
+                  }
+                  router.refresh();
+              }}
+          >
+              i am {record.super === "ADMIN" ? "admin" : "no admin"}
+          </Button>
+      }
   ];
   return (
     <section>

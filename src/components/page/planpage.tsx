@@ -24,7 +24,6 @@ export function PlanPage({ data, total, page, pageSize }: any) {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [loading, setLoading] = useState(false);
   const { getCheckout, getDocumentId } = ZUSTAND();
-  const [pdfLoading, setPdfLoading] = useState<number | null>(null);
   const dataWithKeys = data.map((item: any) => ({
     ...item,
     key: item.id,
@@ -72,31 +71,8 @@ export function PlanPage({ data, total, page, pageSize }: any) {
     replace(`${pathname}?${params.toString()}`);
   };
 
-  const handleDownloadPDF = async (id: number) => {
-    setPdfLoading(id);
-    messageApi.loading("Уншиж байна");
-    try {
-      const response = await fetch(`/api/download/${id}`);
-      if (!response.ok) {
-        messageApi.error("Болсонгүй");
-      }
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `paper_${id}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      messageApi.error("Болсонгүй");
-    } finally {
-      setPdfLoading(null);
-    }
-  };
 
-  const columns = [
+  const columns:any = [
     { title: "Тоот", dataIndex: "generate" },
     { title: "Тестийн нэр", dataIndex: "title" },
     {
@@ -119,20 +95,32 @@ export function PlanPage({ data, total, page, pageSize }: any) {
       dataIndex: "state",
       render: (state: string, record: any) => {
         const checkout = record.departmentEmployeeRole.every((item: any) => item.state==='ACCESS');
-        if (state === "FORWARD" && checkout) {
+        if (checkout) {
           return <Badge variant="info">Зөвшөөрөгдсөн</Badge>;
         }
         return state === "PENDING" ? (
           <Badge variant="default">Хүлээгдэж байна</Badge>
         ) : state === "FORWARD" ? (
           <Badge variant="viewing">Хянагдаж байна</Badge>
-        ) : state === "SHARED" ? (
-          <Badge variant="viewing">Хуваалцаж байна</Badge>
-        ) : (
+        )  : (
           <Badge variant="outline">Шинэ</Badge>
         );
       },
     },
+      // {
+      //     title: "Шинэ Төлөв",
+      //     dataIndex: "state",
+      //     render: (state: string) => {
+      //         return state === "SHARED" ? (
+      //             <Badge variant="viewing">Хуваалцаж байна</Badge>
+      //         ) : null;
+      //     },
+      // },
+      {
+          title: "Кэйс нэмэх",
+          dataIndex: "id",
+          render: (id:number) => <Button onClick={()=>{getDocumentId(id);router.push('/plan/case/'+id)}}>Нэмэх</Button>
+      },
     {
       title: "Засах",
       dataIndex: "id",
@@ -194,19 +182,7 @@ export function PlanPage({ data, total, page, pageSize }: any) {
         );
       },
     },
-    // {
-    //   title: "PDF хувилбар",
-    //   dataIndex: "id",
-    //   render: (id: number) => (
-    //     <Button
-    //       onClick={() => handleDownloadPDF(id)}
-    //       type="link"
-    //       loading={pdfLoading === id}
-    //     >
-    //       PDF
-    //     </Button>
-    //   ),
-    // },
+ 
   ];
 
   return (

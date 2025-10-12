@@ -44,9 +44,7 @@ export function TestRisk({ form }: { form: FormInstance }) {
                   render: (_, __, index) => (
                     <Form.Item
                       name={[index, "riskDescription"]}
-                      rules={[
-                        { required: true, message: "Тестийн нэр бичнэ үү" },
-                      ]}
+                      
                     >
                       <Input.TextArea rows={1} />
                     </Form.Item>
@@ -59,9 +57,7 @@ export function TestRisk({ form }: { form: FormInstance }) {
                   render: (_, __, index) => (
                     <Form.Item
                       name={[index, "riskLevel"]}
-                      rules={[
-                        { required: true, message: "Тестийн нэр бичнэ үү" },
-                      ]}
+                     
                     >
                       <Select
                         placeholder=""
@@ -97,9 +93,7 @@ export function TestRisk({ form }: { form: FormInstance }) {
                   render: (_, __, index) => (
                     <Form.Item
                       name={[index, "affectionLevel"]}
-                      rules={[
-                        { required: true, message: "Тестийн нэр бичнэ үү" },
-                      ]}
+                      
                     >
                       <Select
                         placeholder=""
@@ -135,9 +129,7 @@ export function TestRisk({ form }: { form: FormInstance }) {
                   render: (_, __, index) => (
                     <Form.Item
                       name={[index, "mitigationStrategy"]}
-                      rules={[
-                        { required: true, message: "Тестийн нэр бичнэ үү" },
-                      ]}
+                     
                     >
                       <Input.TextArea rows={1} />
                     </Form.Item>

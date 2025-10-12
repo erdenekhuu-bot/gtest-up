@@ -344,6 +344,7 @@ export function MemberPlanDetail({ document, steps }: any) {
                       reject: 3,
                       documentId: document.id,
                     });
+                    await axios.patch('/api/otp/sms',{id: Number(document.id)})
                     router.refresh();
                   }}
                 >

@@ -170,7 +170,6 @@ export async function GET() {
         },
       },
     });
-    console.log(record);
     const result = record.filter(
       (item) =>
         Number(item.employee?.jobPosition?.jobPositionGroup?.jobAuthRank) < 4

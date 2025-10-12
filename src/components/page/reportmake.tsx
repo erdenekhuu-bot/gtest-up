@@ -1,34 +1,21 @@
 "use client";
-import { Button, Form, Input, Table, Flex, message, Select } from "antd";
+import { Button, Form, Input, Table, Flex, message } from "antd";
 import type { FormProps } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { ReportTestError } from "../window/report/ReportTestError";
 import { ReportBudget } from "../window/report/ReportBudget";
 import { convertName } from "@/util/usable";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
-import Image from "next/image";
+import { useEffect } from "react";
 import { Report } from "@/util/action";
+import { v4 as uuidv4 } from "uuid";
+import { UsedPhone } from "../window/report/UsedPhone";
 
 export function ReportMake({ id, data }: any) {
-  const [dataSource, setDataSource] = useState<any[]>([]);
+ 
   const [messageApi, contextHolder] = message.useMessage();
-  const [nextKey, setNextKey] = useState(1);
   const { data: session } = useSession();
-  const handleAdd = () => {
-    const newData = {
-      key: nextKey,
-      type: "",
-      phone: "",
-      description: "",
-      serial: "",
-    };
-    setDataSource([...dataSource, newData]);
-    setNextKey(nextKey + 1);
-  };
-  const handleDelete = (key: number) => {
-    setDataSource(dataSource.filter((item) => item.key !== key));
-  };
+
   const columns: ColumnsType = [
     {
       title: "Нэр",
@@ -92,89 +79,85 @@ export function ReportMake({ id, data }: any) {
       ),
     },
   ];
-  const phonecolumns: ColumnsType = [
-    {
-      title: "Дугаарын төрөл",
-      dataIndex: "type",
-      key: "type",
-      render: (_, record, index) => (
-        <Form.Item name={["usedphone", index, "type"]}>
-          <Select
-            placeholder=""
-            style={{ width: "100%" }}
-            options={[
-              {
-                label: "Урьдчилсан төлбөрт",
-                value: "PERPAID",
-              },
-              {
-                label: "Дараа төлбөрт",
-                value: "POSTPAID",
-              },
-            ]}
-            showSearch
-            filterOption={(input, option) =>
-              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-            }
-          />
-        </Form.Item>
-      ),
-    },
 
+  const budgetcolumns: ColumnsType = [
     {
-      title: "Дугаар",
-      dataIndex: "phone",
-      key: "phone",
-      render: (_, record, index) => (
-        <Form.Item name={["usedphone", index, "phone"]}>
-          <Input placeholder="" />
-        </Form.Item>
-      ),
+      title: "Ангилал",
+      dataIndex: "productCategory",
+      key: "productCategory",
+    
     },
+    {
+      title: "Төрөл",
+      dataIndex: "product",
+      key: "product",
+      
+    },
+    {
+      title: "Тоо ширхэг",
+      dataIndex: "amount",
+      key: "amount",
+      render: (amount:number) => amount.toLocaleString("de-DE"),
+    },
+    {
+      title: "Нэгж үнэ (₮)",
+      dataIndex: "priceUnit",
+      key: "priceUnit",
+    },
+    {
+      title: "Нийт үнэ (₮)",
+      dataIndex: "priceTotal",
+      key: "priceTotal",
+      render: (priceTotal:number) => priceTotal.toLocaleString("de-DE"),
+    },
+  ]
 
-    {
-      title: "Тайлбар",
-      dataIndex: "description",
-      key: "description",
-      render: (_, record, index) => (
-        <Form.Item name={["usedphone", index, "description"]}>
-          <Input placeholder="" />
-        </Form.Item>
-      ),
-    },
-    {
-      title: "Сиреал дугаар",
-      dataIndex: "serial",
-      key: "serial",
-      render: (_, record, index) => (
-        <Form.Item name={["usedphone", index, "serial"]}>
-          <Input placeholder="" />
-        </Form.Item>
-      ),
-    },
+    const reporttesterror = data?.report?.issue.map((item: any) => ({
+      key: uuidv4(),
+      id: data.id,
+      list: item.list,
+      level: item.level,
+      exception: item.exception,
+      value: item.value
+    }));
 
-    {
-      title: "",
-      key: "id",
-      render: (_, record: any) => (
-        <Image
-          src="/trash.svg"
-          alt=""
-          className="hover:cursor-pointer"
-          width={20}
-          height={20}
-          onClick={() => handleDelete(record.key)}
-        />
-      ),
-    },
-  ];
+    const usedphone = data?.report?.usedphone.map((item: any) => ({
+      key: uuidv4(),
+      id: data.id,
+      type: item.type,
+      phone: item.phone,
+      description: item.description,
+      serial: item.serial
+    }));
+
   const [mainForm] = Form.useForm();
   const onFinish: FormProps["onFinish"] = async (values) => {
+    const fixed=(values.reporttesterror).map((item:any)=>{
+       return {
+        list: item.list,
+        level: item.level,
+        exception: item.exception,
+        value: item.value
+       }
+    })
+    const usedphone=values.usedphone.map((item:any)=>{
+      return {
+        type: item.type === "Урьдчилсан төлбөрт" ? "PERPAID" : "POSTPAID",
+        phone: String(item.phone),
+        description: item.description,
+        serial: item.serial
+      }
+    })
     const requestData = {
       ...values,
+      fixed,
+      usedphone,
       documentId: Number(id),
       authuserId: Number(session?.user.id),
     };
+   
+    
+
     const update = await Report(requestData);
         if (update > 0) {
           messageApi.success("Амжилттай засагдсан");
@@ -182,6 +165,18 @@ export function ReportMake({ id, data }: any) {
           messageApi.error("Алдаа гарлаа");
         }
   };
+
+  useEffect(()=>{
+    mainForm.setFieldsValue({
+      reportname:data?.title,
+      reportpurpose: data?.detail?.aim,
+      reportprocessing: data?.reportprocessing,
+      reportconclusion: data?.reportconclusion,
+      reportadvice: data?.reportadvice,
+      reporttesterror,
+      usedphone
+    })
+  },[data.report])
   return (
     <Form className="p-6" form={mainForm} onFinish={onFinish}>
        {contextHolder}
@@ -191,24 +186,14 @@ export function ReportMake({ id, data }: any) {
       <div className="mt-8">
         <Form.Item
           name="reportname"
-          rules={[{ required: true, message: "Тестийн нэр!" }]}
         >
-          <Input size="middle" placeholder="Тестийн нэр бичнэ үү..." />
+          <Input size="middle"  readOnly/>
         </Form.Item>
       </div>
       <b>ЗОРИЛГО</b>
       <div className="mt-4">
-        <Form.Item
-          name="reportpurpose"
-          rules={[{ required: true, message: "Тестийн зорилго!" }]}
-        >
-          <Input.TextArea
-            rows={5}
-            placeholder="Тестийн зорилго бичнэ үү..."
-            style={{ resize: "none" }}
-            showCount
-            maxLength={500}
-          />
+        <Form.Item name="reportpurpose">
+          <Input.TextArea rows={3} readOnly/>
         </Form.Item>
       </div>
       <div className="my-4">
@@ -224,55 +209,54 @@ export function ReportMake({ id, data }: any) {
       </div>
       <b>ТЕСТИЙН ЯВЦЫН ТОЙМ</b>
       <div className="mt-4">
-        <Form.Item
-          name="reportprocessing"
-          rules={[{ required: true, message: "Тестийн нэр!" }]}
-        >
-          <Input.TextArea
-            rows={5}
-            placeholder="Тестийн танилцуулга бичнэ үү..."
-            style={{ resize: "none" }}
-            showCount
-            maxLength={500}
-          />
+        <Form.Item name="reportprocessing">
+          <Input.TextArea rows={5}/>
         </Form.Item>
       </div>
       <div>
         <p className="my-4 font-bold">ТЕСТИЙН ҮЕИЙН АЛДААНЫ БҮРТГЭЛ</p>
-        <ReportTestError />
+        <ReportTestError form={mainForm}/>
       </div>
       <div>
         <p className="my-4 font-bold">ТЕСТИЙН ҮЕИЙН ТӨСӨВ</p>
-        <ReportBudget />
+        <Table
+          dataSource={data.budget}
+          columns={budgetcolumns}
+          pagination={false}
+          summary={() => {
+            const result = data.budget || [];
+            const total = result.reduce((sum: any, row: any) => {
+              const numericValue = Number(
+                String(row.priceTotal).replace(/\./g, "")
+              );
+              return sum + (isNaN(numericValue) ? 0 : numericValue);
+            }, 0);
+
+            return (
+              <Table.Summary.Row>
+                <Table.Summary.Cell index={0} colSpan={4} align="right">
+                  Нийт
+                </Table.Summary.Cell>
+                <Table.Summary.Cell index={4}>
+                  {total.toLocaleString("de-DE")}
+                </Table.Summary.Cell>
+                <Table.Summary.Cell index={5} />
+              </Table.Summary.Row>
+            );
+          }}
+          bordered
+        />
       </div>
       <div className="mt-8">
         <p className="my-4 font-bold">ТЕСТИЙН ДҮГНЭЛТ</p>
-        <Form.Item
-          name="reportconclusion"
-          rules={[{ required: true, message: "Дүгнэлт!" }]}
-        >
-          <Input.TextArea
-            rows={5}
-            placeholder="Тестийн дүгнэлт бичнэ үү..."
-            style={{ resize: "none" }}
-            showCount
-            maxLength={500}
-          />
+        <Form.Item name="reportconclusion">
+          <Input.TextArea rows={5}/>
         </Form.Item>
       </div>
       <b>ЗӨВЛӨГӨӨ</b>
       <div className="mt-8">
-        <Form.Item
-          name="reportadvice"
-          rules={[{ required: true, message: "Зөвлөгөө!" }]}
-        >
-          <Input.TextArea
-            rows={5}
-            placeholder="Зөвлөгөө бичнэ үү..."
-            style={{ resize: "none" }}
-            showCount
-            maxLength={500}
-          />
+        <Form.Item name="reportadvice">
+          <Input.TextArea rows={5}/>
         </Form.Item>
       </div>
 
@@ -283,25 +267,11 @@ export function ReportMake({ id, data }: any) {
         bordered
       />
       <p className="mt-8 mb-4 font-bold text-lg">Ашигласан дугаарууд</p>
-      <Table
-        dataSource={dataSource}
-        columns={phonecolumns}
-        pagination={false}
-        bordered
-      />
-      <div className="text-end mt-4">
-        <Button
-          type="primary"
-          onClick={() => {
-            handleAdd();
-          }}
-        >
-          Мөр нэмэх
-        </Button>
-      </div>
-      <Flex justify="start" gap={20} style={{ marginTop: 40 }}>
+      <UsedPhone form={mainForm}/>
+      
+      <Flex justify="center" gap={20} style={{ marginTop: 40 }}>
         <Button size="large" type="primary" onClick={() => mainForm.submit()}>
-          Тайлан үүсгэх
+          Засаад хадгалах
         </Button>
       </Flex>
     </Form>

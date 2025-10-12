@@ -237,6 +237,23 @@ export function ShareMember({ document, id, steps }: any) {
     }
   };
 
+    let sortedSteps = steps
+        .map((item:any) => ({
+            ...item,
+            level: DefineLevel(
+                item.employee?.jobPosition?.jobPositionGroup?.name || ""
+            ),
+        }))
+        .sort((a:any, b:any) => b.level - a.level);
+
+    sortedSteps=sortedSteps
+        .sort((a:any, b:any) => b.level - a.level)
+        .map((item:any, index:number) => ({
+            ...item,
+            sublevel: index + 1
+        }));
+    sortedSteps=sortedSteps.sort((a:any, b:any) => a.sublevel - b.sublevel);
+
   useEffect(() => {
     search ? fetchEmployees(search) : setEmployee([]);
     mainForm.setFieldsValue({
@@ -299,14 +316,7 @@ export function ShareMember({ document, id, steps }: any) {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  const sortedSteps = steps
-        .map((item:any) => ({
-          ...item,
-          level: DefineLevel(
-            item.employee?.jobPosition?.jobPositionGroup?.name || ""
-          ),
-        }))
-        .sort((a:any, b:any) => b.level - a.level);
+
   return (
     <section className="">
       <Breadcrumb
@@ -572,7 +582,7 @@ export function ShareMember({ document, id, steps }: any) {
               <Button
               size="large"
               type="link"
-              htmlType="submit"
+
               onClick={() => mainForm.submit()}
             >
               Засаад, хадгалах

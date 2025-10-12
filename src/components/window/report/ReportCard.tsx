@@ -5,29 +5,13 @@ import { EllipsisOutlined } from "@ant-design/icons";
 import { mongollabel, convertStatus, mergeLetter } from "@/util/usable";
 import axios from "axios";
 import { ZUSTAND } from "@/zustand";
-import { TestCaseAction } from "./TestCaseAction";
+import {useRouter} from "next/navigation";
 
 export function ReportCard({ documentId }: any) {
   const [data, setData] = useState<any>([]);
+  const router=useRouter()
   const [loading, setLoading] = useState(false);
-  const { caseid, getCaseId, getCheckout } = ZUSTAND();
-  const [form] = Form.useForm();
-  const handleOk = async () => {
-    try {
-      const values = await form.validateFields();
-      const request = await axios.patch(`/api/document/testcase/${caseid}`, {
-        action: values.testType,
-        description: values.description,
-      });
-
-      if (request.data.success) {
-        getCheckout(-1);
-        detail({ id: documentId });
-        form.resetFields();
-      }
-    } catch (error) {}
-  };
-
+  const {  getCaseId } = ZUSTAND();
   const detail = async (id: any) => {
     try {
       setLoading(true);
@@ -35,7 +19,9 @@ export function ReportCard({ documentId }: any) {
       if (request.data.success) {
         setData(request.data.data);
       }
-    } catch (error) {}
+    } catch (error) {
+        console.error(error);
+    }
   };
 
   useEffect(() => {
@@ -79,18 +65,20 @@ export function ReportCard({ documentId }: any) {
                           className="hover:cursor-pointer text-lg"
                           onClick={() => {
                             getCaseId(item.id);
-                            getCheckout(9);
+                              router.push(`/sharecase/${item.id}`);
                           }}
                         />
                       </Flex>
                       <p className="my-2 font-bold">{item.result}</p>
-                      <div
-                        dangerouslySetInnerHTML={{
-                          __html: item.steps.replace(/\n/g, "<br />"),
-                        }}
-                      />
-                      <Avatar.Group className="mt-8">
-                        {data?.documentemployee?.map(
+                        <div
+                            dangerouslySetInnerHTML={{
+                                __html: (item?.steps ?? "").replace(/\n/g, "<br />"),
+                            }}
+                        />
+
+                        <Avatar.Group className="mt-8">
+                        <Flex wrap>
+                          {data?.documentemployee?.map(
                           (emp: any, index: number) => (
                             <Avatar
                               key={index}
@@ -100,6 +88,7 @@ export function ReportCard({ documentId }: any) {
                             </Avatar>
                           )
                         )}
+                        </Flex>
                       </Avatar.Group>
                     </div>
                   )
@@ -140,7 +129,7 @@ export function ReportCard({ documentId }: any) {
                           className="hover:cursor-pointer text-lg"
                           onClick={() => {
                             getCaseId(item.id);
-                            getCheckout(9);
+                              router.push(`/sharecase/${item.id}`);
                           }}
                         />
                       </Flex>
@@ -151,7 +140,8 @@ export function ReportCard({ documentId }: any) {
                         }}
                       />
                       <Avatar.Group className="mt-8">
-                        {data?.documentemployee?.map(
+                        <Flex wrap>
+                          {data?.documentemployee?.map(
                           (emp: any, index: number) => (
                             <Avatar
                               key={index}
@@ -161,6 +151,7 @@ export function ReportCard({ documentId }: any) {
                             </Avatar>
                           )
                         )}
+                        </Flex>
                       </Avatar.Group>
                     </div>
                   )
@@ -201,7 +192,7 @@ export function ReportCard({ documentId }: any) {
                           className="hover:cursor-pointer text-lg"
                           onClick={() => {
                             getCaseId(item.id);
-                            getCheckout(9);
+                              router.push(`/sharecase/${item.id}`);
                           }}
                         />
                       </Flex>
@@ -212,7 +203,8 @@ export function ReportCard({ documentId }: any) {
                         }}
                       />
                       <Avatar.Group className="mt-8">
-                        {data?.documentemployee?.map(
+                        <Flex wrap>
+                          {data?.documentemployee?.map(
                           (emp: any, index: number) => (
                             <Avatar
                               key={index}
@@ -222,6 +214,7 @@ export function ReportCard({ documentId }: any) {
                             </Avatar>
                           )
                         )}
+                        </Flex>
                       </Avatar.Group>
                     </div>
                   )
@@ -230,9 +223,6 @@ export function ReportCard({ documentId }: any) {
           </div>
         </Card>
       </Flex>
-      <Form form={form}>
-        <TestCaseAction form={form} handleOk={handleOk} />
-      </Form>
     </section>
   );
 }

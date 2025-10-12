@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Удирдамж</title>
+  </head>
+  <body>
+    <main style="padding: 20px 40px; font-family: Arial, Helvetica, sans-serif">
+      <div>
+        <p style="opacity: 70%">ЖИМОБАЙЛ ХХК</p>
+      </div>
+      <div>
+        <p style="font-weight: bold; font-size: 12px; color: rgb(55, 159, 228)">
+          1. ТЕСТИЙН ҮЙЛ АЖИЛЛАГААНЫ ЗОРИЛГО:
+        </p>
+        <p style="font-size: 10px"><%= document?.detail?.aim %></p>
+      </div>
+      <div>
+        <p style="font-weight: bold; font-size: 12px; color: rgb(55, 159, 228)">
+          2. ТӨСЛИЙН ТАНИЛЦУУЛГА:
+        </p>
+        <p style="font-size: 10px">
+          <%- document?.detail?.intro.replace(/\n/g, '<br />') %>
+        </p>
+      </div>
+      <div>
+        <p style="font-weight: bold; font-size: 12px">
+          ТЕСТИЙН БАГИЙН БҮРЭЛДЭХҮҮН, ТЕСТ ХИЙСЭН ХУВААРЬ
+        </p>
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>№</th>
+              <th>Албан тушаал</th>
+              <th>Ажилтны нэр</th>
+              <th>Үүрэг</th>
+              <th>Эхлэх хугацаа</th>
+              <th>Дуусах хугацаа</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% document?.documentemployee?.forEach((data, index) => { %>
+            <tr>
+              <td><%= index+1 %></td>
+              <td>
+                <%= filterDepartment(data?.employee?.department?.name) %> - <%=
+                data?.employee?.jobPosition?.name %>
+              </td>
+              <td>
+                <%= convertFirst(data?.employee?.lastname) %>
+                <%=data?.employee?.firstname %>
+              </td>
+              <td><%= data?.role %></td>
+              <td><%= new Date(data?.startedDate).toLocaleDateString() %></td>
+              <td><%= new Date(data?.endDate).toLocaleDateString() %></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <div>
+        <p style="font-weight: bold; font-size: 12px; color: rgb(55, 159, 228)">
+          3. ТЕСТИЙН ҮР ДҮНГИЙН ТААМАГЛАЛ, ЭРСДЭЛ, ХАРААТ БАЙДАЛ:
+        </p>
+        <p style="margin-left: 20px; font-size: 12px">4.1 Таамаглал</p>
+
+        <% document?.attribute?.filter(attr => attr?.category === "Таамаглал")
+        .forEach(attr => { %>
+        <p style="margin-left: 25px; font-size: 10px">
+          <%- attr?.value.replace(/\n/g, '<br />') %>
+        </p>
+        <% }) %>
+        <p style="margin-left: 20px; font-size: 12px">4.2 Эрсдэл</p>
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>№</th>
+              <th>Эрсдэл</th>
+              <th>Эрсдлийн магадлал</th>
+              <th>Эрсдлийн нөлөөлөл</th>
+              <th>Бууруулах арга зам</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% document?.riskassessment?.forEach((data, index) => { %>
+            <tr>
+              <td><%= index+1 %></td>
+              <td><%= data.riskDescription %></td>
+              <td><%= data.riskLevel %></td>
+              <td><%= data.affectionLevel %></td>
+              <td><%= data.mitigationStrategy %></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+
+        <p style="margin-left: 20px; font-size: 12px">4.3 Хараат байдал</p>
+        <% const mhn = "Хараат байдал"; document?.attribute ?.filter(attr =>
+        attr?.category === mhn) ?.forEach(attr => { %>
+        <p style="margin-left: 25px; font-size: 10px">
+          <%- attr?.value?.replace(/\n/g, '<br />') %>
+        </p>
+        <% }); %>
+      </div>
+
+      <div>
+        <p style="font-weight: bold; font-size: 12px; color: rgb(55, 159, 228)">
+          4. ТЕСТИЙН ҮЕ ШАТ:
+        </p>
+        <p style="margin-left: 20px; font-size: 12px">5.1 Бэлтгэл үе</p>
+        <% const mhn1 = "Бэлтгэл үе"; document?.attribute?.filter(attr =>
+        attr?.category === mhn1) ?.forEach(attr => { %>
+        <p style="margin-left: 25px; font-size: 10px">
+          <%- attr?.value?.replace(/\n/g, '<br />') %>
+        </p>
+        <% }); %>
+
+        <p style="margin-left: 20px; font-size: 10px">5.3 Тестийн кэйс</p>
+
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>№</th>
+              <th>Ангилал</th>
+              <th>Төрөл</th>
+              <th>Алхамууд</th>
+              <th>Үр дүн</th>
+              <th>Хариуцах нэгж</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% document?.testcase?.forEach((data, index) => { %>
+            <tr>
+              <td><%= index+1 %></td>
+              <td><%= data?.category %></td>
+              <td><%= data?.types %></td>
+              <td><%= data?.steps %></td>
+              <td><%= data?.result %></td>
+              <td><%= data?.division %></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+
+        <p style="margin-left: 20px; font-size: 12px">5.4 Тестийн хаалт</p>
+
+        <% const mhn2 = "Тестийн хаалт; font-size: 10px";
+        document?.attribute?.filter(attr => attr?.category === mhn2)
+        .forEach(attr => { %>
+        <p style="margin-left: 25px; font-size: 10px">
+          <%- attr?.value.replace(/\n/g, '<br />') %>
+        </p>
+        <% }) %>
+      </div>
+
+      <div>
+        <p style="font-weight: bold; font-size: 12px; color: rgb(55, 159, 228)">
+          5. ТҮДГЭЛЗҮҮЛЭХ БОЛОН ДАХИН ЭХЛҮҮЛЭХ ШАЛГУУР:
+        </p>
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Түтгэлзүүлэх</th>
+              <th>Шалгуур</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% document?.attribute?.filter(attr => attr?.categoryMain ===
+            "Түтгэлзүүлэх болон дахин эхлүүлэх шалгуур") .forEach(attr => { %>
+            <tr>
+              <td><%= attr?.category %></td>
+              <td><%- attr?.value.replace(/\n/g, '<br />') %></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <div>
+        <p style="font-weight: bold; font-size: 12px; color: rgb(55, 159, 228)">
+          6. ТЕСТИЙН ТӨСӨВ:
+        </p>
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>№</th>
+              <th>Ангилал</th>
+              <th>Төрөл</th>
+              <th>Тоо ширхэг</th>
+              <th>Нэгж үнэ (₮)</th>
+              <th>Нийт үнэ (₮)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% document?.budget?.forEach((data, index) => { %>
+            <tr>
+              <td><%= index+1 %></td>
+              <td><%= data?.productCategory %></td>
+              <td><%= data?.product %></td>
+              <td><%= data?.amount %></td>
+              <td><%= data?.priceUnit %></td>
+              <td><%= data?.priceTotal %></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </main>
+    <% function convertFirst(lastname){ return lastname[0]+"." } %> <% function
+    filterDepartment(department){ return department .split(" ") .map((word) =>
+    word[0].toUpperCase()) .join(""); } %>
+  </body>
+  <style>
+    .custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid black;
+      font-size: 10px;
+    }
+
+    .custom-table th,
+    .custom-table td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .custom-table tr {
+      page-break-inside: avoid;
+    }
+
+    .custom-table th {
+      background-color: rgb(122, 175, 236);
+    }
+  </style>
+</html>

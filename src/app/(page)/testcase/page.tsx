@@ -24,7 +24,6 @@ export default async function Page(props: {
         {
           authUserId: Number(session?.user.id),
         },
-
         {
           departmentEmployeeRole: {
             every: {

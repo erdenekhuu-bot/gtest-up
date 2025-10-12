@@ -24,14 +24,14 @@ export default async function Page(props: {
         'check_status', cp.check
       ) as result
     FROM "Document" d
-    INNER JOIN (
-      SELECT DISTINCT ON ("documentId") *
-      FROM "ConfirmPaper"
-      ORDER BY "documentId", "startedDate" DESC
-    ) cp ON cp."documentId" = d.id
-    WHERE d."isDeleted" = false
-    ORDER BY d."timeCreated" DESC
-    LIMIT ${pageSize} OFFSET ${offset}
+        INNER JOIN (
+          SELECT DISTINCT ON ("documentId") *
+          FROM "ConfirmPaper"
+          ORDER BY "documentId", "startedDate" DESC
+        ) cp ON cp."documentId" = d.id
+        WHERE d."isDeleted" = false
+        ORDER BY d."timeCreated" DESC
+        LIMIT ${pageSize} OFFSET ${offset}
   `;
 
 

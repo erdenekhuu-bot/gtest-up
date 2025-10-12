@@ -1,0 +1,30 @@
+image: node:20
+
+stages:
+  - install
+  - migrate
+  - build
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+    - .next/cache/
+
+before_script:
+  - yarn install --frozen-lockfile
+
+migrate:
+  stage: migrate
+  script:
+    - yarn db:update
+  only:
+    - main
+
+build:
+  stage: build
+  script:
+    - yarn build
+  only:
+    - main
+

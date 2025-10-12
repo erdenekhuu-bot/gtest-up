@@ -7,6 +7,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+  
     const record = await prisma.$transaction(async (tx) => {
       const detail = await tx.document.findUnique({
         where: {
@@ -66,7 +67,7 @@ export async function GET(
               budget: true,
               issue: true,
               team: true,
-              testcase: true,
+              
               file: true,
               usedphone: true,
             },
@@ -84,6 +85,7 @@ export async function GET(
 
     return NextResponse.json({ success: true, data: record }, { status: 200 });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ success: false, data: error }, { status: 500 });
   }
 }

@@ -42,7 +42,7 @@ const columns = [
 
 export function ViewPlanDetail({ document, steps }: any) {
   const [attributeForm] = Form.useForm();
-  const { checkout, getCheckout, getDocumentId } = ZUSTAND();
+  const { checkout, getCheckout, getDocumentId,getOTP } = ZUSTAND();
   const reference = useRef<HTMLDivElement>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
   const { data: session } = useSession();
@@ -94,6 +94,14 @@ export function ViewPlanDetail({ document, steps }: any) {
     [scrollPosition]
   );
 
+let sortedSteps = steps
+  .sort((a: any, b: any) => b.level - a.level)
+  .map((item: any, index: number) => ({
+    ...item,
+    sublevel: index + 1,
+  }))
+  .sort((a: any, b: any) => a.sublevel - b.sublevel);
+
   useEffect(() => {
     const handleScroll = () => {
       setScrollPosition(window.scrollY);
@@ -137,22 +145,15 @@ export function ViewPlanDetail({ document, steps }: any) {
     
   }, [transformStyle, scrollPosition]);
 
-  const sortedSteps = steps
-    .map((item:any) => ({
-      ...item,
-      level: DefineLevel(
-        item.employee?.jobPosition?.jobPositionGroup?.name || ""
-      ),
-    }))
-    .sort((a:any, b:any) => b.level - a.level);
-
 
   const content = (
     <Flex gap={10}>
       <Button
         size="large"
-        onClick={() => {
+        onClick={async () => {
           getCheckout(7);
+          getOTP(Number(session?.user.id));
+          await axios.put('/api/otp/sms',{id: Number(document.id)})
         }}
       >
         Зөвшөөрөх

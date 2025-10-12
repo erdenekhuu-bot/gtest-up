@@ -15,18 +15,24 @@ export default async function Page(props: {
   const page = Number(searchParams?.page) || 1;
   const pageSize = Number(searchParams?.pageSize) || 10;
   const session = await getServerSession(authOptions);
+  const isAdmin = session?.user.employee.super === "ADMIN";
   const record = await prisma.document.findMany({
     where: {
-      AND: [
-        {
-          authUserId: Number(session?.user.id),
-        },
-        {
-          title: {
-            contains: search || "",
-          },
-        },
-      ],
+        AND: [
+            ...(isAdmin
+                ? []
+                : [
+                    {
+                        authUserId: Number(session?.user?.id),
+                    },
+                ]),
+            {
+                title: {
+                    contains: search || "",
+                    mode: "insensitive",
+                },
+            },
+        ],
     },
     skip: (page - 1) * pageSize,
     take: pageSize,
@@ -50,9 +56,9 @@ export default async function Page(props: {
     },
   });
   const totalCount = await prisma.document.count({
-    where: {
-      authUserId: Number(session?.user.id),
-    },
+      where: isAdmin
+          ? {}
+          : { authUserId: Number(session?.user.id) },
   });
 
   return (

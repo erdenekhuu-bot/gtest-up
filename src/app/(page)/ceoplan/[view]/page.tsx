@@ -92,18 +92,18 @@ export default async function Page({
         },
       },
     });
+    steps.sort((a: any, b: any) => {
+      if (a.permissionLvl === null && b.permissionLvl !== null) return -1;
+      if (a.permissionLvl !== null && b.permissionLvl === null) return 1;
 
-    const dataWithLevels = steps
-      .map((item) => ({
-        ...item,
-        level: DefineLevel(
-          item.employee?.jobPosition?.jobPositionGroup?.name || ""
-        ),
-      }))
-      .sort((a, b) => b.level - a.level);
+      return (
+        b.employee.jobPosition.jobPositionGroup.jobAuthRank -
+        a.employee.jobPosition.jobPositionGroup.jobAuthRank
+      );
+    });
     return {
       data,
-      steps: dataWithLevels,
+      steps,
     };
   });
 

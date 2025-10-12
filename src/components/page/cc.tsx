@@ -2,18 +2,20 @@
 import { Table, Flex, Input, Button, message } from "antd";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { convertName, formatHumanReadable } from "@/util/usable";
-import axios from "axios";
+import { useState } from "react";
 
-export function CCpage({ document, total, page, pageSize }: any) {
+export function CCpage({ data, total, page, pageSize }: any) {
+
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
   const [messageApi, contextHolder] = message.useMessage();
-  const dataWithKeys = document.map((item: any) => ({
+  const dataWithKeys = data.map((item: any) => ({
     ...item,
     key: item.id,
   }));
-  const router = useRouter();
+
+  const [pdfLoading, setPdfLoading] = useState<number | null>(null);
 
   const generateSearch = (term: string) => {
     const params = new URLSearchParams(searchParams);
@@ -33,23 +35,29 @@ export function CCpage({ document, total, page, pageSize }: any) {
     replace(`${pathname}?${params.toString()}`);
   };
 
-  const handleDownload = async (id: number) => {
-    try {
-      const response = await axios.get(`/api/download/${id}`, {
-        responseType: "blob",
-      });
-      const blob = new Blob([response.data], { type: "application/pdf" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `Удирдамж_${id}.pdf`;
 
+   const handleDownloadPDF = async (id: number) => {
+    setPdfLoading(id);
+    try {
+      const response = await fetch(`/api/download/${id}`);
+      if (!response.ok) {
+        messageApi.error("Болсонгүй");
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `paper_${id}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     } catch (error) {
-      messageApi.error("Амжилтгүй боллоо.");
+    } finally {
+      setPdfLoading(null);
     }
   };
+
 
   const columns = [
     {
@@ -76,25 +84,23 @@ export function CCpage({ document, total, page, pageSize }: any) {
     },
 
     {
-      title: "Шалгах",
+      title: "PDF хувилбар",
       dataIndex: "id",
-      render: (id: number) => {
-        return (
-          <Button
-            type="primary"
-            onClick={() => {
-              handleDownload(id);
-            }}
-          >
-            Шалгах
-          </Button>
-        );
-      },
+      render: (id: number) => (
+        <Button
+          onClick={() => handleDownloadPDF(id)}
+          type="link"
+          loading={pdfLoading === id}
+        >
+          Файл
+        </Button>
+      ),
     },
   ];
 
   return (
     <section>
+      {contextHolder}
       <div className="mb-8">
         <Flex gap={20} justify="space-between">
           <Input.Search

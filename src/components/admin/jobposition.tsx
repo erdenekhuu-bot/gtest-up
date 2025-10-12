@@ -1,17 +1,22 @@
 "use client";
 import { Table, Flex, Input, Button } from "antd";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import { ZUSTAND } from "@/zustand";
+import { AdminWindow } from "./window";
 
 export function JobPosition({ data, total, page, pageSize }: any) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
+  const {getCheckout, getEmployeeId} = ZUSTAND()
+  
 
   const dataWithKeys = data.map((item: any) => ({
     ...item,
     key: item.id,
   }));
 
+  
   const generateSearch = (term: string) => {
     const params = new URLSearchParams(searchParams);
     if (term) {
@@ -53,13 +58,13 @@ export function JobPosition({ data, total, page, pageSize }: any) {
       render: (record: any) => {
         return (
           <Button
-            size="large"
             type="primary"
             onClick={() => {
-              alert(record.id);
+              getEmployeeId(record.id)
+              getCheckout(15)
             }}
           >
-            Засах
+            Өөрчлөх
           </Button>
         );
       },
@@ -89,6 +94,7 @@ export function JobPosition({ data, total, page, pageSize }: any) {
         }}
         onChange={handleTableChange}
       />
+      <AdminWindow/>
     </section>
   );
 }

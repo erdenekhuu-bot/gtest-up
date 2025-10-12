@@ -4,11 +4,9 @@ import { ZUSTAND } from "@/zustand";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { Badge } from "../ui/badge";
 import { formatHumanReadable } from "@/util/usable";
-import { record } from "valibot";
 
 export function TeamPaperPage({ data, total, page, pageSize }: any) {
   const searchParams = useSearchParams();
-
   const { getDocumentId } = ZUSTAND();
   const pathname = usePathname();
   const { replace } = useRouter();

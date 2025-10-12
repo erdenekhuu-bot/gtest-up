@@ -1,6 +1,7 @@
 import { prisma } from "@/util/prisma";
 import { EditPage } from "@/components/window/document/editpage/Editing";
-import { DefineLevel } from "@/util/checkout";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +11,20 @@ export default async function Page({
   params: Promise<{ edit: string }>;
 }) {
   const { edit } = await params;
+  const session = await getServerSession(authOptions);
+  const authuser = await prisma.authUser.findUnique({
+    where: {
+      id: Number(session?.user.id),
+    },
+    include: {
+      employee: {
+        include: {
+          department: true,
+        },
+      },
+    },
+  });
+
   const record = await prisma.$transaction(async (tx) => {
     const data = await prisma.document.findUnique({
       where: {
@@ -94,11 +109,17 @@ export default async function Page({
           },
         },
       },
-      orderBy: {
-        id: "asc",
-      },
     });
-    
+    steps.sort((a: any, b: any) => {
+      if (a.permissionLvl === null && b.permissionLvl !== null) return -1;
+      if (a.permissionLvl !== null && b.permissionLvl === null) return 1;
+
+      return (
+        b.employee.jobPosition.jobPositionGroup.jobAuthRank -
+        a.employee.jobPosition.jobPositionGroup.jobAuthRank
+      );
+    });
+
     return {
       data,
       steps,

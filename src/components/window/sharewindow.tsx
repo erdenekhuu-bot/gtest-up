@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 
 export function ShareWindow() {
   const [mainForm] = Form.useForm();
-  const { checkout, getCheckout, documentid } = ZUSTAND();
+  const { checkout, getCheckout, documentid,getAllShare } = ZUSTAND();
   const handleCancel = () => {
     getCheckout(-1);
   };
@@ -35,11 +35,9 @@ export function ShareWindow() {
     const result = await ShareGR(merge);
     if (result > 0) {
       messageApi.success("Амжилттай хуваалцлаа!");
+      getAllShare(Number(session?.user.id));
       getCheckout(-1);
       router.refresh();
-      // for (const share of values.sharegroup) {
-      //   await axios.put("/api/otp/share", { employeeId: share.employeeId });
-      // }
     } else {
       messageApi.error("Алдаа гарлаа");
     }
@@ -80,7 +78,7 @@ export function ShareWindow() {
       onOk={onFinish}
       onCancel={handleCancel}
       title="ЖИМОБАЙЛ ХХК"
-      className="scrollbar select-none"
+      className="scrollbar"
       style={{ overflowY: "auto", maxHeight: "800px" }}
       footer={[
         <Button key="back" onClick={handleCancel}>

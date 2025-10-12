@@ -16,6 +16,7 @@ export default async function Page(props: {
   const page = Number(searchParams?.page) || 1;
   const pageSize = Number(searchParams?.pageSize) || 10;
   const session = await getServerSession(authOptions);
+    const isAdmin = session?.user.employee.super === "ADMIN";
 
   const record = await prisma.$transaction(async (tx) => {
     const user = await tx.authUser.findUnique({
@@ -25,7 +26,10 @@ export default async function Page(props: {
       },
     });
     const confirm = await tx.confirmPaper.findMany({
-      where: { employeeId: user?.employee?.id },
+        where: {
+
+            ...(isAdmin ? {} : { employeeId: user?.employee?.id }),
+        },
       orderBy: {
         id: "asc",
       },

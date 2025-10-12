@@ -1,7 +1,7 @@
 "use client";
-import { Table, Flex, Input, Button, Badge, Card } from "antd";
+import { Table, Flex, Input, Button, Badge } from "antd";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
-import { convertName, formatHumanReadable } from "@/util/usable";
+import { formatHumanReadable } from "@/util/usable";
 
 export function ListPage({ data, total, page, pageSize }: any) {
 

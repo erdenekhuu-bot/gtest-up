@@ -12,10 +12,7 @@ import {
 } from "antd";
 import type { FormProps } from "antd";
 import Image from "next/image";
-import {
-  convertUtil,
-  capitalizeFirstLetter,
-} from "@/util/usable";
+import { convertUtil, capitalizeFirstLetter } from "@/util/usable";
 import { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import axios from "axios";
 import { TestSchedule } from "../../creation/Schedule";
@@ -239,14 +236,14 @@ export function EditPage({ document, id, steps }: any) {
     }
   };
 
-  const sortedSteps = steps
-      .map((item:any) => ({
-        ...item,
-        level: DefineLevel(
-          item.employee?.jobPosition?.jobPositionGroup?.name || ""
-        ),
-      }))
-      .sort((a:any, b:any) => b.level - a.level);
+let sortedSteps = steps
+  .sort((a: any, b: any) => b.level - a.level)
+  .map((item: any, index: number) => ({
+    ...item,
+    sublevel: index + 1,
+  }))
+  .sort((a: any, b: any) => a.sublevel - b.sublevel);
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -471,7 +468,10 @@ export function EditPage({ document, id, steps }: any) {
               1. Үйл ажиллагааны зорилго
             </div>
             <Form.Item name="aim">
-              <Input.TextArea rows={5} placeholder="Тестийн зорилго бичнэ үү..." />
+              <Input.TextArea
+                rows={5}
+                placeholder="Тестийн зорилго бичнэ үү..."
+              />
             </Form.Item>
           </div>
           <div className="pb-4">
@@ -479,7 +479,10 @@ export function EditPage({ document, id, steps }: any) {
               2. Тестийн танилцуулга
             </div>
             <Form.Item name="intro">
-              <Input.TextArea rows={5} placeholder="Тестийн танилцуулга бичнэ үү..."/>
+              <Input.TextArea
+                rows={5}
+                placeholder="Тестийн танилцуулга бичнэ үү..."
+              />
             </Form.Item>
           </div>
           <TestSchedule />
@@ -487,60 +490,49 @@ export function EditPage({ document, id, steps }: any) {
           <div className="font-bold my-2 text-lg">
             4. Төслийн үр дүнгийн таамаглал, эрсдэл, хараат байдал
           </div>
-          <li>
-            4.1 Таамаглал
-          </li>
+          <li>4.1 Таамаглал</li>
           <div className="mt-2">
             <Form.Item name="predict">
-              <Input.TextArea rows={5}/>
+              <Input.TextArea rows={5} />
             </Form.Item>
           </div>
           <TestRisk form={mainForm} />
           <div>
-            <li>
-              4.3 Хараат байдал
-            </li>
+            <li>4.3 Хараат байдал</li>
             <div className="mt-2">
               <Form.Item name="dependecy">
-                <Input.TextArea rows={5}/>
+                <Input.TextArea rows={5} />
               </Form.Item>
             </div>
           </div>
           <div className="font-bold my-2 text-lg mx-4">5. Тестийн үе шат</div>
           <div>
-            <li>
-              5.1 Бэлтгэл үе
-            </li>
+            <li>5.1 Бэлтгэл үе</li>
             <div className="mt-2">
               <Form.Item name="standby">
-                <Input.TextArea rows={5}/>
+                <Input.TextArea rows={5} />
               </Form.Item>
             </div>
           </div>
           <div>
-            <li>
-              5.2 Тестийн гүйцэтгэл
-            </li>
+            <li>5.2 Тестийн гүйцэтгэл</li>
             <div className="mt-2">
               <Form.Item name="execute">
-                <Input.TextArea rows={5}/>
+                <Input.TextArea rows={5} />
               </Form.Item>
             </div>
           </div>
           <div>
-            <li>
-              5.3 Тестийн хаалт
-            </li>
+            <li>5.3 Тестийн хаалт</li>
             <div className="mt-2">
               <Form.Item name="terminate">
-                <Input.TextArea rows={5}/>
+                <Input.TextArea rows={5} />
               </Form.Item>
             </div>
           </div>
           <div className="font-bold my-2 text-lg mx-4">
             6. Түтгэлзүүлэх болон дахин эхлүүлэх шалгуур
           </div>
-
           <Addition form={mainForm} />
           <TestBudget form={mainForm} />
           <div className="">
@@ -558,6 +550,7 @@ export function EditPage({ document, id, steps }: any) {
               </Form.Item>
             </Flex>
           </div>
+          <div className="font-bold my-2 text-lg mx-4">5.3. Тестийн кэйс</div>
           <TestCase form={mainForm} />
           <Flex justify="space-between" gap={20} style={{ marginTop: 40 }}>
             <Button
@@ -570,58 +563,35 @@ export function EditPage({ document, id, steps }: any) {
             >
               Батлах хуудас
             </Button>
-            {/* <Button
-              size="large"
-              type="link"
-              htmlType="submit"
-              onClick={() => mainForm.submit()}
-            >
-              Засаад, хадгалах
-            </Button> */}
-            {
-              document.state !== "FORWARD" ?
+            {document.state !== "FORWARD" ? (
               <Button
-              size="large"
-              type="link"
-              htmlType="submit"
-              onClick={() => mainForm.submit()}
-            >
-              Засаад, хадгалах
-            </Button>
-            : <Badge variant="viewing">Шалгагдаж байгаа</Badge>
-            }
-            {/* <Button
-              size="large"
-              type="primary"
-              onClick={async () => {
-                await axios.put(`/api/final/`, {
-                  authuserId: session?.user.id,
-                  reject: 1,
-                  documentId: id,
-                });
-                router.refresh();
-                messageApi.success("Амжилттай илгээгдлээ");
-              }}
-            >
-              Алдаа байхгүй, Илгээх
-            </Button> */}
-            {
-              document.state !== "FORWARD" && <Button
-              size="large"
-              type="primary"
-              onClick={async () => {
-                await axios.put(`/api/final/`, {
-                  authuserId: session?.user.id,
-                  reject: 1,
-                  documentId: id,
-                });
-                router.refresh();
-                messageApi.success("Амжилттай илгээгдлээ");
-              }}
-            >
-              Алдаа байхгүй, Илгээх
-            </Button> 
-            }
+                size="large"
+                type="link"
+                onClick={() => mainForm.submit()}
+              >
+                Засаад, хадгалах
+              </Button>
+            ) : (
+              <Badge variant="viewing">Шалгагдаж байгаа</Badge>
+            )}
+
+            {document.state !== "FORWARD" && (
+              <Button
+                size="large"
+                type="primary"
+                onClick={async () => {
+                  await axios.put(`/api/final/`, {
+                    authuserId: session?.user.id,
+                    reject: 1,
+                    documentId: id,
+                  });
+                  router.refresh();
+                  messageApi.success("Амжилттай илгээгдлээ");
+                }}
+              >
+                Алдаа байхгүй, Илгээх
+              </Button>
+            )}
           </Flex>
         </section>
         <div
@@ -630,7 +600,9 @@ export function EditPage({ document, id, steps }: any) {
           style={transformStyle}
         >
           <Steps
-            current={sortedSteps.findIndex((item: any) => item.state === "ACCESS")}
+            current={sortedSteps.findIndex(
+              (item: any) => item.state === "ACCESS"
+            )}
             direction="vertical"
             items={sortedSteps.map((item: any, index: number) => ({
               title: `${

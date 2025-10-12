@@ -1,6 +1,6 @@
 "use server";
 import { prisma } from "@/util/prisma";
-import { filterDepartment,convertName } from "./usable";
+import { filterDepartment, convertName } from "./usable";
 import * as v from "valibot";
 import { DocumentStateEnum } from "@prisma/client";
 import { DocumentSchema } from "@/lib/validation";
@@ -33,6 +33,43 @@ export async function CreateDocument(data: any) {
           },
         },
       });
+      const boss = await tx.employee.findMany({
+        where: {
+          AND: [
+            {
+              departmentId: authuser?.employee?.department.id,
+            },
+            {
+              isDeleted: false,
+            },
+          ],
+        },
+        include: {
+          jobPosition: {
+            select: {
+              jobPositionGroup: true,
+            },
+          },
+        },
+      });
+      boss.sort(
+        (a: any, b: any) =>
+          b.jobPosition.jobPositionGroup.jobAuthRank -
+          a.jobPosition.jobPositionGroup.jobAuthRank
+      );
+      const bossItem = data.departmentemployee.find(
+        (item: any) => item.employeeId === boss[0].id
+      );
+      if (bossItem) {
+        data.departmentemployee = data.departmentemployee.map(
+          (item: any) =>
+            item.employeeId === bossItem.employeeId
+              ? { ...item, permissionLvl: 10 } 
+              : { ...item, permissionLvl: null }
+        );
+      }
+
+     
       const initials = filterDepartment(authuser?.employee?.department?.name);
       const numbering = "-ТӨ-" + initials;
       const lastdocument = await tx.document.findFirst({
@@ -69,6 +106,7 @@ export async function CreateDocument(data: any) {
     });
 
     return record.id;
+  
   } catch (error) {
     return -1;
   }
@@ -210,6 +248,56 @@ export async function ShareGR(data: any) {
   }
 }
 
+export async function ShareRP(data: any) {
+  try {
+    await prisma.$transaction(async (tx) => {
+      const user = await tx.authUser.findUnique({
+        where: {
+          id: data.authuser,
+        },
+        select: {
+          employee: true,
+        },
+      });
+      const userEntry = {
+        employeeId: user?.employee?.id,
+        reportId: data.reportId,
+      };
+
+      const merge = [
+        ...data.sharegroup.map((item: any) => ({
+          employeeId: item.employeeId,
+          reportId: item.reportId,
+        })),
+        userEntry,
+      ];
+
+      const report = await tx.shareReport.findFirst({
+        where: {
+          reportId: data.reportId,
+        },
+      });
+      if (!report) {
+        await tx.shareReport.createMany({
+          data: merge,
+        });
+      }
+      await tx.shareReport.deleteMany({
+        where: {
+          reportId: data.reportId,
+        },
+      });
+      await tx.shareReport.createMany({
+        data: merge,
+      });
+    });
+    return 1;
+  } catch (e) {
+    console.error(e);
+    return -1;
+  }
+}
+
 export async function EditShareGRP(data: any) {
   try {
     const processedItems = await Promise.all(
@@ -264,79 +352,97 @@ export async function EditShareGRP(data: any) {
 export async function Report(datas: any) {
   try {
     await prisma.$transaction(async (tx) => {
-      const user = await tx.authUser.findUnique({
+      await tx.report.deleteMany({
         where: {
-          id: datas.authuserId,
+          documentId: Number(datas.documentId),
         },
+      });
+
+      await tx.report.create({
+        data: {
+          reportname: datas.reportname || "",
+          reportpurpose: datas.reportpurpose || "",
+          reportprocessing: datas.reportprocessing,
+          document: {
+            connect: {
+              id: Number(datas.documentId),
+            },
+          },
+          reportadvice: datas.reportadvice,
+          reportconclusion: datas.reportconclusion,
+          issue: {
+            createMany: {
+              data: datas.fixed || [],
+            },
+          },
+          usedphone: {
+            createMany: {
+              data: datas.usedphone || [],
+            },
+          },
+        },
+      });
+    });
+    return 1;
+  } catch (error) {
+    console.error(error);
+    return -1;
+  }
+}
+
+export async function ReportUpdate(data: any) {
+  try {
+    await prisma.$transaction(async (tx) => {
+      const user = await tx.authUser.findUnique({
+        where: { id: Number(data.userid) },
         include: {
           employee: true,
         },
       });
-      const existingReport = await tx.report.findUnique({
+
+      const result: any = {
+        reportId: data.id,
+        employeeId: user?.employee?.id,
+      };
+      console.log(result);
+      const report = await tx.shareReport.findFirst({
         where: {
-          documentId: datas.documentId,
+          reportId: data.id,
         },
       });
-   
-      if (existingReport) {
-          await tx.report.update({
-          where: {
-            documentId: datas.documentId,
-          },
-          data: {
-            reportname: datas.reportname,
-            reportpurpose: datas.reportpurpose,
-            reportprocessing: datas.reportprocessing,
-            employee: {
-              connect: {
-                id: user?.employee?.id,
-              },
-            },
-            reportadvice: datas.reportadvice,
-            reportconclusion: datas.reportconclusion,
-            issue: {
-              createMany: {
-                data: datas.reporttesterror,
-              },
-            },
-            budget: {
-              createMany: {
-                data: datas.reportbudget,
-              },
-            },
-          },
-        });
-      } else {
-        await tx.report.create({
-          data: {
-            reportname: datas.reportname,
-            reportpurpose: datas.reportpurpose,
-            reportprocessing: datas.reportprocessing,
-            document: {
-              connect: {
-                id: datas.documentId,
-              },
-            },
-            employee: {
-              connect: {
-                id: user?.employee?.id,
-              },
-            },
-            reportadvice: datas.reportadvice,
-            reportconclusion: datas.reportconclusion,
-            issue: {
-              createMany: {
-                data: datas.reporttesterror || [],
-              },
-            },
-            budget: {
-              createMany: {
-                data: datas.reportbudget || [],
-              },
-            },
-          },
+      if (!report) {
+        await tx.shareReport.createMany({
+          data: result,
         });
       }
+      await tx.reportIssue.deleteMany({
+        where: { reportId: Number(data.id) },
+      });
+      await tx.usedPhone.deleteMany({
+        where: { reportId: Number(data.id) },
+      });
+      await tx.report.update({
+        where: {
+          id: Number(data.id),
+        },
+        data: {
+          reportname: data.values.reportname,
+          reportpurpose: data.values.reportpurpose,
+          reportprocessing: data.values.reportprocessing,
+          reportconclusion: data.values.reportconclusion,
+          reportadvice: data.values.reportadvice,
+          issue: {
+            createMany: {
+              data: data.reporttesterror,
+            },
+          },
+          usedphone: {
+            createMany: {
+              data: data.usedphone,
+            },
+          },
+        },
+      });
     });
     return 1;
   } catch (error) {
@@ -361,7 +467,6 @@ export async function DeleteAll(data: any[]) {
 
 export async function FullUpdate(data: any) {
   try {
-  
     const result = data.departmentemployee.map((item: any) => {
       return {
         employeeId:
@@ -420,7 +525,7 @@ export async function FullUpdate(data: any) {
       await tx.documentEmployee.deleteMany({
         where: { documentId: Number(data.id) },
       });
-     
+
       await tx.document.update({
         where: { id: Number(data.id) },
         data: {
@@ -471,11 +576,30 @@ export async function FullUpdate(data: any) {
           },
         },
       });
-       
     });
     return 1;
   } catch (error) {
     console.error(error);
+    return -1;
+  }
+}
+
+export async function AddTestCase(data: any) {
+  try {
+    await prisma.document.update({
+      where: { id: Number(data.documentid) },
+      data: {
+        testcase: {
+          createMany: {
+            data: data.testcase,
+            skipDuplicates: true,
+          },
+        },
+      },
+    });
+    return 1;
+  } catch (e) {
+    console.error(e);
     return -1;
   }
 }
@@ -522,7 +646,7 @@ export async function ConfirmDoc(data: any) {
 
     return 1;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return -1;
   }
 }
@@ -568,7 +692,7 @@ export async function ConfirmMember(data: any) {
 
     return 1;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return -1;
   }
 }
@@ -617,18 +741,18 @@ export async function BossCheckPaper(data: any) {
 export async function RejectAction(data: any) {
   try {
     await prisma.$transaction(async (tx) => {
-      const user=await tx.authUser.findUnique({
-        where:{
-          id: Number(data.userid)
+      const user = await tx.authUser.findUnique({
+        where: {
+          id: Number(data.userid),
         },
         include: {
           employee: {
             select: {
               firstname: true,
-              lastname: true
-            }
-          }
-        }
+              lastname: true,
+            },
+          },
+        },
       });
       await tx.rejection.upsert({
         where: {
@@ -636,12 +760,16 @@ export async function RejectAction(data: any) {
         },
         update: {
           description: data.values.description,
-          employee: {employee: convertName(user?.employee)} as  Prisma.JsonObject
+          employee: {
+            employee: convertName(user?.employee),
+          } as Prisma.JsonObject,
         },
         create: {
           documentId: data.documentid,
           description: data.values.description,
-          employee: {employee: convertName(user?.employee)} as  Prisma.JsonObject
+          employee: {
+            employee: convertName(user?.employee),
+          } as Prisma.JsonObject,
         },
       });
       await tx.document.update({
@@ -671,6 +799,59 @@ export async function TriggerSuper(employeeId: number) {
     });
     return 1;
   } catch (error) {
+    return -1;
+  }
+}
+
+export async function setAdmin(employeeId: number) {
+  try {
+    await prisma.employee.update({
+      where: {
+        id: employeeId,
+      },
+      data: {
+        super: "ADMIN",
+      },
+    });
+    return 1;
+  } catch (e) {
+    return -1;
+  }
+}
+
+export async function ChangeStatus(data: any) {
+  try {
+    await prisma.employee.update({
+      where: {
+        id: data.employeeId,
+      },
+      data: {
+        jobPositionId: data.jobPositionId,
+        departmentId: data.departmentId,
+      },
+    });
+    return 1;
+  } catch (error) {
+    console.error("Error updating employee:", error);
+    return -1;
+  }
+}
+
+export async function UpdateCase(data: any) {
+  try {
+    console.log(data);
+    await prisma.testCase.update({
+      where: {
+        id: Number(data.caseid),
+      },
+      data: {
+        testType: data.values.testType,
+        description: data.values.description,
+      },
+    });
+    return 1;
+  } catch (e) {
+    console.error(e);
     return -1;
   }
 }

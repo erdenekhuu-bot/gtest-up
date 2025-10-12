@@ -16,6 +16,7 @@ import {
   DesktopOutlined,
   DatabaseTwoTone,
   PieChartTwoTone,
+
 } from "@ant-design/icons";
 import {
   Button,
@@ -51,13 +52,14 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
     sharecount,
     checkcountdoc,
     countdocument,
+      takeAllShare,getAllShare,countPlan,countReport
   } = ZUSTAND();
   const { data: session } = useSession();
   const chekcout = session?.user.permission.kind?.length;
   const manager = session?.user.name;
 
   const items: MenuItem[] = [
-    chekcout > 1
+    chekcout > 1 && chekcout < 4
       ? {
           key: "1",
           icon: (
@@ -67,7 +69,7 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
           ),
           label: "Хэлтсийн дарга",
           children: [
-            manager === "uuganbayar.ts"
+            manager === "uuganbayar.ts" || session?.user.employee.super === "ADMIN"
               ? {
                   key: "s10",
                   icon: <FormOutlined />,
@@ -80,11 +82,12 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
                   onClick: () => router.push("/teamplan"),
                 }
               : null,
-            manager === "uuganbayar.ts"
+            manager === "uuganbayar.ts" || session?.user.employee.super === "ADMIN"
               ? {
                   key: "s110",
                   icon: <HighlightOutlined />,
                   label: "Ирсэн тайлан",
+                  onClick: ()=>router.push("/teamreport")
                 }
               : null,
             manager === "nyamkhuu"
@@ -98,7 +101,7 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
           ],
         }
       : null,
-    chekcout > 1
+    chekcout > 1 && session?.user.employee.super !== "ADMIN"
       ? null
       : {
           key: "2",
@@ -131,12 +134,31 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
             
             {
               key: "s5",
-              icon: <DesktopOutlined />,
+              icon: (<Badge dot={takeAllShare !== null ? true : false}><DesktopOutlined /></Badge>),
               label: "Хуваалцсан",
-              onClick: () => {
-                router.push("/share");
-                getBread("Хуваалцсан");
-              },
+                children: [
+                    {
+                        key: "s50",
+                        icon: <DesktopOutlined />,
+                        label: <Flex align="center" gap={5}> Төлөвлөгөө <Badge count={countPlan} size="small" /></Flex>,
+                        onClick: () => {
+                            router.push("/share");
+                            getBread("Хуваалцсан");
+                        },
+                    },
+                    {
+                        key: "s51",
+                        icon: <SnippetsOutlined />,
+                        label: <Flex align="center" gap={5}>Тайлан <Badge count={countReport} size="small" /></Flex>,
+                        onClick: ()=>{router.push("/sharereport")},
+                    },
+                    {
+                        key: "s52",
+                        icon: <HighlightOutlined />,
+                        label: "Кейсүүд оруулах",
+                        onClick:()=>{router.push('/sharecase')}
+                    }
+                ]
             },
           ],
         },
@@ -170,15 +192,12 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
           onClick: () => router.push("/cc573"),
         }
       : null,
-    chekcout > 1 && chekcout < 2
-      ? null
-      : manager === "uuganbayar.ts"
-      ? {
+      {
           key: "6",
           icon: <DropboxOutlined />,
           label: "Ашигласан дугаарууд",
-        }
-      : null,
+          onClick:()=>router.push("/numbers")
+      },
     {
       key: "7",
       icon: <LoginOutlined />,
@@ -203,7 +222,10 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
     session?.user.id && fetchpaper(Number(session?.user.id));
     session?.user.id && fetchshare(Number(session.user.id));
     session?.user.id && checkcountdoc(Number(session.user.id));
+    session?.user.id && getAllShare(Number(session.user.id));
+
   }, [session?.user.id]);
+
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -286,7 +308,6 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
             minHeight: 280,
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
-            userSelect: "none",
           }}
         >
           {children}

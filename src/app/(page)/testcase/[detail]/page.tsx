@@ -13,6 +13,7 @@ export default async function Page({
       id: Number(detail),
     },
     include: {
+      detail: true,
       documentemployee: {
         include: {
           employee: {
@@ -23,6 +24,7 @@ export default async function Page({
           },
         },
       },
+      budget: true,
       testcase: {
         orderBy: {
           id: "asc",
@@ -31,6 +33,12 @@ export default async function Page({
           testCaseImage: true,
         },
       },
+      report: {
+        include: {
+          issue: true,
+          usedphone: true
+        }
+      }
     },
   });
   return <ReportMake id={detail} data={record} />;

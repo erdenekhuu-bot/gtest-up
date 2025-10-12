@@ -81,11 +81,11 @@ export function ShareComp({ document,total, page, pageSize }: any) {
       <EditShareWindow />
       <Flex justify="end">
         <Pagination 
-        current={page} 
-        pageSize={pageSize} 
-        total={total} 
-        onChange={handlePaginationChange}
-      />
+            current={page}
+            pageSize={pageSize}
+            total={total}
+            onChange={handlePaginationChange}
+          />
       </Flex>
     </section>
   );

@@ -3,213 +3,233 @@ import {
   Avatar,
   Badge,
   Flex,
-  Modal,
   Select,
-  Input,
-  Upload,
   Divider,
-  Image,
+  Image as IMG,
   Form,
   Button,
   message,
+  Breadcrumb,
 } from "antd";
-import type { UploadFile, UploadProps } from "antd";
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useEffect } from "react";
+import type { FormProps } from "antd";
 import { convertName } from "@/util/usable";
+import { useRouter } from "next/navigation";
+import "@uiw/react-md-editor/markdown-editor.css";
+import "@uiw/react-markdown-preview/markdown.css";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import {
+  ClassicEditor,
+  Bold,
+  Italic,
+  Base64UploadAdapter,
+  Essentials,
+  Image,
+  ImageCaption,
+  ImageResize,
+  ImageStyle,
+  ImageToolbar,
+  ImageUpload,
+  PictureEditing,
+  Paragraph,
+} from "ckeditor5";
+import "ckeditor5/ckeditor5.css";
+import "ckeditor5-premium-features/ckeditor5-premium-features.css";
+import { UpdateCase } from "@/util/action";
 import { ZUSTAND } from "@/zustand";
-import { UploadOutlined } from "@ant-design/icons";
+import { redirect } from "next/navigation";
 
-export function TestCaseAction({
-  form,
-  handleOk,
-}: {
-  form: any;
-  handleOk: () => void;
-}) {
-  const [data, setData] = useState<any>([]);
-  const [loading, setLoading] = useState(false);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState("");
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const { caseid, checkout, getCheckout } = ZUSTAND();
+export function TestCaseAction(record: any) {
+  const [mainForm] = Form.useForm();
+  const router = useRouter();
+  const [messageApi, contextHolder] = message.useMessage();
+  const { caseid } = ZUSTAND();
 
-  const handleRemove = async (file: any) => {
-    try {
-      await axios.delete(`/api/upload/image/${file.name}`);
-      message.success(`${file.name} deleted successfully`);
-      setFileList((prev) => prev.filter((item) => item.uid !== file.uid));
-    } catch (error) {
-      message.error(`Failed to delete ${file.name}`);
-    }
-  };
-
-  const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) =>
-    setFileList(newFileList);
-
-  const handleCancel = () => {
-    getCheckout(-1);
-  };
-
-  const detail = async function ({ id }: { id: number }) {
-    try {
-      const request = await axios.get(`/api/document/testcase/${id}`);
-      if (request.data.success) {
-        setData(request.data.data);
-        setLoading(true);
-        form.setFieldsValue({
-          testType: request.data.data?.testType || "CREATED",
-          description: request.data.data?.description || "",
-        });
-      }
-    } catch (error) {
-      return;
-    }
-  };
-
-  const handleDeleteTestCaseImage = async (imageId: number) => {
-    try {
-      const response = await axios.delete("/api/testcaseimage/" + imageId);
-      if (response.data.success) {
-        setData({
-          ...data,
-          testCaseImage: data.testCaseImage.filter(
-            (img: any) => img.id !== imageId
-          ),
-        });
-      }
-    } catch (error) {
-      return;
+  const onFinish: FormProps["onFinish"] = async (values) => {
+    const merge = {
+      values,
+      caseid,
+    };
+    const update = await UpdateCase(merge);
+    if (update > 0) {
+      messageApi.success("Амжилттай хадгалсан");
+      redirect("/sharecase");
+    } else {
+      messageApi.error("Алдаа гарлаа");
     }
   };
 
   useEffect(() => {
-    if (caseid) {
-      detail({ id: caseid });
-    }
-    if (!open) {
-      setFileList([]);
-    }
-  }, [caseid, open]);
+    mainForm.setFieldsValue({
+      testType: record.record.testType || "CREATED",
+      description: record.record.description || "",
+    });
+    router.refresh();
+  }, []);
 
   return (
-    <Modal
-      width={800}
-      open={checkout === 9}
-      onCancel={handleCancel}
-      onOk={handleOk}
-    >
-      <Form form={form}>
-        <Flex align="center" className="mb-4">
-          <Badge status="success" />
-          <p className="mx-2">Ангилал</p>
-        </Flex>
+    <Form form={mainForm} onFinish={onFinish}>
+      {contextHolder}
+      <Breadcrumb
+        style={{ margin: "16px 0" }}
+        items={[
+          {
+            title: (
+              <span
+                style={{
+                  cursor: "pointer",
+                }}
+              >
+                Үндсэн хуудас руу буцах
+              </span>
+            ),
+            onClick: () => redirect("/testcase"),
+          },
+          {
+            title: "Кэйс засварлах хуудас",
+          },
+        ]}
+      />
+      <Flex align="center" className="mb-4">
+        <Badge status="success" />
+        <p className="mx-2">Ангилал</p>
+      </Flex>
 
-        <Flex justify="space-between">
-          <p className="font-bold text-lg">{loading && data?.result}</p>
-          <Form.Item name="testType">
-            <Select
-              showSearch
-              style={{ width: 200 }}
-              placeholder="Кэйсийн төлөв"
-              optionFilterProp="label"
-              filterSort={(optionA, optionB) =>
-                (optionA?.label ?? "")
-                  .toLowerCase()
-                  .localeCompare((optionB?.label ?? "").toLowerCase())
-              }
-              options={[
-                {
-                  value: "STARTED",
-                  label: "Эхэлсэн",
-                },
-                {
-                  value: "ENDED",
-                  label: "Дууссан",
-                },
-                {
-                  value: "CREATED",
-                  label: "Үүссэн",
-                },
-              ]}
-            />
-          </Form.Item>
-        </Flex>
+      <Flex justify="space-between">
+        <p className="font-bold text-lg">{record.record?.result}</p>
+        <Form.Item name="testType">
+          <Select
+            showSearch
+            style={{ width: 200 }}
+            placeholder="Кэйсийн төлөв"
+            optionFilterProp="label"
+            filterSort={(optionA, optionB) =>
+              (optionA?.label ?? "")
+                .toLowerCase()
+                .localeCompare((optionB?.label ?? "").toLowerCase())
+            }
+            options={[
+              {
+                value: "STARTED",
+                label: "Эхэлсэн",
+              },
+              {
+                value: "ENDED",
+                label: "Дууссан",
+              },
+              {
+                value: "CREATED",
+                label: "Үүссэн",
+              },
+            ]}
+          />
+        </Form.Item>
+      </Flex>
 
-        <Divider />
-        <Avatar.Group>
-          <Flex gap={10} align="center">
-            <Image src="/users.svg" alt="" width={30} height={40} />
-            <div>
-              <Flex gap={4} wrap={true}>
-                {loading &&
-                  data?.document.documentemployee.map(
-                    (item: any, index: number) => (
-                      <Flex key={index} gap={4} className="opacity-60">
-                        <p>{convertName(item.employee)}</p>
-                      </Flex>
-                    )
-                  )}
-              </Flex>
-            </div>
-          </Flex>
-        </Avatar.Group>
-        <Divider />
-        {loading && (
-          <div
-            dangerouslySetInnerHTML={{
-              __html: data?.steps.replace(/\n/g, "<br />"),
+      <Divider />
+      <Avatar.Group>
+        <Flex gap={10} align="center">
+          <IMG src="/users.svg" alt="" width={30} height={40} />
+          <div>
+            <Flex gap={4} wrap={true}>
+              {record.record?.document.documentemployee.map(
+                (item: any, index: number) => (
+                  <Flex key={index} gap={4} className="opacity-60">
+                    <p>{convertName(item.employee)}</p>
+                  </Flex>
+                )
+              )}
+            </Flex>
+          </div>
+        </Flex>
+      </Avatar.Group>
+      <Divider />
+      <div
+        dangerouslySetInnerHTML={{
+          __html: record.record.steps.replace(/\n/g, "<br />"),
+        }}
+      />
+      <div className="mt-4">
+        <Form.Item name="description">
+          <CKEditor
+            editor={ClassicEditor}
+            config={{
+              licenseKey: "GPL",
+              plugins: [
+                Essentials,
+                Paragraph,
+                Bold,
+                Italic,
+                Image,
+                ImageCaption,
+                ImageStyle,
+                ImageResize,
+                ImageToolbar,
+                ImageUpload,
+                Base64UploadAdapter,
+                PictureEditing,
+              ],
+              toolbar: [
+                "undo",
+                "redo",
+                "|",
+                "bold",
+                "italic",
+                "|",
+                "imageUpload",
+                "|",
+                "imageStyle:inline",
+                "imageStyle:block",
+                "imageStyle:side",
+              ],
+              image: {
+                resizeOptions: [
+                  {
+                    name: "resizeImage:original",
+                    label: "Original",
+                    value: null,
+                  },
+                  { name: "resizeImage:50", label: "50%", value: "50" },
+                  { name: "resizeImage:75", label: "75%", value: "75" },
+                ],
+                toolbar: [
+                  "resizeImage:50",
+                  "resizeImage:75",
+                  "resizeImage:original",
+                  "|",
+                  "imageTextAlternative",
+                ],
+              },
+              htmlSupport: {
+                allow: [
+                  {
+                    name: /.*/,
+                    attributes: true,
+                    styles: true,
+                    classes: true,
+                  },
+                ],
+              },
+            }}
+            onChange={(event, editor) => {
+              const data = editor.getData();
+              mainForm.setFieldsValue({ description: data });
+            }}
+            data={mainForm.getFieldValue("description")}
+            onReady={(editor) => {
+             
+              editor.model.document.on("change:data", () => {
+                mainForm.setFieldsValue({ description: editor.getData() });
+              });
             }}
           />
-        )}
-        <div className="mt-4">
-          <Form.Item name="description">
-            <Input.TextArea
-              rows={4}
-              style={{ resize: "none" }}
-              placeholder="Тайлбар бичих"
-            />
-          </Form.Item>
-        </div>
-        <div className="my-4">
-          <Upload
-            action="/api/upload/image"
-            fileList={fileList}
-            onRemove={handleRemove}
-            onChange={handleChange}
-            directory
-          >
-            <Button icon={<UploadOutlined />}>Upload Directory</Button>
-          </Upload>
-
-          {previewImage && (
-            <Image
-              wrapperStyle={{ display: "none" }}
-              preview={{
-                visible: previewOpen,
-                onVisibleChange: (visible) => setPreviewOpen(visible),
-                afterOpenChange: (visible) => !visible && setPreviewImage(""),
-              }}
-              src={previewImage}
-            />
-          )}
-          {loading && data?.testCaseImage.length > 0 && (
-            <div className="flex flex-wrap gap-4 mt-4 overflow-x-scroll scrollbar">
-              {data?.testCaseImage.map((item: any, index: number) => (
-                <div key={index} className="relative">
-                  <Image src={item.path} width={100} height={100} />
-                  <button
-                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:cursor-pointer"
-                    onClick={() => handleDeleteTestCaseImage(item.id)}
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </Form>
-    </Modal>
+        </Form.Item>
+        <Flex justify="center">
+          <Button size="large" type="primary" onClick={() => mainForm.submit()}>
+            Хадгалах
+          </Button>
+        </Flex>
+      </div>
+    </Form>
   );
 }

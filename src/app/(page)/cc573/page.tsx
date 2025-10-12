@@ -48,7 +48,7 @@ export default async function Page(props: {
 
   return (
     <CCpage
-      document={record}
+      data={record}
       total={totalCount}
       page={page}
       pageSize={pageSize}
