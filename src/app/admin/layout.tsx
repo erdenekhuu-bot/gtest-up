@@ -6,9 +6,11 @@ import {
   MenuUnfoldOutlined,
   UserOutlined,
   VideoCameraOutlined,
+  LoginOutlined
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme } from "antd";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 const { Header, Sider, Content } = Layout;
 
@@ -43,6 +45,12 @@ export default function DashboardLayout({
               label: "Буцаах эрхтэй хүмүүс",
               onClick: () => router.push("/admin/super"),
             },
+            {
+                  key: "7",
+                  icon: <LoginOutlined />,
+                  label: "Системээс гарах",
+                  onClick: () => signOut({ callbackUrl: "/login" }),
+                },
           ]}
         />
       </Sider>

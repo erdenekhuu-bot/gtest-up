@@ -9,12 +9,7 @@ export async function middleware(req: NextRequest) {
     "/api",
     "/_next",
     "/favicon.ico",
-    "/upload/images",
-    "/listplan",
-    "/dirplan",
-    "/ceoplan",
-    "/admin",
-    "/plan"
+    "/upload/images"
   ];
 
   const isPublic = publicPaths.some((path) => pathname.startsWith(path));
