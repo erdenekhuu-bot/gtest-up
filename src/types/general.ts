@@ -13,3 +13,11 @@ type DataType = {
   timeCreated: string;
   state: string;
 };
+
+
+type TablePagination = {
+    data: any[];
+    total: number;
+    page: number;
+    pageSize: number;
+}

@@ -34,8 +34,7 @@ export default async function Page(props: {
         LIMIT ${pageSize} OFFSET ${offset}
   `;
 
-
-   const totalCount: any = await prisma.$queryRaw`
+  const totalCount: any = await prisma.$queryRaw`
     SELECT COUNT(DISTINCT d.id) as total
     FROM "Document" d
     INNER JOIN "ConfirmPaper" cp ON cp."documentId" = d.id
@@ -45,11 +44,6 @@ export default async function Page(props: {
   const data = record.map((item: any) => item.result);
   const total = Number(totalCount[0]?.total) || 0;
   return (
-    <TeamPaperPage
-      data={data}
-      total={total}
-      page={page}
-      pageSize={pageSize}
-    />
+    <TeamPaperPage data={data} total={total} page={page} pageSize={pageSize} />
   );
 }

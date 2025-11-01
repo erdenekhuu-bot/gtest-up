@@ -32,12 +32,25 @@ import {
   ImageUpload,
   PictureEditing,
   Paragraph,
+  Link,
+  List,
+  Heading,
+  Underline,
+  Strikethrough,
+  Code,
+  BlockQuote,
+  Subscript,
+  Superscript,
+  FontColor,
+  FontSize,
+  Alignment,
+  Table,
+  TableToolbar,
 } from "ckeditor5";
 import "ckeditor5/ckeditor5.css";
-import "ckeditor5-premium-features/ckeditor5-premium-features.css";
 import { UpdateCase } from "@/util/action";
 import { ZUSTAND } from "@/zustand";
-import { redirect } from "next/navigation";
+import { useState } from "react";
 
 export function TestCaseAction(record: any) {
   const [mainForm] = Form.useForm();
@@ -53,7 +66,6 @@ export function TestCaseAction(record: any) {
     const update = await UpdateCase(merge);
     if (update > 0) {
       messageApi.success("Амжилттай хадгалсан");
-      redirect("/sharecase");
     } else {
       messageApi.error("Алдаа гарлаа");
     }
@@ -66,6 +78,14 @@ export function TestCaseAction(record: any) {
     });
     router.refresh();
   }, []);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 50);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <Form form={mainForm} onFinish={onFinish}>
@@ -79,14 +99,14 @@ export function TestCaseAction(record: any) {
                 style={{
                   cursor: "pointer",
                 }}
+                onClick={() => router.back()}
               >
                 Үндсэн хуудас руу буцах
               </span>
             ),
-            onClick: () => redirect("/testcase"),
           },
           {
-            title: "Кэйс засварлах хуудас",
+            title: "Кэйс оруулах хуудас",
           },
         ]}
       />
@@ -96,7 +116,7 @@ export function TestCaseAction(record: any) {
       </Flex>
 
       <Flex justify="space-between">
-        <p className="font-bold text-lg">{record.record?.result}</p>
+        <p className="font-bold text-lg">{record.record?.types}</p>
         <Form.Item name="testType">
           <Select
             showSearch
@@ -109,10 +129,6 @@ export function TestCaseAction(record: any) {
                 .localeCompare((optionB?.label ?? "").toLowerCase())
             }
             options={[
-              {
-                value: "STARTED",
-                label: "Эхэлсэн",
-              },
               {
                 value: "ENDED",
                 label: "Дууссан",
@@ -160,6 +176,8 @@ export function TestCaseAction(record: any) {
                 Paragraph,
                 Bold,
                 Italic,
+                Link,
+                List,
                 Image,
                 ImageCaption,
                 ImageStyle,
@@ -168,20 +186,89 @@ export function TestCaseAction(record: any) {
                 ImageUpload,
                 Base64UploadAdapter,
                 PictureEditing,
+                Heading,
+                Underline,
+                Strikethrough,
+                Code,
+                BlockQuote,
+                Subscript,
+                Superscript,
+                FontColor,
+                FontSize,
+                Alignment,
+                Table,
+                TableToolbar,
               ],
               toolbar: [
                 "undo",
                 "redo",
                 "|",
+                "heading",
+                "|",
                 "bold",
                 "italic",
+                "underline",
+                "strikethrough",
+                "|",
+                "link",
+                "bulletedList",
+                "numberedList",
+                "|",
+                "outdent",
+                "indent",
                 "|",
                 "imageUpload",
+                "insertTable",
+                "blockQuote",
                 "|",
+                "code",
+                "subscript",
+                "superscript",
+                "|",
+                "fontColor",
+                "fontSize",
+                "alignment:left",
+                "alignment:center",
+                "alignment:right",
+                "alignment:justify",
                 "imageStyle:inline",
                 "imageStyle:block",
                 "imageStyle:side",
               ],
+              heading: {
+                options: [
+                  {
+                    model: "paragraph",
+                    title: "Paragraph",
+                    class: "ck-heading_paragraph",
+                  },
+                  {
+                    model: "heading1",
+                    view: "h1",
+                    title: "Heading 1",
+                    class: "ck-heading_heading1",
+                  },
+                  {
+                    model: "heading2",
+                    view: "h2",
+                    title: "Heading 2",
+                    class: "ck-heading_heading2",
+                  },
+                ],
+              },
+              fontSize: {
+                options: [10, 12, 14, "default", 18, 20, 24],
+                supportAllValues: true,
+              },
+              fontColor: {
+                colors: [
+                  { color: "hsl(0, 0%, 0%)", label: "Black" },
+                  { color: "hsl(0, 0%, 30%)", label: "Dim grey" },
+                  { color: "hsl(0, 0%, 60%)", label: "Grey" },
+                  { color: "hsl(0, 0%, 90%)", label: "Light grey" },
+                  { color: "hsl(0, 0%, 100%)", label: "White" },
+                ],
+              },
               image: {
                 resizeOptions: [
                   {
@@ -192,13 +279,10 @@ export function TestCaseAction(record: any) {
                   { name: "resizeImage:50", label: "50%", value: "50" },
                   { name: "resizeImage:75", label: "75%", value: "75" },
                 ],
-                toolbar: [
-                  "resizeImage:50",
-                  "resizeImage:75",
-                  "resizeImage:original",
-                  "|",
-                  "imageTextAlternative",
-                ],
+                toolbar: ["imageTextAlternative"],
+              },
+              table: {
+                contentToolbar: ["tableColumn", "tableRow", "mergeTableCells"],
               },
               htmlSupport: {
                 allow: [
@@ -217,7 +301,6 @@ export function TestCaseAction(record: any) {
             }}
             data={mainForm.getFieldValue("description")}
             onReady={(editor) => {
-             
               editor.model.document.on("change:data", () => {
                 mainForm.setFieldsValue({ description: editor.getData() });
               });

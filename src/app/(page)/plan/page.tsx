@@ -2,6 +2,7 @@ import { prisma } from "@/util/prisma";
 import { PlanPage } from "@/components/page/planpage";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { mainquery, primequery } from "@/util/usable";
 
 export default async function Page(props: {
   searchParams?: Promise<{
@@ -16,51 +17,20 @@ export default async function Page(props: {
   const pageSize = Number(searchParams?.pageSize) || 10;
   const session = await getServerSession(authOptions);
   const isAdmin = session?.user.employee.super === "ADMIN";
-  const record = await prisma.document.findMany({
-    where: {
-        AND: [
-            ...(isAdmin
-                ? []
-                : [
-                    {
-                        authUserId: Number(session?.user?.id),
-                    },
-                ]),
-            {
-                title: {
-                    contains: search || "",
-                    mode: "insensitive",
-                },
-            },
-        ],
-    },
-    skip: (page - 1) * pageSize,
-    take: pageSize,
-    include: {
-      user: {
-        select: {
-          employee: {
-            select: {
-              firstname: true,
-              lastname: true,
-            },
-          },
-        },
-      },
-      departmentEmployeeRole: true,
-      reject: true,
-      file: true,
-    },
-    orderBy: {
-      timeCreated: "asc",
-    },
-  });
-  const totalCount = await prisma.document.count({
-      where: isAdmin
-          ? {}
-          : { authUserId: Number(session?.user.id) },
-  });
-
+  const userId = session?.user.employee.id;
+  const checkout = Number(
+    session?.user.employee.jobPosition?.jobPositionGroup?.jobAuthRank
+  );
+  const record: any =
+    checkout >= 2
+      ? await primequery(Number(userId), pageSize, page)
+      : await mainquery(Number(userId), pageSize, page);
+  const totalCount = (await prisma.$queryRaw`
+    SELECT COUNT(*)::int AS total
+      FROM public."Document" AS doc
+        LEFT JOIN public."AuthUser" AS authuser ON authuser.id = doc."authUserId"
+      WHERE authuser.id = ${userId};
+    `) as number;
   return (
     <PlanPage
       data={record}

@@ -106,8 +106,9 @@ export async function CreateDocument(data: any) {
     });
 
     return record.id;
-  
+
   } catch (error) {
+      console.log(error)
     return -1;
   }
 }
@@ -451,19 +452,6 @@ export async function ReportUpdate(data: any) {
   }
 }
 
-export async function DeleteAll(data: any[]) {
-  try {
-    for (const item of data) {
-      await prisma.document.delete({
-        where: { id: Number(item) },
-      });
-    }
-    return 1;
-  } catch (error) {
-    console.error(error);
-    return -1;
-  }
-}
 
 export async function FullUpdate(data: any) {
   try {
@@ -803,14 +791,14 @@ export async function TriggerSuper(employeeId: number) {
   }
 }
 
-export async function setAdmin(employeeId: number) {
+export async function setAdmin(employeeId: number, status:number) {
   try {
     await prisma.employee.update({
       where: {
         id: employeeId,
       },
       data: {
-        super: "ADMIN",
+        super: status === 1 ? "ADMIN" : "VIEWER",
       },
     });
     return 1;
@@ -821,16 +809,8 @@ export async function setAdmin(employeeId: number) {
 
 export async function ChangeStatus(data: any) {
   try {
-    await prisma.employee.update({
-      where: {
-        id: data.employeeId,
-      },
-      data: {
-        jobPositionId: data.jobPositionId,
-        departmentId: data.departmentId,
-      },
-    });
-    return 1;
+    console.log(data)
+    return -1;
   } catch (error) {
     console.error("Error updating employee:", error);
     return -1;
@@ -839,7 +819,6 @@ export async function ChangeStatus(data: any) {
 
 export async function UpdateCase(data: any) {
   try {
-    console.log(data);
     await prisma.testCase.update({
       where: {
         id: Number(data.caseid),

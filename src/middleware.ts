@@ -21,7 +21,6 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  const checkout = token?.permission?.kind?.length || 0;
 
   if (req.nextUrl.pathname === "/") {
     return NextResponse.redirect(new URL("/plan", req.nextUrl));

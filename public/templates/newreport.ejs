@@ -1,150 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Тайлан</title>
     <style>
-        table.custom-table {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1px solid black;
-            page-break-inside: auto;
-        }
+      table.custom-table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid black;
+        page-break-inside: auto;
+      }
 
-        table.custom-table tr {
-            page-break-inside: avoid;
-            page-break-after: auto;
-        }
+      table.custom-table tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+      }
 
-        table.custom-table td,
-        table.custom-table th {
-            border: 1px solid black;
-            padding: 8px;
-            vertical-align: top;
-        }
+      table.custom-table td,
+      table.custom-table th {
+        border: 1px solid black;
+        padding: 8px;
+        vertical-align: top;
+      }
 
+      table.custom-table td {
+        font-size: 9px;
+      }
 
-        table.custom-table th.header,
-        table.custom-table td.header {
+      table.custom-table th.header,
+      table.custom-table td.header {
+        text-align: center;
+        font-weight: bold;
+        background-color: rgb(122, 175, 236);
+        font-size: 10px;
+      }
+
+      .ck-content {
+        width: 100%;
+        word-break: break-word;
+        font-size: 9px;
+      }
+      .ck-content figure.image {
+        display: inline-block !important;
+        margin: 2px !important;
+        vertical-align: middle !important;
+      }
+      .ck-content img {
+        display: inline-block !important;
+        height: auto !important;
+        max-width: 100% !important;
+        vertical-align: middle !important;
+      }
+
+      /* ГАРАН ҮСГИЙН ХЭСГИЙН ШИНЭЧИЛСЭН CSS */
+      .signature-table {
+        width: 650px; /* Бага зэрэг нэмэгдүүлж, зайг тэнцвэржүүлэв */
+        border-collapse: collapse;
+        margin: 0 auto;
+        font-size: 12px;
+        margin-bottom: 15px;
+      }
+      .signature-table td {
+        /* Мөр хоорондын босоо зай */
+        padding: 8px 0;
+        vertical-align: bottom;
+      }
+      .signature-role {
+        /* Бүх баганын өргөнийг тэнцүү болгов */
+        width: 33.33%;
+        font-weight: normal;
+      }
+
+      /* Багана 1: Үүрэг (Зөвшөөрсөн:) */
+      .signature-table tr td:first-child {
+        text-align: left;
+        padding-right: 20px;
+      }
+
+      /* Багана 2: Нэрс (Р.Жаргал, Р.Сумъяа) - Голын багана */
+      .signature-table tr td:nth-child(2) {
+        /* Голын багана дээрх хэвтээ зайг тохируулж, тэнцвэржүүлэв */
+        text-align: center; /* Нэрсийг төвд байрлуулна */
+      }
+
+      /* Багана 3: Баталгаажуулалт (/ Зөвшөөрсөн /) */
+      .signature-table tr td:last-child {
+        text-align: right; /* Баруун талд зэрэгцүүлэв */
+      }
+
+      .role-spacing td {
+        padding-top: 10px !important;
+      }
+    </style>
+  </head>
+  <body>
+    <main style="padding: 20px 40px; font-family: Arial, Helvetica, sans-serif">
+      <div class="header-section">
+        <p style="opacity: 70%; font-size: 12px">ЖИМОБАЙЛ ХХК</p>
+        <h1
+          style="
             text-align: center;
             font-weight: bold;
-            background-color: rgb(122, 175, 236);
-            font-size: 13px;
-        }
+            font-size: 12px;
+            margin-top: 0;
+            margin-bottom: 1em;
+          "
+        >
+          <%= document?.title %>
+        </h1>
+      </div>
+      <div>
+        <p style="font-weight: bold; font-size: 12px">ЗОРИЛГО:</p>
+        <p style="font-size: 12px"><%= document?.detail?.aim %></p>
+      </div>
 
-        .ck-content {
-            width: 100%;
-            word-break: break-word;
-        }
-        .ck-content figure.image {
-            display: inline-block !important;
-            margin: 2px !important;
-            vertical-align: middle !important;
-        }
-        .ck-content img {
-            display: inline-block !important;
-            height: auto !important;
-            max-width: 100% !important;
-            vertical-align: middle !important;
-        }
-
-    </style>
-
-</head>
-<body>
-<main style="padding: 20px 40px; font-family: Arial, Helvetica, sans-serif">
-    <div class="header-section">
-        <p style="opacity: 70%;">ЖИМОБАЙЛ ХХК</p>
-        <p style="font-weight: bold;">
-            <%= document?.title %>
-        </p>
-    </div>
-    <div>
-        <p style="font-weight: bold;">ЗОРИЛГО:</p>
-        <p><%= document?.detail?.aim %></p>
-    </div>
-    <div>
-        <p style="font-weight: bold;">
-            ТЕСТИЙН ҮЙЛ АЖИЛЛАГААНД АШИГЛАСАН ДУГААРУУД:
+      <div>
+        <p style="font-weight: bold; font-size: 12px">
+          ТЕСТИЙН БАГИЙН БҮРЭЛДЭХҮҮН, ТЕСТ ХИЙСЭН ХУВААРЬ
         </p>
         <table class="custom-table">
-            <tbody>
+          <tbody>
             <tr>
-                <th class="header">№</th>
-                <th class="header">Үйлчилгээний төрөл</th>
-                <th class="header">Утасны дугаар</th>
-                <th class="header">Дугаарын нөхцөл</th>
-                <th class="header">Сиреал дугаар</th>
-            </tr>
-            <% document?.report?.usedphone.forEach((data, index) => { %>
-                <tr>
-                    <td><%= index+1 %></td>
-                    <td><%= convertPhoneType(data?.type) %></td>
-                    <td><%= data?.phone %></td>
-                    <td><%= data?.description %></td>
-                    <td><%= data?.serial %></td>
-                </tr>
-            <% }) %>
-            </tbody>
-        </table>
-    </div>
-    <div>
-        <p style="font-weight: bold;">
-            ТЕСТИЙН БАГИЙН БҮРЭЛДЭХҮҮН, ТЕСТ ХИЙСЭН ХУВААРЬ
-        </p>
-        <table class="custom-table">
-            <tbody>
-            <tr>
-                <th class="header">№</th>
-                <th class="header">Албан тушаал</th>
-                <th class="header">Ажилтны нэр</th>
-                <th class="header">Үүрэг</th>
-                <th class="header">Эхлэх хугацаа</th>
-                <th class="header">Дуусах хугацаа</th>
+              <th class="header">№</th>
+              <th class="header">Албан тушаал</th>
+              <th class="header">Ажилтны нэр</th>
+              <th class="header">Үүрэг</th>
+              <th class="header">Эхлэх хугацаа</th>
+              <th class="header">Дуусах хугацаа</th>
             </tr>
             <% document?.documentemployee?.forEach((data, index) => { %>
-                <tr>
-                    <td><%= index+1 %></td>
-                    <td>
-                        <%= filterDepartment(data?.employee?.department?.name) %> - <%=
-                            data?.employee?.jobPosition?.name %>
-                    </td>
-                    <td>
-                        <%= convertFirst(data?.employee?.lastname) %>
-                        <%=data?.employee?.firstname %>
-                    </td>
-                    <td><%= data?.role %></td>
-                    <td><%= new Date(data?.startedDate).toLocaleDateString() %></td>
-                    <td><%= new Date(data?.endDate).toLocaleDateString() %></td>
-                </tr>
+            <tr>
+              <td><%= index+1 %></td>
+              <td>
+                <%= filterDepartment(data?.employee?.department?.name) %> - <%=
+                data?.employee?.jobPosition?.name %>
+              </td>
+              <td>
+                <%= convertFirst(data?.employee?.lastname) %>
+                <%=data?.employee?.firstname %>
+              </td>
+              <td><%= data?.role %></td>
+              <td><%= new Date(data?.startedDate).toLocaleDateString() %></td>
+              <td><%= new Date(data?.endDate).toLocaleDateString() %></td>
+            </tr>
             <% }) %>
-            </tbody>
+          </tbody>
         </table>
-    </div>
-    <div style="margin-top: 20px; margin-bottom: 20px">
-        <p style="font-weight: bold;">ТЕСТИЙН ЯВЦЫН ТОЙМ:</p>
-        <%= document?.report?.reportprocessing %>
-    </div>
-    <table class="custom-table">
+      </div>
+      <div>
+        <p style="font-weight: bold; font-size: 12px">
+          ТЕСТИЙН ҮЙЛ АЖИЛЛАГААНД АШИГЛАСАН ДУГААРУУД:
+        </p>
+        <table class="custom-table">
+          <tbody>
+            <tr>
+              <th class="header">№</th>
+              <th class="header">Үйлчилгээний төрөл</th>
+              <th class="header">Утасны дугаар</th>
+              <th class="header">Дугаарын нөхцөл</th>
+              <th class="header">Сиреал дугаар</th>
+            </tr>
+            <% document?.report?.usedphone.forEach((data, index) => { %>
+            <tr>
+              <td><%= index+1 %></td>
+              <td><%= convertPhoneType(data?.type) %></td>
+              <td><%= data?.phone %></td>
+              <td><%= data?.description %></td>
+              <td><%= data?.serial %></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top: 20px; margin-bottom: 20px">
+        <p style="font-weight: bold; font-size: 12px">ТЕСТИЙН ЯВЦЫН ТОЙМ:</p>
+        <div style="font-size: 10px">
+          <%= document?.report?.reportprocessing %>
+        </div>
+      </div>
+      <table class="custom-table">
         <tbody>
-        <% document.testcase.forEach(tc => { %>
-            <tr>
-                <td class="header"><%= tc.types %></td>
-            </tr>
-            <tr>
-                <td class="ck-content">
-                    <%- tc.description %>
-                </td>
-            </tr>
-        <% }) %>
+          <% document.testcase.forEach((tc, index) => { %>
+          <tr>
+            <td class="header">Кейс №:<%= index+1 %> <%= tc.types %></td>
+          </tr>
+          <tr>
+            <td class="ck-content"><%- tc.description %></td>
+          </tr>
+          <% }) %>
         </tbody>
-    </table>
-</main>
-<% function convertFirst(lastname){ return lastname[0]+"." } %> <% function
-filterDepartment(department){ return department .split(" ") .map((word) =>
-        word[0].toUpperCase()) .join(""); } %> <% const roles = { "VIEWER": "Хянах",
+      </table>
+      <div
+        style="
+          font-family: Arial, sans-serif;
+          line-height: 1.6;
+          page-break-before: always;
+        "
+      >
+        <table class="signature-table">
+          <% document?.departmentEmployeeRole.forEach((data, index) => { %>
+            <tr>
+              <% if (index === 0) { %>
+                <td class="signature-role">Зөвшөөрсөн:</td>
+              <% } else { %>
+                <td></td>
+              <% } %>
+              <td class="signature-role"><%= data.employee.firstname %></td>
+              <td class="signature-role">/ Зөвшөөрсөн /</td>
+            </tr>
+          <% }); %>
+        </table>
+
+
+
+        
+        <!-- <table class="signature-table">
+          <tr class="role-spacing">
+            <td class="signature-role">Хянасан:</td>
+            <td class="signature-role">Ц.Ууганбаяр</td>
+            <td class="signature-role">/ Хянасан /</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td class="signature-role">Л.Нямхүү</td>
+            <td class="signature-role">/ Хянасан /</td>
+          </tr>
+        </table> -->
+        <!-- <table class="signature-table">
+          <tr class="role-spacing">
+            <td class="signature-role">Тестийн гишүүд:</td>
+            <td class="signature-role">Д.Бадамрагчаа</td>
+            <td class="signature-role">/ Тестлсэн /</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td class="signature-role">С.Тэнгис</td>
+            <td class="signature-role">/ Тестлсэн /</td>
+          </tr>
+        </table>
+        <table class="signature-table">
+          <tr class="role-spacing">
+            <td class="signature-role">Боловсруулсан:</td>
+            <td class="signature-role">М.Энх-оргил</td>
+            <td class="signature-role">/ Боловсруулсан /</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td class="signature-role">Г.Саруул</td>
+            <td class="signature-role">/ Боловсруулсан /</td>
+          </tr>
+        </table> -->
+      </div>
+    </main>
+    <% function convertFirst(lastname){ return lastname[0]+"." } %> <% function
+    filterDepartment(department){ return department .split(" ") .map((word) =>
+    word[0].toUpperCase()) .join(""); } %> <% const roles = { "VIEWER": "Хянах",
     "DEV": "Нөхцөлөөр хангах", "TESTER": "eБоловсруулах" }; function
-convertPhoneType(type) { return type === "PERPAID" ? "Урьдчилсан төлбөрт" :
-        "Дараа төлбөрт"} %>
-</body>
+    convertPhoneType(type) { return type === "PERPAID" ? "Урьдчилсан төлбөрт" :
+    "Дараа төлбөрт"} %>
+  </body>
 </html>

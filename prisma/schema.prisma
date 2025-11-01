@@ -37,7 +37,6 @@ model Department {
   timeUpdated    DateTime      @updatedAt
   employees      Employee[]
   jobPositions   JobPosition[]
-  permission     Permission[]  @relation("department")
 }
 
 model JobPosition {
@@ -53,7 +52,6 @@ model JobPosition {
   employee         Employee[]
   department       Department         @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   jobPositionGroup JobPositionGroup?  @relation(fields: [jobGroupId], references: [id], onDelete: Cascade)
-  permission       Permission[]       @relation("jobposition")
 }
 
 model JobPositionGroup {
@@ -97,7 +95,6 @@ model Document {
   riskassessment         RiskAssessment[]         @relation("assessent")
   testcase               TestCase[]               @relation("addcase")
   departmentEmployeeRole DepartmentEmployeeRole[]
-  permission             Permission[]             @relation("document")
   report                 Report?                  @relation("report_document")
   shareGroup             ShareGroup[]             @relation("document_group")
   confirm                ConfirmPaper[]           @relation("confirm")
@@ -137,6 +134,8 @@ model Employee {
   report                 Report[]                 @relation("employee_report")
   shareGroup             ShareGroup[]             @relation("share_group")
   shareReport            ShareReport[]            @relation("share_report")
+  permission             Permission[]
+
 
   confirm ConfirmPaper[]
   sub     ConfirmSub[]
@@ -158,8 +157,8 @@ model DepartmentEmployeeRole {
 }
 
 model DocumentDetail {
-  intro      String   @db.VarChar(500)
-  aim        String   @db.VarChar(500)
+  intro      String
+  aim        String
   id         Int      @id @default(autoincrement())
   documentId Int      @unique
   document   Document @relation("detail", fields: [documentId], references: [id], onDelete: Cascade)
@@ -253,13 +252,11 @@ model File {
 }
 
 model Permission {
-  id          Int           @id
+  id          Int           @id @default(autoincrement())
   timeCreated DateTime      @default(now())
   timeAction  DateTime      @updatedAt
   kind        Json          @default("[]")
-  department  Department[]  @relation("department")
-  document    Document[]    @relation("document")
-  jobposition JobPosition[] @relation("jobposition")
+  employee    Employee[]
 }
 
 model Report {
@@ -378,6 +375,7 @@ model ConfirmSub {
   check       Boolean      @default(false)
 }
 
+
 enum PhoneType {
   POSTPAID
   PERPAID
@@ -436,6 +434,7 @@ enum EROLE {
   DEV
   REPORT
   ADMIN
+  SHOWER
 }
 
 enum FILETYPE {

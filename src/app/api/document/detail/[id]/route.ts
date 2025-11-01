@@ -7,13 +7,25 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-  
+
     const record = await prisma.$transaction(async (tx) => {
       const detail = await tx.document.findUnique({
         where: {
           id: Number(id),
         },
         include: {
+          user: {
+            select: {
+              employee: {
+                select: {
+                  firstname: true,
+                  lastname: true,
+                  jobPosition: true,
+                  department: true,
+                },
+              },
+            },
+          },
           documentemployee: {
             select: {
               employee: {
@@ -31,6 +43,9 @@ export async function GET(
             },
           },
           departmentEmployeeRole: {
+            where: {
+              role: "ACCESSER"
+            },
             distinct: ["employeeId"],
             select: {
               employee: {
@@ -67,7 +82,7 @@ export async function GET(
               budget: true,
               issue: true,
               team: true,
-              
+
               file: true,
               usedphone: true,
             },

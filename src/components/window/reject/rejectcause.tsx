@@ -16,8 +16,8 @@ export function RejectCause() {
     const response = await axios.get("/api/paper/reject/" + id);
     if (response.data.success) {
       mainForm.setFieldsValue({
-        employee: response.data.data.reject.employee.employee,
-        description: response.data.data.reject.description,
+        employee: response.data.data?.reject?.employee?.employee,
+        description: response.data.data?.reject?.description,
       });
     }
   };

@@ -1,6 +1,6 @@
 "use client";
 import { ZUSTAND } from "@/zustand";
-import { Form, Input, Table, Button, message } from "antd";
+import { Form, Input, Table, Button, message, Breadcrumb } from "antd";
 import type { FormProps } from "antd";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
@@ -10,13 +10,13 @@ import { useSession } from "next-auth/react";
 import { ConfirmMember } from "@/util/action";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import MDEditor from "@uiw/react-md-editor";
-import "@uiw/react-md-editor/markdown-editor.css";
-import "@uiw/react-markdown-preview/markdown.css";
+
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   const { fetchpaper, employeeId, documentid, confirmId } = ZUSTAND();
   const [caseForm] = Form.useForm();
+  const router = useRouter();
   const [messageApi, contextHolder] = message.useMessage();
   const { data: session } = useSession();
   const [tableData, setTableData] = useState<any[]>([]);
@@ -33,6 +33,7 @@ export default function Page() {
       const updatedData = request.data.data?.confirm[0]?.sub.map(
         (data: any) => ({
           key: uuidv4(),
+          id: data.id,
           system: data.system,
           jobs: data.jobs,
           module: data.module,
@@ -106,8 +107,75 @@ export default function Page() {
 
   return (
     <div>
+      <Breadcrumb
+        style={{ margin: "16px 0" }}
+        items={[
+          {
+            title: (
+              <span
+                style={{
+                  cursor: "pointer",
+                }}
+              >
+                Үндсэн хуудас руу буцах
+              </span>
+            ),
+            onClick: () => redirect("/paper"),
+          },
+          {
+            title: "Хийх ажилууд",
+          },
+        ]}
+      />
+
       {contextHolder}
-      <Form form={caseForm} className="p-6" onFinish={onFinish}>
+      <Table
+        dataSource={tableData}
+        pagination={false}
+        bordered
+        rowKey="key"
+        columns={[
+          { title: "Систем нэр", dataIndex: "system", key: "system" },
+          { title: "Хийгдсэн ажлууд", dataIndex: "jobs", key: "jobs" },
+          { title: "Модул", dataIndex: "module", key: "module" },
+          { title: "Хувилбар", dataIndex: "version", key: "version" },
+          { title: "Тайлбар", dataIndex: "description", key: "description" },
+          {
+            title: "Засвар",
+            dataIndex: "id",
+            key: "id",
+            render: (id: number) => {
+              return (
+                <Button
+                  type="primary"
+                  onClick={() => router.push("/paper/action/" + id)}
+                >
+                  Засах
+                </Button>
+              );
+            },
+          },
+          {
+            title: "Устгах",
+            key: "delete",
+            render: (_, record: any) => (
+              <Image
+                src="/trash.svg"
+                alt=""
+                className="hover:cursor-pointer"
+                width={20}
+                height={20}
+                onClick={() =>
+                  setTableData((prev) =>
+                    prev.filter((item) => item.key !== record.key)
+                  )
+                }
+              />
+            ),
+          },
+        ]}
+      />
+      {/* <Form form={caseForm} className="p-6" onFinish={onFinish}>
         <div className="p-1">
           <p className="font-bold text-xl my-2">Систем нэр</p>
           <Form.Item name="system">
@@ -151,44 +219,13 @@ export default function Page() {
           Хадгалах
         </Button>
 
-        <Table
-          dataSource={tableData}
-          pagination={false}
-          bordered
-          rowKey="key"
-          columns={[
-            { title: "Систем нэр", dataIndex: "system", key: "system" },
-            { title: "Хийгдсэн ажлууд", dataIndex: "jobs", key: "jobs" },
-            { title: "Модул", dataIndex: "module", key: "module" },
-            { title: "Хувилбар", dataIndex: "version", key: "version" },
-            { title: "Тайлбар", dataIndex: "description", key: "description" },
-            {
-              title: "Устгах",
-              key: "delete",
-              render: (_, record) => (
-                <Image
-                  src="/trash.svg"
-                  alt=""
-                  className="hover:cursor-pointer"
-                  width={20}
-                  height={20}
-                  onClick={() =>
-                    setTableData((prev) =>
-                      prev.filter((item) => item.key !== record.key)
-                    )
-                  }
-                />
-              ),
-            },
-          ]}
-        />
 
         <div className="mt-6">
           <Button type="primary" size="large" onClick={() => caseForm.submit()}>
             Дуусгах
           </Button>
         </div>
-      </Form>
+      </Form> */}
     </div>
   );
 }

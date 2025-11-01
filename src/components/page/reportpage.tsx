@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { Table, Button } from "antd";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { formatHumanReadable } from "@/util/usable";
-import { EditCaseCard } from "@/components/window/case/editcase";
 import { ShareReportWindow } from "@/components/window/sharereportwindow";
 import { ZUSTAND } from "@/zustand";
 
@@ -12,9 +11,6 @@ export function TestCaseReportPage({ data, total, page, pageSize }: any) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
-  const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(
-    null
-  );
   const { getCheckout, getDocumentId } = ZUSTAND();
 
   const generateSearch = (term: string) => {
@@ -38,18 +34,7 @@ export function TestCaseReportPage({ data, total, page, pageSize }: any) {
     {
       title: "Тоот",
       dataIndex: "generate",
-      render: (generate: any, record: any) => {
-        return (
-          <div
-            className="hover:cursor-pointer"
-            onClick={() => {
-              setSelectedDocumentId(record.id);
-            }}
-          >
-            {generate}
-          </div>
-        );
-      },
+      render: (generate: string) => generate,
     },
     { title: "Тестийн нэр", dataIndex: "title" },
     {
@@ -79,6 +64,15 @@ export function TestCaseReportPage({ data, total, page, pageSize }: any) {
       ),
     },
     {
+      title: "Кэйсүүд",
+      dataIndex: "id",
+      render: (id: number) => (
+        <Button type="link" onClick={() => router.push("testcase/make/" + id)}>
+          Кэйсүүд
+        </Button>
+      ),
+    },
+    {
       title: "Хуваалцах",
       dataIndex: "id",
       render: (id: number, record: any) => (
@@ -94,7 +88,7 @@ export function TestCaseReportPage({ data, total, page, pageSize }: any) {
       ),
     },
   ];
-  console.log(selectedDocumentId)
+
   return (
     <section>
       <Table
@@ -107,7 +101,6 @@ export function TestCaseReportPage({ data, total, page, pageSize }: any) {
         }}
         onChange={handleTableChange}
       />
-      {selectedDocumentId && <EditCaseCard documentId={selectedDocumentId} />}
       <ShareReportWindow />
     </section>
   );

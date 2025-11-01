@@ -1,57 +1,31 @@
 "use client";
 import { Table, Flex, Input, Button, message } from "antd";
-import { useState } from "react";
-import type { TableProps } from "antd";
 import { ZUSTAND } from "@/zustand";
 import { FirstDocument } from "../window/firstdocument";
 import { SecondDocument } from "../window/seconddocument";
 import { ThirdDocument } from "../window/thirddocument";
-import { convertName, formatHumanReadable } from "@/util/usable";
+import { formatHumanReadable } from "@/util/usable";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
-import { DeleteAll } from "@/util/action";
 import { ShareWindow } from "../window/sharewindow";
 import { Badge } from "@/components/ui/badge";
 import { RejectCause } from "../window/reject/rejectcause";
+import { useSession } from "next-auth/react";
 
-type TableRowSelection<T extends object = object> =
-  TableProps<T>["rowSelection"];
-
-export function PlanPage({ data, total, page, pageSize }: any) {
+export function PlanPage({ data, total, page, pageSize }: TablePagination) {
   const [messageApi, contextHolder] = message.useMessage();
+  const { data: session } = useSession();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [loading, setLoading] = useState(false);
   const { getCheckout, getDocumentId } = ZUSTAND();
+  const department = session?.user.employee.department.name;
   const dataWithKeys = data.map((item: any) => ({
-    ...item,
-    key: item.id,
+    ...item.data,
+    key: item.data.id,
   }));
+  const checkout = session?.user.employee.permission[0].kind.includes("READ");
+  const hasEdit = session?.user.employee.permission.includes("EDIT");
   const router = useRouter();
-
-
-  const start = async () => {
-    setLoading(true);
-    const record = await DeleteAll(selectedRowKeys);
-    record > 0 &&
-      setTimeout(() => {
-        setSelectedRowKeys([]);
-        router.refresh();
-        setLoading(false);
-      }, 1000);
-  };
-
-  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
-
-  const rowSelection: TableRowSelection<DataType> = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-  };
-
-  const hasSelected = selectedRowKeys.length > 0;
 
   const generateSearch = (term: string) => {
     const params = new URLSearchParams(searchParams);
@@ -71,15 +45,95 @@ export function PlanPage({ data, total, page, pageSize }: any) {
     replace(`${pathname}?${params.toString()}`);
   };
 
-
-  const columns:any = [
+  const columns: any = [
     { title: "Тоот", dataIndex: "generate" },
     { title: "Тестийн нэр", dataIndex: "title" },
     {
       title: "Үүсгэсэн ажилтан",
-      dataIndex: "user",
-      render: (record: any) => {
-        return <span>{convertName(record.employee)}</span>;
+      dataIndex: "employee",
+    },
+    department === "Програм хөгжүүлэлтийн хэлтэс" && {
+      title: "Баталгаажуулах хуудас",
+      dataIndex: "paper",
+      render: (id: number) => <Button type="primary">Шалгах</Button>,
+    },
+    {
+      title: "Төлөв",
+      dataIndex: "departmentRoles",
+      render: (record: any, document: any) => {
+        const accessed = record.every((item: any) => item.rode === true);
+        if (accessed) {
+          return <Badge variant="info">Батлагдсан</Badge>;
+        }
+        return document.state === "PENDING" ? (
+          <Badge variant="default">Хүлээгдэж байна</Badge>
+        ) : document.state === "FORWARD" ? (
+          <Badge variant="viewing">Хянагдаж байна</Badge>
+        ) : (
+          <Badge variant="outline">Шинэ</Badge>
+        );
+      },
+    },
+    checkout
+      && {
+          title: "Шалгах",
+          dataIndex: "id",
+          render: (id: number) => (
+            <Button
+              type="primary"
+              onClick={() => {
+                router.push("plan/listplan/" + id);
+              }}
+            >
+              Шалгах
+            </Button>
+          ),
+        },
+      
+    hasEdit
+      ? {
+          title: "Хуваалцах",
+          dataIndex: "id",
+          render: (id: number, record: any) => {
+            return record.state === "SHARED" ? (
+              <Badge variant="secondary">Хуваалцсан</Badge>
+            ) : (
+              <Button
+                onClick={() => {
+                  getDocumentId(id);
+                  getCheckout(4);
+                }}
+              >
+                Хуваалцах
+              </Button>
+            );
+          },
+        }
+      : null,
+    {
+      title: "Кэйс нэмэх",
+      dataIndex: "id",
+      render: (id: number) => (
+        <Button
+          type="link"
+          onClick={() => {
+            getDocumentId(id);
+            router.push("/plan/case/" + id);
+          }}
+        >
+          Кэйс нэмэх
+        </Button>
+      ),
+    },
+    {
+      title: "Засах",
+      dataIndex: "id",
+      render: (id: number) => {
+        return (
+          <Button type="primary" onClick={() => router.push("plan/" + id)}>
+            Засах
+          </Button>
+        );
       },
     },
     {
@@ -90,99 +144,6 @@ export function PlanPage({ data, total, page, pageSize }: any) {
       render: (timeCreated: string) =>
         formatHumanReadable(new Date(timeCreated).toISOString()),
     },
-    {
-      title: "Төлөв",
-      dataIndex: "state",
-      render: (state: string, record: any) => {
-        const checkout = record.departmentEmployeeRole.every((item: any) => item.state==='ACCESS');
-        if (checkout) {
-          return <Badge variant="info">Зөвшөөрөгдсөн</Badge>;
-        }
-        return state === "PENDING" ? (
-          <Badge variant="default">Хүлээгдэж байна</Badge>
-        ) : state === "FORWARD" ? (
-          <Badge variant="viewing">Хянагдаж байна</Badge>
-        )  : (
-          <Badge variant="outline">Шинэ</Badge>
-        );
-      },
-    },
-      // {
-      //     title: "Шинэ Төлөв",
-      //     dataIndex: "state",
-      //     render: (state: string) => {
-      //         return state === "SHARED" ? (
-      //             <Badge variant="viewing">Хуваалцаж байна</Badge>
-      //         ) : null;
-      //     },
-      // },
-      {
-          title: "Кэйс нэмэх",
-          dataIndex: "id",
-          render: (id:number) => <Button onClick={()=>{getDocumentId(id);router.push('/plan/case/'+id)}}>Нэмэх</Button>
-      },
-    {
-      title: "Засах",
-      dataIndex: "id",
-      render: (id: number, record:any) => {
-        const checkout = record.departmentEmployeeRole.every((item: any) => item.state==='ACCESS');
-        return (
-          <Button
-            type="primary"
-            onClick={() => {
-              router.push("plan/" + id);
-            }}
-            disabled={checkout}
-          >
-            Хянах
-            
-          </Button>
-        );
-      },
-    },
-    {
-      title: "Хуваалцах",
-      dataIndex: "id",
-      render: (id: number, record: any) => {
-        return record.state === "SHARED" ? (
-          <Badge variant="secondary">Хуваалцсан</Badge>
-        ) : (
-          <Button
-            onClick={() => {
-              getDocumentId(id);
-              getCheckout(4);
-            }}
-          >
-            Хуваалцах
-          </Button>
-        );
-      },
-    },
-    {
-      title: "Хариу",
-      dataIndex: "reject",
-      render: (record: any, adding:any) => {
-        const checkout = adding.departmentEmployeeRole.every((item: any) => item.state);
-        if (checkout) {
-          return record=null;
-        }
-        return record != null ? (
-          <Badge
-            variant="destructive"
-            className="hover:cursor-pointer"
-            onClick={() => {
-              getDocumentId(record.documentId);
-              getCheckout(13);
-            }}
-          >
-            Буцаагдсан
-          </Badge>
-        ) : (
-          <Badge variant="secondary">Хэвийн</Badge>
-        );
-      },
-    },
- 
   ];
 
   return (
@@ -210,22 +171,8 @@ export function PlanPage({ data, total, page, pageSize }: any) {
       </div>
 
       <Flex gap="middle" vertical>
-        <Flex align="center" gap="middle">
-          <Button
-            type="primary"
-            onClick={start}
-            disabled={!hasSelected}
-            loading={loading}
-          >
-            Устгах
-          </Button>
-          {hasSelected
-            ? `Сонгогдсон ${selectedRowKeys.length} төлөвлөгөө`
-            : null}
-        </Flex>
-        <Table<DataType>
-          rowSelection={rowSelection}
-          columns={columns}
+        <Table
+          columns={columns.filter(Boolean)}
           dataSource={dataWithKeys}
           pagination={{
             current: page,
@@ -234,6 +181,7 @@ export function PlanPage({ data, total, page, pageSize }: any) {
           }}
           onChange={handleTableChange}
         />
+
         <FirstDocument />
         <SecondDocument />
         <ThirdDocument />

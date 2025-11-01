@@ -7,22 +7,23 @@ declare module "next-auth" {
       id: string;
       username: string;
       employee: {
+        id:number;
+        gender: string;
+        department: any;
+        permission: any;
         jobPosition?: {
           jobPositionGroup?: {
             id: number;
             name: string;
+            jobAuthRank:number
           };
         };
-        departmentEmployeeRole?: {
-          rode: boolean;
-        }[];
         super: string;
       };
       name?: string | null;
       email?: string | null;
       image?: string | null;
       mobile?: string | null;
-      permission: any;
     };
   }
 }
@@ -31,7 +32,6 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     username: string;
-    permission: any;
     mobile?: string | null;
     employee: {
       jobPosition?: {
@@ -40,9 +40,6 @@ declare module "next-auth/jwt" {
           name: string;
         };
       };
-      departmentEmployeeRole?: {
-        rode: boolean;
-      }[];
       super: string;
     };
   }

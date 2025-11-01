@@ -16,24 +16,23 @@ export default async function Page(props: {
   const search = searchParams?.search || "";
   const page = Number(searchParams?.page) || 1;
   const pageSize = Number(searchParams?.pageSize) || 10;
-    const isAdmin = session?.user.employee.super === "ADMIN";
+  const isAdmin = session?.user.employee.super === "ADMIN";
 
   const authUser = await prisma.authUser.findUnique({
-      where: {
-        id: Number(session?.user.id),
-      },
-      include: {
-        employee: true,
-      },
-    });
+    where: {
+      id: Number(session?.user.id),
+    },
+    include: {
+      employee: true,
+    },
+  });
 
   const record = await prisma.$transaction(async (tx) => {
-   
     const document =
       authUser &&
       (await tx.shareGroup.findMany({
         where: {
-            ...(isAdmin ? {} : { employeeId: authUser.employee?.id }),
+          ...(isAdmin ? {} : { employeeId: authUser.employee?.id }),
         },
         skip: (page - 1) * pageSize,
         take: pageSize,
@@ -50,17 +49,18 @@ export default async function Page(props: {
     return document;
   });
 
-   const totalCount = await prisma.shareGroup.count({
+  const totalCount = await prisma.shareGroup.count({
     where: {
-      employeeId: Number(authUser?.employee?.id)
+      employeeId: Number(authUser?.employee?.id),
     },
   });
 
- 
-    return <ShareComp 
-            document={record} 
-            total={totalCount}
-            page={page}
-            pageSize={pageSize}
-            />;
+  return (
+    <ShareComp
+      document={record}
+      total={totalCount}
+      page={page}
+      pageSize={pageSize}
+    />
+  );
 }

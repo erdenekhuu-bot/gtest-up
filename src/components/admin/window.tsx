@@ -1,110 +1,244 @@
-"use client"
-import { Button, Modal, Form, Select, message } from "antd";
+"use client";
+import {
+  Button,
+  Modal,
+  Form,
+  Select,
+  message,
+  Checkbox,
+  Row,
+  Col,
+  Typography,
+  Divider,
+  Space,
+} from "antd";
 import type { FormProps } from "antd";
 import { ZUSTAND } from "@/zustand";
-import { useState, useEffect,useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { convertAdmin } from "@/util/usable";
 import { ChangeStatus } from "@/util/action";
-import { v4 as uuidv4 } from "uuid";
+import {
+  UserSwitchOutlined,
+  SolutionOutlined,
+  EnvironmentOutlined,
+} from "@ant-design/icons";
 
-export function AdminWindow(){
-    const {checkout, getCheckout, employeeId} = ZUSTAND()
-    const [department, setDepartment]=useState<any>([])
-    const [jobposition, setJobposition]=useState<any>([])
-    const [mainForm] = Form.useForm();
-    const [search, setSearch] = useState("");
-    const [finddepartment, setFindingDepartment]=useState("")
-    const [messageApi, contextHolder] = message.useMessage();
+const { Title } = Typography;
 
-    const handleCancel = () => {
+const PERMISSIONS_OPTIONS = [
+  { label: "Үзэх", value: "VIEW" },
+  { label: "Унших", value: "READ" },
+  { label: "Засах", value: "EDIT"},
+  { label: "Хуваалцах", value: "SHARE"}
+];
+
+interface AdminOption {
+  value: string | number;
+  label: string;
+}
+
+export function AdminWindow() {
+  const { checkout, getCheckout, employeeId } = ZUSTAND();
+  const [department, setDepartment] = useState<AdminOption[]>([]);
+  const [jobposition, setJobposition] = useState<AdminOption[]>([]);
+  const [mainForm] = Form.useForm();
+  const [search, setSearch] = useState<string>("");
+  const [finddepartment, setFindingDepartment] = useState<string>("");
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const modalTitle =
+    employeeId > 0 ? "Ажилтны Мэдээлэл Засах" : "Шинэ Ажилтан Нэмэх";
+
+  const handleCancel = () => {
+    getCheckout(-1);
+    mainForm.resetFields();
+  };
+
+  const fetchJobposition = useCallback(async (searchValue: string) => {
+    try {
+      const response = await axios.get(
+        "/api/admin/jobposition?search=" + searchValue
+      );
+      if (response.data?.success) {
+        setJobposition(response.data.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
+  const fetchDepartment = useCallback(async (searchValue: string) => {
+    try {
+      const response = await axios.get(
+        "/api/admin/department?search=" + searchValue
+      );
+      if (response.data?.success) {
+        setDepartment(response.data.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
+  const employee = useCallback(
+    async (id: number) => {
+      if (id <= 0) {
+        mainForm.resetFields();
+        return;
+      }
+
+      try {
+        const response = await axios.get("/api/admin/" + id);
+        if (response.data?.success) {
+          const data = response.data.data;
+          mainForm.setFieldsValue({
+            jobposition: data.jobPosition?.name,
+            department: data.department?.name,
+            permissions: data.permissions || [],
+            isAdmin: data.isAdmin || false,
+          });
+        } else if (response.data && !response.data.success) {
+          messageApi.warning(`Ажилтан (${id})-ийн мэдээлэл олдсонгүй.`);
+        }
+      } catch (error) {
+        console.error(error);
+        messageApi.error("Ажилтан мэдээллийг татаж чадсангүй.");
+      }
+    },
+    [mainForm, messageApi]
+  );
+
+  const handleSearch = (value: string) => {
+    setSearch(value);
+  };
+
+  const searchDep = (value: string) => {
+    setFindingDepartment(value);
+  };
+
+  const onFinish: FormProps["onFinish"] = async (values) => {
+    const merged = {
+      ...values,
+      employeeId,
+    };
+    console.log(merged);
+
+    const response = await ChangeStatus(merged);
+    if (response > 0) {
+      messageApi.success("Амжилттай хадгалагдлаа!");
       getCheckout(-1);
-    };
-
-    const fetchJobposition = useCallback(async (searchValue: string) => {
-      const response = await axios.get('/api/admin/jobposition?search='+searchValue);
-        if (response.data.success) {
-          setJobposition(response.data.data);
-        }
-    }, []);
-
-    const fetchDepartment = useCallback(async (searchValue: string) => {
-      const response = await axios.get('/api/admin/department?search='+searchValue);
-        if (response.data.success) {
-          setDepartment(response.data.data);
-        }
-    }, []);
-
-    const employee = useCallback(async (id:number)=>{
-      const response = await axios.get('/api/admin/'+id);
-        if (response.data.success) {
-           mainForm.setFieldsValue({
-              jobposition: response.data.data.jobPosition.name,
-              department: response.data.data.department.name
-           })
-        }
-    },[])
-
-    const handleSearch = (value: any) => {
-        setSearch(value);
-    };
-
-    const searchDep = (value:any)=>{
-      setFindingDepartment(value)
+    } else {
+      messageApi.error("Хадгалах үйлдэл амжилтгүй боллоо.");
     }
+  };
 
-    const onFinish: FormProps["onFinish"] = async (values) => {
-      const merged = {
-        ...values,
-        employeeId
-      }
-      console.log(merged)
-      const response = await ChangeStatus(merged)
-      if (response > 0) {
-          messageApi.success("Амжилттай хадгалагдлаа!");
-      } else {
-          messageApi.error("Амжилтгүй боллоо.");
-      }
+  useEffect(() => {
+    search ? fetchJobposition(search) : setJobposition([]);
+    finddepartment ? fetchDepartment(finddepartment) : setDepartment([]);
+  }, [search, fetchJobposition, finddepartment, fetchDepartment]);
+
+  useEffect(() => {
+    if (checkout === 15) {
+      employee(employeeId);
     }
+  }, [employeeId, employee, checkout]);
 
-
-    useEffect(() => {
-      search ? fetchJobposition(search) : setJobposition([]);
-      finddepartment ? fetchDepartment(finddepartment) : setDepartment([]);
-    }, [search, fetchJobposition, finddepartment, fetchDepartment]);
-
-    useEffect(()=>{
-      employee(employeeId)
-    },[employeeId])
-  
-    return (
+  return (
     <Modal
-        title=""
-        open={checkout === 15}
-        onOk={onFinish}
-        onCancel={handleCancel}
-        footer={[
-          <Button key="back" onClick={handleCancel}>
-            Болих
-          </Button>,
-          <Button key="next" type="primary" onClick={() => mainForm.submit()}>
-            Цааш
-          </Button>,
-        ]}
-      >
-        <Form form={mainForm} onFinish={onFinish}>
-            <div>
-              <p>Албан тушаал</p>
-              <Form.Item name="jobposition">
-                <Select options={convertAdmin(jobposition)} onSearch={handleSearch} filterOption={false} showSearch/>
-              </Form.Item>
-             </div>
-             <div>
-             <p>Харъяалагдах газар</p>
-              <Form.Item name="department">
-                <Select options={convertAdmin(department)} onSearch={searchDep} filterOption={false} showSearch/>
-              </Form.Item>
-             </div>
-        </Form>
-      </Modal>)
+      title={
+        <Space>
+          <UserSwitchOutlined style={{ color: "#1890ff" }} />
+          <Title level={4} style={{ margin: 0, fontWeight: 600 }}>
+            {modalTitle}
+          </Title>
+        </Space>
+      }
+      open={checkout === 15}
+      onCancel={handleCancel}
+      width={500}
+      footer={[
+        <Button key="back" onClick={handleCancel}>
+          Болих
+        </Button>,
+        <Button key="next" type="primary" onClick={() => mainForm.submit()}>
+          Хадгалах
+        </Button>,
+      ]}
+    >
+      {contextHolder}
+      <Divider style={{ margin: "16px 0" }} />
+      <Form form={mainForm} onFinish={onFinish} layout="vertical">
+        <Form.Item
+          label={
+            <Space size={4}>
+              <SolutionOutlined style={{ color: "#595959" }} />
+              <span>Албан тушаал</span>
+            </Space>
+          }
+          name="jobposition"
+        >
+          <Select
+            options={convertAdmin(jobposition)}
+            onSearch={handleSearch}
+            filterOption={false}
+            showSearch
+            placeholder="Албан тушаал сонгох..."
+            size="large"
+          />
+        </Form.Item>
+
+        <Form.Item
+          label={
+            <Space size={4}>
+              <EnvironmentOutlined style={{ color: "#595959" }} />
+              <span>Харъяалагдах газар</span>
+            </Space>
+          }
+          name="department"
+        >
+          <Select
+            options={convertAdmin(department)}
+            onSearch={searchDep}
+            filterOption={false}
+            showSearch
+            placeholder="Газар/хэлтэс сонгох..."
+            size="large"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="admin"
+          valuePropName="checked"
+          style={{ marginBottom: 24 }}
+        >
+          <Checkbox>
+            <span
+              style={{ fontWeight: 600, color: "#1850f5", fontSize: "1.05em" }}
+            >
+              Админ Эрх Олгох
+            </span>
+          </Checkbox>
+        </Form.Item>
+
+        <Form.Item
+          label={<span style={{ fontWeight: 500 }}>Бусад Нэмэлт Эрхүүд</span>}
+          name="permissions"
+          valuePropName="value"
+        >
+          <Checkbox.Group style={{ width: "100%" }}>
+            <Row gutter={[16, 8]}>
+              {PERMISSIONS_OPTIONS.map((p) => (
+                <Col span={24} key={p.value}>
+                  <Checkbox value={p.value} style={{ padding: "4px 0" }}>
+                    {p.label}
+                  </Checkbox>
+                </Col>
+              ))}
+            </Row>
+          </Checkbox.Group>
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
 }

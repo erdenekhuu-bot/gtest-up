@@ -99,12 +99,12 @@ export async function PUT(req: NextRequest) {
             },
           },
         }));
-       
+
       return updating;
     });
-     await prisma.rejection.delete({
-        where: { documentId: Number(request.documentId) },
-      });
+    await prisma.rejection.delete({
+      where: { documentId: Number(request.documentId) },
+    });
 
     return NextResponse.json({ success: true, data: record });
   } catch (error) {
@@ -126,7 +126,7 @@ export async function PATCH(req: NextRequest) {
         employee: true,
       },
     });
-   
+
     const record = await prisma.$transaction(async (tx) => {
       const updating = await tx.departmentEmployeeRole.updateMany({
         where: {
@@ -141,7 +141,6 @@ export async function PATCH(req: NextRequest) {
 
       return updating;
     });
-    
 
     return NextResponse.json({ success: true, data: record });
   } catch (error) {

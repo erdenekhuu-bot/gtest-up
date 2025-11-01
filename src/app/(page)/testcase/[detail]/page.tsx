@@ -36,9 +36,9 @@ export default async function Page({
       report: {
         include: {
           issue: true,
-          usedphone: true
-        }
-      }
+          usedphone: true,
+        },
+      },
     },
   });
   return <ReportMake id={detail} data={record} />;

@@ -1,7 +1,6 @@
 "use server";
 import { prisma } from "@/util/prisma";
 import { MemberPlanDetail } from "@/components/window/MemberPlanDetail";
-import { DefineLevel } from "@/util/checkout";
 
 export default async function Page({
   params,
@@ -97,18 +96,18 @@ export default async function Page({
       },
     });
 
-    const dataWithLevels = steps
-      .map((item) => ({
-        ...item,
-        level: DefineLevel(
-          item.employee?.jobPosition?.jobPositionGroup?.name || ""
-        ),
-      }))
-      .sort((a, b) => b.level - a.level);
+    // const dataWithLevels = steps
+    //   .map((item) => ({
+    //     ...item,
+    //     level: DefineLevel(
+    //       item.employee?.jobPosition?.jobPositionGroup?.name || ""
+    //     ),
+    //   }))
+    //   .sort((a, b) => b.level - a.level);
 
     return {
       data,
-      steps: dataWithLevels,
+      steps,
     };
   });
   return <MemberPlanDetail document={record.data} steps={record.steps} />;

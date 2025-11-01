@@ -14,6 +14,7 @@ export async function GET(
         },
         select: {
           confirm: {
+            distinct: ["employeeId"],
             include: {
               employee: true,
             },

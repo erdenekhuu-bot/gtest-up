@@ -16,15 +16,26 @@ export default async function Page(props: {
   const record = await prisma.usedPhone.findMany({
     where: {
       phone: {
-        contains: search || ""
-      }
+        contains: search || "",
+      },
+    },
+    include: {
+      report: {
+        select: {
+          document: true,
+        },
+      },
     },
     skip: (page - 1) * pageSize,
     take: pageSize,
-  })
-  const totalCount = await prisma.usedPhone.count()
-  return <UsedPhone data={record}
+  });
+  const totalCount = await prisma.usedPhone.count();
+  return (
+    <UsedPhone
+      data={record}
       total={totalCount}
       page={page}
-      pageSize={pageSize}/>;
+      pageSize={pageSize}
+    />
+  );
 }

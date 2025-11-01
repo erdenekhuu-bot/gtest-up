@@ -32,7 +32,6 @@ import { useSession } from "next-auth/react";
 import { FullUpdate } from "@/util/action";
 import { ZUSTAND } from "@/zustand";
 import { useRouter, redirect } from "next/navigation";
-import { DefineLevel } from "@/util/checkout";
 import { Badge } from "@/components/ui/badge";
 
 dayjs.extend(customParseFormat);
@@ -237,22 +236,6 @@ export function ShareMember({ document, id, steps }: any) {
     }
   };
 
-    let sortedSteps = steps
-        .map((item:any) => ({
-            ...item,
-            level: DefineLevel(
-                item.employee?.jobPosition?.jobPositionGroup?.name || ""
-            ),
-        }))
-        .sort((a:any, b:any) => b.level - a.level);
-
-    sortedSteps=sortedSteps
-        .sort((a:any, b:any) => b.level - a.level)
-        .map((item:any, index:number) => ({
-            ...item,
-            sublevel: index + 1
-        }));
-    sortedSteps=sortedSteps.sort((a:any, b:any) => a.sublevel - b.sublevel);
 
   useEffect(() => {
     search ? fetchEmployees(search) : setEmployee([]);
@@ -614,9 +597,9 @@ export function ShareMember({ document, id, steps }: any) {
           style={transformStyle}
         >
           <Steps
-            current={sortedSteps.findIndex((item: any) => item.state === "ACCESS")}
+            current={steps.findIndex((item: any) => item.state === "ACCESS")}
             direction="vertical"
-            items={sortedSteps.map((item: any, index: number) => ({
+            items={steps.map((item: any, index: number) => ({
               title: `${
                 item.state === "ACCESS" ? "Баталгаажсан" : "Хүлээгдэж байгаа"
               }`,

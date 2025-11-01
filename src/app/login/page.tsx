@@ -5,10 +5,12 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import background from "../../../public/background.png";
+import { useSession } from "next-auth/react";
 
 export default function LoginPage() {
   const router = useRouter();
   const [messageApi, contextHolder] = message.useMessage();
+  const { data: session } = useSession();
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     const result = await signIn("localauth", {
@@ -16,8 +18,9 @@ export default function LoginPage() {
       password: values.password,
       redirect: false,
     });
+
     if (result?.ok) {
-      router.push("/plan");
+       router.push('/plan')
       messageApi.success("Амжилттай нэвтэрлээ");
     } else {
       messageApi.error("Амжилтгүй боллоо");

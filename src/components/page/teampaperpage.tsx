@@ -32,9 +32,7 @@ export function TeamPaperPage({ data, total, page, pageSize }: any) {
             render: (record: any) => {
               return (
                 <span>
-                  {formatHumanReadable(
-                    new Date(record).toISOString()
-                  )}
+                  {formatHumanReadable(new Date(record).toISOString())}
                 </span>
               );
             },
@@ -42,8 +40,8 @@ export function TeamPaperPage({ data, total, page, pageSize }: any) {
           {
             title: "Төлөв",
             dataIndex: "check_status",
-            render:(check:boolean, record:any)=>{
-                   return check ? (
+            render: (check: boolean, record: any) => {
+              return check ? (
                 <Badge variant="info">Танилцсан</Badge>
               ) : (
                 <Button
@@ -52,21 +50,18 @@ export function TeamPaperPage({ data, total, page, pageSize }: any) {
                   onClick={() => {
                     getDocumentId(record.id);
                     router.push("/teampaper/" + record.id);
-                  
                   }}
                 >
                   Танилцах
                 </Button>
               );
             },
-            }
-          
+          },
         ]}
         dataSource={data.map((c: any) => ({
           ...c,
           key: c.id,
         }))}
-        
         pagination={false}
         bordered
       />

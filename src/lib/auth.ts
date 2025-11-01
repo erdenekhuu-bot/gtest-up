@@ -2,7 +2,6 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/util/prisma";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { CheckErp } from "@/util/checkout";
 import { DecryptAndChecking } from "@/util/checkout";
 
 export const authOptions: NextAuthOptions = {
@@ -35,34 +34,80 @@ export const authOptions: NextAuthOptions = {
           include: {
             employee: {
               select: {
+                id: true,
                 super: true,
+                gender: true,
+                permission: true,
                 jobPosition: {
                   select: {
-                    jobPositionGroup: true,
+                    jobPositionGroup: {
+                      select: { jobAuthRank: true },
+                    },
                   },
                 },
-                departmentEmployeeRole: { where: { rode: false } },
               },
             },
           },
         });
+        if (!user || !user.employee) return null;
+        const jobAuthRank = Number(
+          user.employee.jobPosition?.jobPositionGroup?.jobAuthRank ?? 0
+        );
+        const permissionKinds = jobAuthRank > 1 ? ["READ"] : ["EDIT"];
 
-        const permission =
-          user &&
-          (await CheckErp(
-            user?.employee?.jobPosition?.jobPositionGroup?.name as string,
-            user
-          ));
-        if (!user) {
+        const existingPermission = await prisma.permission.findFirst({
+          where: {
+            employee: {
+              some: { id: user.employee.id },
+            },
+          },
+        });
+
+        if (existingPermission) {
+          await prisma.permission.update({
+            where: { id: existingPermission.id },
+            data: { kind: permissionKinds },
+          });
+        } else {
+          await prisma.permission.create({
+            data: {
+              kind: permissionKinds,
+              employee: {
+                connect: { id: user.employee.id },
+              },
+            },
+          });
+        }
+        const updatedUser = await prisma.authUser.findFirst({
+          where: { id: user.id },
+          include: {
+            employee: {
+              select: {
+                id: true,
+                super: true,
+                gender: true,
+                permission: true,
+                department: true,
+                jobPosition: {
+                  select: {
+                    jobPositionGroup: {
+                      select: { jobAuthRank: true },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        });
+        if (!updatedUser) {
           return null;
         }
         return {
-          id: user.id.toString(),
-          name: user.username,
-          employee: user.employee,
-          email: user.email,
-          mobile: user.mobile,
-          permission: permission,
+          id: updatedUser.id.toString(),
+          name: updatedUser.username,
+          employee: updatedUser.employee,
+          email: updatedUser.email,
+          mobile: updatedUser.mobile,
         };
       },
     }),
@@ -77,21 +122,19 @@ export const authOptions: NextAuthOptions = {
         token.email = user.email;
         token.image = user.image;
         token.mobile = user.mobile;
-        token.permission = user.permission;
       }
 
-      token.exp = Math.floor(Date.now() / 1000) + 60 * 60;
+      token.exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7;
       return token;
     },
     async session({ session, token }) {
       session.user = {
         id: token.id as string,
         username: token.username as string,
-        employee: token.employee,
+        employee: token.employee as any,
         name: token.name ?? null,
         email: token.email ?? null,
         mobile: token.mobile ?? null,
-        permission: token.permission,
       };
 
       return session;

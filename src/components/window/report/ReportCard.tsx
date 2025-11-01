@@ -1,17 +1,17 @@
 "use client";
-import { Card, Spin, Flex, Badge, Avatar, Form } from "antd";
+import { Card, Spin, Flex, Badge, Avatar, Breadcrumb } from "antd";
 import { useEffect, useState } from "react";
 import { EllipsisOutlined } from "@ant-design/icons";
 import { mongollabel, convertStatus, mergeLetter } from "@/util/usable";
 import axios from "axios";
 import { ZUSTAND } from "@/zustand";
-import {useRouter} from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 export function ReportCard({ documentId }: any) {
   const [data, setData] = useState<any>([]);
-  const router=useRouter()
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const {  getCaseId } = ZUSTAND();
+  const { getCaseId } = ZUSTAND();
   const detail = async (id: any) => {
     try {
       setLoading(true);
@@ -20,7 +20,7 @@ export function ReportCard({ documentId }: any) {
         setData(request.data.data);
       }
     } catch (error) {
-        console.error(error);
+      console.error(error);
     }
   };
 
@@ -30,12 +30,32 @@ export function ReportCard({ documentId }: any) {
 
   return (
     <section className="mt-8">
+      <Breadcrumb
+        style={{ margin: "16px 0" }}
+        items={[
+          {
+            title: (
+              <span
+                style={{
+                  cursor: "pointer",
+                }}
+              >
+                Үндсэн хуудас руу буцах
+              </span>
+            ),
+            onClick: () => redirect("/sharecase"),
+          },
+          {
+            title: "Кэйс оруулах хуудас",
+          },
+        ]}
+      />
       <Flex justify="space-evenly">
         <Card
           title=""
           style={{
             backgroundColor: "#F8F9FA",
-            width: "350px",
+            width: "500px",
             margin: "10px",
           }}
         >
@@ -56,7 +76,7 @@ export function ReportCard({ documentId }: any) {
                     >
                       <Flex justify="space-between">
                         <Flex gap={8}>
-                          <Badge status={convertStatus(item.category)} />
+                          <Badge status={convertStatus(item.testType)} />
                           <span className="opacity-70">
                             {mongollabel(item.testType)}
                           </span>
@@ -65,105 +85,28 @@ export function ReportCard({ documentId }: any) {
                           className="hover:cursor-pointer text-lg"
                           onClick={() => {
                             getCaseId(item.id);
-                              router.push(`/sharecase/${item.id}`);
+                            router.push(`/sharecase/${item.id}`);
                           }}
                         />
                       </Flex>
-                      <p className="my-2 font-bold">{item.result}</p>
-                        <div
-                            dangerouslySetInnerHTML={{
-                                __html: (item?.steps ?? "").replace(/\n/g, "<br />"),
-                            }}
-                        />
-
-                        <Avatar.Group className="mt-8">
-                        <Flex wrap>
-                          {data?.documentemployee?.map(
-                          (emp: any, index: number) => (
-                            <Avatar
-                              key={index}
-                              style={{ backgroundColor: "#00569E" }}
-                            >
-                              {mergeLetter(emp.employee)}
-                            </Avatar>
-                          )
-                        )}
-                        </Flex>
-                      </Avatar.Group>
-                    </div>
-                  )
-              )
-            )}
-          </div>
-        </Card>
-        <Card
-          title=""
-          style={{
-            backgroundColor: "#F8F9FA",
-            width: "350px",
-            margin: "10px",
-          }}
-        >
-          <div className="flex justify-between items-center">
-            <span className="font-bold text-lg">Тест хийгдэж эхэлсэн</span>
-          </div>
-          <div className="mt-4 h-[500px] overflow-y-scroll scrollbar">
-            {!loading ? (
-              <Spin />
-            ) : (
-              data?.testcase?.map(
-                (item: any, index: number) =>
-                  item.testType === "STARTED" && (
-                    <div
-                      key={index}
-                      className="bg-white p-6 my-8 rounded-lg border"
-                    >
-                      <Flex justify="space-between">
-                        <Flex gap={8}>
-                          <Badge status={convertStatus(item.category)} />
-                          <span className="opacity-70">
-                            {mongollabel(item.testType)}
-                          </span>
-                        </Flex>
-                        <EllipsisOutlined
-                          className="hover:cursor-pointer text-lg"
-                          onClick={() => {
-                            getCaseId(item.id);
-                              router.push(`/sharecase/${item.id}`);
-                          }}
-                        />
-                      </Flex>
-                      <p className="my-2 font-bold">{item.result}</p>
+                      <p className="my-2 font-bold">{item.types}</p>
                       <div
                         dangerouslySetInnerHTML={{
-                          __html: item.steps.replace(/\n/g, "<br />"),
+                          __html: (item?.steps ?? "").replace(/\n/g, "<br />"),
                         }}
                       />
-                      <Avatar.Group className="mt-8">
-                        <Flex wrap>
-                          {data?.documentemployee?.map(
-                          (emp: any, index: number) => (
-                            <Avatar
-                              key={index}
-                              style={{ backgroundColor: "#00569E" }}
-                            >
-                              {mergeLetter(emp.employee)}
-                            </Avatar>
-                          )
-                        )}
-                        </Flex>
-                      </Avatar.Group>
                     </div>
                   )
               )
             )}
           </div>
         </Card>
+
         <Card
           title=""
           style={{
             backgroundColor: "#F8F9FA",
-            width: "350px",
+            width: "500px",
             margin: "10px",
           }}
         >
@@ -183,7 +126,7 @@ export function ReportCard({ documentId }: any) {
                     >
                       <Flex justify="space-between">
                         <Flex gap={8}>
-                          <Badge status={convertStatus(item.category)} />
+                          <Badge status={convertStatus(item.types)} />
                           <span className="opacity-70">
                             {mongollabel(item.testType)}
                           </span>
@@ -192,11 +135,11 @@ export function ReportCard({ documentId }: any) {
                           className="hover:cursor-pointer text-lg"
                           onClick={() => {
                             getCaseId(item.id);
-                              router.push(`/sharecase/${item.id}`);
+                            router.push(`/sharecase/${item.id}`);
                           }}
                         />
                       </Flex>
-                      <p className="my-2 font-bold">{item.result}</p>
+                      <p className="my-2 font-bold">{item.types}</p>
                       <div
                         dangerouslySetInnerHTML={{
                           __html: item.steps.replace(/\n/g, "<br />"),
@@ -205,15 +148,15 @@ export function ReportCard({ documentId }: any) {
                       <Avatar.Group className="mt-8">
                         <Flex wrap>
                           {data?.documentemployee?.map(
-                          (emp: any, index: number) => (
-                            <Avatar
-                              key={index}
-                              style={{ backgroundColor: "#00569E" }}
-                            >
-                              {mergeLetter(emp.employee)}
-                            </Avatar>
-                          )
-                        )}
+                            (emp: any, index: number) => (
+                              <Avatar
+                                key={index}
+                                style={{ backgroundColor: "#00569E" }}
+                              >
+                                {mergeLetter(emp.employee)}
+                              </Avatar>
+                            )
+                          )}
                         </Flex>
                       </Avatar.Group>
                     </div>

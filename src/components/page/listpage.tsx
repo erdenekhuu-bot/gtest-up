@@ -1,7 +1,8 @@
 "use client";
-import { Table, Flex, Input, Button, Badge } from "antd";
+import { Table, Flex, Input, Button, Badge, message } from "antd";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { formatHumanReadable } from "@/util/usable";
+import { useState } from "react";
 
 export function ListPage({ data, total, page, pageSize }: any) {
 
@@ -12,7 +13,30 @@ export function ListPage({ data, total, page, pageSize }: any) {
     ...item,
     key: item.id,
   }));
+    const [pdfLoading, setPdfLoading] = useState<number | null>(null);
+    const [messageApi, contextHolder] = message.useMessage();
   const router = useRouter();
+    const handleDownloadPDF = async (id: number) => {
+        setPdfLoading(id);
+        try {
+            const response = await fetch(`/api/download/${id}`);
+            if (!response.ok) {
+                messageApi.error("Болсонгүй");
+            }
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `paper_${id}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+        } finally {
+            setPdfLoading(null);
+        }
+    };
 
   const generateSearch = (term: string) => {
     const params = new URLSearchParams(searchParams);
@@ -88,10 +112,24 @@ export function ListPage({ data, total, page, pageSize }: any) {
         );
       },
     },
+      // {
+      //     title: "PDF хувилбар",
+      //     dataIndex: "id",
+      //     render: (id: number) => (
+      //         <Button
+      //             onClick={() => handleDownloadPDF(id)}
+      //             type="link"
+      //             loading={pdfLoading === id}
+      //         >
+      //             Файл
+      //         </Button>
+      //     ),
+      // },
   ];
 
   return (
     <section>
+        {contextHolder}
       <div className="mb-8">
         <Flex gap={20} justify="space-between">
           <Input.Search

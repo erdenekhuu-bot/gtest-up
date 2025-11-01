@@ -25,7 +25,6 @@ import { ZUSTAND } from "@/zustand";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { Rejection } from "./reject/rejection";
-import { DefineLevel } from "@/util/checkout";
 
 const columns = [
   {

@@ -4,35 +4,31 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   LoginOutlined,
-  DropboxOutlined,
   HomeOutlined,
   SelectOutlined,
   SnippetsOutlined,
-  FormOutlined,
-  HighlightOutlined,
   RadarChartOutlined,
   AliwangwangOutlined,
-  PieChartOutlined,
   DesktopOutlined,
-  DatabaseTwoTone,
-  PieChartTwoTone,
-
+  SettingOutlined,
+  TeamOutlined,
+  SolutionOutlined,
+  MobileOutlined,
+  ShareAltOutlined,
+  CarryOutOutlined,
+  ProjectOutlined,
+  PaperClipOutlined,
+  MailOutlined,
+  CopyOutlined,
+  ScheduleOutlined,
 } from "@ant-design/icons";
-import {
-  Button,
-  Layout,
-  Menu,
-  theme,
-  Flex,
-  Popover,
-  Badge,
-  Avatar,
-} from "antd";
+import { Button, Layout, Menu, theme, Flex, Badge, Avatar } from "antd";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import type { MenuProps } from "antd";
 import { ZUSTAND } from "@/zustand";
 import { subLetter } from "@/util/usable";
+import Image from "next/image";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -44,188 +40,79 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   const router = useRouter();
-  const {
-    getBread,
-    papercount,
-    fetchpaper,
-    fetchshare,
-    sharecount,
-    checkcountdoc,
-    countdocument,
-      takeAllShare,getAllShare,countPlan,countReport
-  } = ZUSTAND();
-  const { data: session } = useSession();
-  const chekcout = session?.user.permission.kind?.length;
+  const { countdocument } = ZUSTAND();
+  const { data: session, status } = useSession();
+
   const manager = session?.user.name;
 
   const items: MenuItem[] = [
-    chekcout > 1 && chekcout < 4
+    {
+      key: "1",
+      icon: <PaperClipOutlined />,
+      label: "Баталгаажуулах хуудас",
+      onClick: () => router.push("/paper"),
+    },
+    {
+      key: "2",
+      icon: <SelectOutlined />,
+      label: "Тестийн төлөвлөгөө үүсгэх",
+      onClick: () => router.push("/plan"),
+    },
+    {
+      key: "3",
+      icon: <MailOutlined />,
+      label: "Тайлан",
+      onClick: () => router.push("/testcase"),
+    },
+    manager === "uuganbayar.ts" || session?.user.employee.super === "ADMIN"
       ? {
-          key: "1",
-          icon: (
-            <Badge dot={countdocument > 0 ? true : false}>
-              <HomeOutlined />
-            </Badge>
+          key: "4",
+          icon: <MailOutlined />,
+          label: (
+            <Flex align="center" gap={5}>
+              Ирсэн төлөвлөгөө
+              <Badge count={countdocument} size="small" />
+            </Flex>
           ),
-          label: "Хэлтсийн дарга",
-          children: [
-            manager === "uuganbayar.ts" || session?.user.employee.super === "ADMIN"
-              ? {
-                  key: "s10",
-                  icon: <FormOutlined />,
-                  label: (
-                    <Flex align="center" gap={5}>
-                      Ирсэн төлөвлөгөө
-                      <Badge count={countdocument} size="small" />
-                    </Flex>
-                  ),
-                  onClick: () => router.push("/teamplan"),
-                }
-              : null,
-            manager === "uuganbayar.ts" || session?.user.employee.super === "ADMIN"
-              ? {
-                  key: "s110",
-                  icon: <HighlightOutlined />,
-                  label: "Ирсэн тайлан",
-                  onClick: ()=>router.push("/teamreport")
-                }
-              : null,
-            manager === "nyamkhuu"
-              ? {
-                  key: "s111",
-                  icon: <HighlightOutlined />,
-                  label: "Баталгаажуулах хуудасууд",
-                  onClick: () => router.push("/teampaper"),
-                }
-              : null,
-          ],
+          onClick: () => router.push("/teamplan"),
         }
       : null,
-    chekcout > 1 && session?.user.employee.super !== "ADMIN"
-      ? null
-      : {
-          key: "2",
-          icon: <SelectOutlined />,
-          label: "Төлөвлөгөө",
-          children: [
-            {
-              key: "s2",
-              icon: <AliwangwangOutlined />,
-              label: "Төлөвлөгөө үүсгэх",
-              onClick: () => {
-                router.push("/plan");
-                getBread("Төлөвлөгөө үүсгэх");
-              },
-            },
-            {
-              key: "s3",
-              icon: <PieChartOutlined />,
-              label: "Батлах хуудас",
-              onClick: () => router.push("/paper"),
-            },
-            {
-              key: "s4",
-              icon: <HighlightOutlined />,
-              label: "Тест кэйс",
-              onClick: () => {
-                router.push("/testcase");
-              },
-            },
-            
-            {
-              key: "s5",
-              icon: (<Badge dot={takeAllShare !== null ? true : false}><DesktopOutlined /></Badge>),
-              label: "Хуваалцсан",
-                children: [
-                    {
-                        key: "s50",
-                        icon: <DesktopOutlined />,
-                        label: <Flex align="center" gap={5}> Төлөвлөгөө <Badge count={countPlan} size="small" /></Flex>,
-                        onClick: () => {
-                            router.push("/share");
-                            getBread("Хуваалцсан");
-                        },
-                    },
-                    {
-                        key: "s51",
-                        icon: <SnippetsOutlined />,
-                        label: <Flex align="center" gap={5}>Тайлан <Badge count={countReport} size="small" /></Flex>,
-                        onClick: ()=>{router.push("/sharereport")},
-                    },
-                    {
-                        key: "s52",
-                        icon: <HighlightOutlined />,
-                        label: "Кейсүүд оруулах",
-                        onClick:()=>{router.push('/sharecase')}
-                    }
-                ]
-            },
-          ],
-        },
-    chekcout > 1
-      ? chekcout > 4
-        ? {
-            key: "4",
-            icon: <DesktopOutlined />,
-            label: "Ирсэн төлөвлөгөө CEO",
-            onClick: () => router.push("/ceoplan"),
-          }
-        : chekcout > 2
-        ? {
-            key: "8",
-            icon: <SnippetsOutlined />,
-            label: "Ирсэн төлөвлөгөө",
-            onClick: () => router.push("/dirplan"),
-          }
-        : {
-            key: "3",
-            icon: <SnippetsOutlined />,
-            label: "Ирсэн төлөвлөгөө",
-            onClick: () => router.push("/listplan"),
-          }
-      : null,
-    manager === "cc573"
+    manager === "uuganbayar.ts" || session?.user.employee.super === "ADMIN"
       ? {
           key: "5",
+          icon: <CopyOutlined />,
+          label: "Ирсэн тайлан",
+          onClick: () => router.push("/teamreport"),
+        }
+      : null,
+    {
+      key: "6",
+      icon: <MobileOutlined />,
+      label: "Тестийн бүртгэлтэй дугаарууд",
+      onClick: () => router.push("/numbers"),
+    },
+    manager === "cc573"
+      ? {
+          key: "7",
           icon: <RadarChartOutlined />,
           label: "Ирсэн төлөвлөгөөн (cc573)",
           onClick: () => router.push("/cc573"),
         }
       : null,
-      {
-          key: "6",
-          icon: <DropboxOutlined />,
-          label: "Ашигласан дугаарууд",
-          onClick:()=>router.push("/numbers")
-      },
     {
-      key: "7",
+      key: "8",
+      icon: <SettingOutlined />,
+      label: "Тохиргоо",
+      onClick: () => router.push("/admin"),
+    },
+
+    {
+      key: "9",
       icon: <LoginOutlined />,
       label: "Системээс гарах",
       onClick: () => signOut({ callbackUrl: "/login" }),
     },
   ];
-
-  const content = (
-    <div>
-      <p>Ирсэн батлах хуудас: {papercount}</p>
-    </div>
-  );
-
-  const sharecontent = (
-    <div>
-      <p>Хуваалцсан хуудас: {sharecount}</p>
-    </div>
-  );
-
-  useEffect(() => {
-    session?.user.id && fetchpaper(Number(session?.user.id));
-    session?.user.id && fetchshare(Number(session.user.id));
-    session?.user.id && checkcountdoc(Number(session.user.id));
-    session?.user.id && getAllShare(Number(session.user.id));
-
-  }, [session?.user.id]);
-
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -272,24 +159,16 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
             />
           </div>
           <Flex gap={10}>
-            <Popover content={content}>
-              <Badge count={papercount}>
-                <Avatar
-                  shape="square"
-                  size="large"
-                  icon={<PieChartTwoTone className="text-3xl" />}
-                />
-              </Badge>
-            </Popover>
-            <Popover content={sharecontent}>
-              <Badge count={sharecount}>
-                <Avatar
-                  shape="square"
-                  size="large"
-                  icon={<DatabaseTwoTone className="text-3xl" />}
-                />
-              </Badge>
-            </Popover>
+            <Image
+              src={
+                session?.user.employee.gender === "female"
+                  ? "/female.png"
+                  : "/male.png"
+              }
+              alt=""
+              width={40}
+              height={40}
+            />
             <Avatar
               shape="square"
               size="large"
