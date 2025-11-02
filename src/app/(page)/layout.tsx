@@ -203,9 +203,7 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
                 />
               </Badge>
             </Popover>
-            <Popover content={sharecontent}>
-              <Badge count={sharecount}>
-                <Avatar
+           <Avatar
                   shape="square"
                   size="large"
                   style={{ backgroundColor: "#00569E" }}
@@ -214,8 +212,6 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
                     {subLetter(String(session?.user.name))}
                   </span>
                 </Avatar>
-              </Badge>
-            </Popover>
           </Flex>
         </Header>
         <Content

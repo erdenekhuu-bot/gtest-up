@@ -29,19 +29,15 @@ const { Title } = Typography;
 const PERMISSIONS_OPTIONS = [
   { label: "Үзэх", value: "VIEW" },
   { label: "Унших", value: "READ" },
-  { label: "Засах", value: "EDIT"},
-  { label: "Хуваалцах", value: "SHARE"}
+  { label: "Засах", value: "EDIT"}
 ];
 
-interface AdminOption {
-  value: string | number;
-  label: string;
-}
+
 
 export function AdminWindow() {
   const { checkout, getCheckout, employeeId } = ZUSTAND();
-  const [department, setDepartment] = useState<AdminOption[]>([]);
-  const [jobposition, setJobposition] = useState<AdminOption[]>([]);
+  const [department, setDepartment] = useState([]);
+  const [jobposition, setJobposition] = useState([]);
   const [mainForm] = Form.useForm();
   const [search, setSearch] = useState<string>("");
   const [finddepartment, setFindingDepartment] = useState<string>("");
@@ -184,7 +180,6 @@ export function AdminWindow() {
             filterOption={false}
             showSearch
             placeholder="Албан тушаал сонгох..."
-            size="large"
           />
         </Form.Item>
 
@@ -203,7 +198,6 @@ export function AdminWindow() {
             filterOption={false}
             showSearch
             placeholder="Газар/хэлтэс сонгох..."
-            size="large"
           />
         </Form.Item>
 
