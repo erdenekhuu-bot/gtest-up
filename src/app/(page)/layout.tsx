@@ -4,25 +4,25 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   LoginOutlined,
-  HomeOutlined,
   SelectOutlined,
-  SnippetsOutlined,
   RadarChartOutlined,
-  AliwangwangOutlined,
-  DesktopOutlined,
   SettingOutlined,
-  TeamOutlined,
-  SolutionOutlined,
   MobileOutlined,
-  ShareAltOutlined,
-  CarryOutOutlined,
-  ProjectOutlined,
+  ProjectTwoTone,
   PaperClipOutlined,
   MailOutlined,
   CopyOutlined,
-  ScheduleOutlined,
 } from "@ant-design/icons";
-import { Button, Layout, Menu, theme, Flex, Badge, Avatar } from "antd";
+import {
+  Button,
+  Layout,
+  Menu,
+  theme,
+  Flex,
+  Badge,
+  Avatar,
+  Popover,
+} from "antd";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import type { MenuProps } from "antd";
@@ -40,7 +40,8 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   const router = useRouter();
-  const { countdocument } = ZUSTAND();
+  const { countdocument, sharecount, fetchshare, shareReport, getShareReport } =
+    ZUSTAND();
   const { data: session, status } = useSession();
 
   const manager = session?.user.name;
@@ -113,6 +114,25 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
       onClick: () => signOut({ callbackUrl: "/login" }),
     },
   ];
+  const sharecontent = (
+    <div>
+      <Button type="text" onClick={() => router.push("/share")}>
+        Хуваалцсан төлөвлөгөө үзэх
+      </Button>
+    </div>
+  );
+  const sharereport = (
+    <div>
+      <Button type="text" onClick={() => router.push("/sharereport")}>
+        Хуваалцсан тайлан үзэх
+      </Button>
+    </div>
+  );
+
+  useEffect(() => {
+    session?.user.id && fetchshare(Number(session.user.id));
+    session?.user.id && getShareReport(Number(session.user.employee.id));
+  }, [session?.user.id]);
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -159,25 +179,43 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
             />
           </div>
           <Flex gap={10}>
-            <Image
-              src={
-                session?.user.employee.gender === "female"
-                  ? "/female.png"
-                  : "/male.png"
-              }
-              alt=""
-              width={40}
-              height={40}
-            />
-            <Avatar
-              shape="square"
-              size="large"
-              style={{ backgroundColor: "#00569E" }}
-            >
-              <span className="text-2xl">
-                {subLetter(String(session?.user.name))}
-              </span>
-            </Avatar>
+            <Popover content={sharereport}>
+              <Badge count={shareReport}>
+                <Avatar
+                  shape="square"
+                  size="large"
+                  style={{ backgroundColor: "#00569E" }}
+                  icon={<ProjectTwoTone className="text-3xl" />}
+                />
+              </Badge>
+            </Popover>
+            <Popover content={sharecontent}>
+              <Badge count={sharecount}>
+                <Image
+                  src={
+                    session?.user.employee.gender === "female"
+                      ? "/female.png"
+                      : "/male.png"
+                  }
+                  alt=""
+                  width={40}
+                  height={40}
+                />
+              </Badge>
+            </Popover>
+            <Popover content={sharecontent}>
+              <Badge count={sharecount}>
+                <Avatar
+                  shape="square"
+                  size="large"
+                  style={{ backgroundColor: "#00569E" }}
+                >
+                  <span className="text-2xl">
+                    {subLetter(String(session?.user.name))}
+                  </span>
+                </Avatar>
+              </Badge>
+            </Popover>
           </Flex>
         </Header>
         <Content

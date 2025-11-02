@@ -260,12 +260,12 @@ export function ReportMake({ id, data }: any) {
         </Form.Item>
       </div>
 
-      <Table
+      {/* <Table
         dataSource={data.testcase}
         columns={casecolumns}
         pagination={false}
         bordered
-      />
+      /> */}
       <p className="mt-8 mb-4 font-bold text-lg">Ашигласан дугаарууд</p>
       <UsedPhone form={mainForm}/>
       

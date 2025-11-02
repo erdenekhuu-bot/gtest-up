@@ -3,12 +3,13 @@ import { Card, Flex, Popover, Button, Pagination, Table } from "antd";
 import { redirect } from "next/navigation";
 import { ZUSTAND } from "@/zustand";
 import { EditShareWindow } from "./shareEditWindow";
+import { EditShareReport } from "@/components/window/share/shareEditReport";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
-
 
 export function ShareComp({ document, total, page, pageSize }: any) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const { getDocumentId, getCheckout } = ZUSTAND();
   const { replace } = useRouter();
   const router = useRouter();
   const generateSearch = (term: string) => {
@@ -28,19 +29,19 @@ export function ShareComp({ document, total, page, pageSize }: any) {
     params.set("pageSize", newPageSize.toString());
     replace(`${pathname}?${params.toString()}`);
   };
-  
+
   return (
     <section>
       <Table
         dataSource={document}
         columns={[
           {
-            title: "Гарчиг",
+            title: "Төлөвлөгөө",
             dataIndex: "document",
             render: (document: any) => document.title,
           },
           {
-            title: "Тайлбар",
+            title: "Телөвлөгөөний зорилго",
             dataIndex: "document",
             render: (document: any) => document.detail.aim,
           },
@@ -48,7 +49,6 @@ export function ShareComp({ document, total, page, pageSize }: any) {
             title: "Үзэх",
             dataIndex: "document",
             render: (document: any) => {
-            
               return (
                 <Button
                   type="primary"
@@ -59,6 +59,33 @@ export function ShareComp({ document, total, page, pageSize }: any) {
               );
             },
           },
+          // {
+          //   title: "Тайлан",
+          //   dataIndex: "document",
+          //   render: (record: any) => {
+          //     return (
+          //       <Flex gap={10}>
+          //         <Button
+          //           type="primary"
+          //           onClick={() => {
+          //             getDocumentId(Number(record.documentId));
+          //             redirect(`/sharereport/${Number(record.id)}`);
+          //           }}
+          //         >
+          //           Тайлан үзэх
+          //         </Button>
+          //         <Button
+          //           onClick={() => {
+          //             getDocumentId(Number(record.id));
+          //             getCheckout(17);
+          //           }}
+          //         >
+          //           Хуваалцсан хүмүүс
+          //         </Button>
+          //       </Flex>
+          //     );
+          //   },
+          // },
         ]}
         rowKey="id"
         pagination={{
@@ -69,7 +96,7 @@ export function ShareComp({ document, total, page, pageSize }: any) {
         }}
       />
       <EditShareWindow />
-     
+      <EditShareReport />
     </section>
   );
 }

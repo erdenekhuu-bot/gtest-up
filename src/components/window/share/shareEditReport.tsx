@@ -69,10 +69,10 @@ export function EditShareReport() {
   const detail = async (id: number) => {
     const response = await axios.get("/api/document/share/report/" + id);
     if (response.data.success) {
-      const data = response.data?.data?.share.map((item: any) => {
+      const data = response.data.data.map((item: any) => {
         return {
           key: uuidv4(),
-          employeeId: `${item.employee.firstname} ${item.employee.lastname}`,
+          employeeId: `${item.employee.firstname}`,
         };
       });
       mainForm.setFieldsValue({

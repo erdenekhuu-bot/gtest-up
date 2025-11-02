@@ -315,7 +315,7 @@ export function ShareMember({ document, id, steps }: any) {
                 Үндсэн хуудас руу буцах
               </span>
             ),
-            onClick: () => redirect("/plan"),
+            onClick: () => redirect("/share"),
           },
           {
             title: "Төлөвлөгөө засварлах хуудас",

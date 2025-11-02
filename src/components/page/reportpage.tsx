@@ -1,10 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { Table, Button } from "antd";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { formatHumanReadable } from "@/util/usable";
 import { ShareReportWindow } from "@/components/window/sharereportwindow";
 import { ZUSTAND } from "@/zustand";
+import Image from "next/image";
 
 export function TestCaseReportPage({ data, total, page, pageSize }: any) {
   const router = useRouter();
@@ -30,6 +31,7 @@ export function TestCaseReportPage({ data, total, page, pageSize }: any) {
     params.set("pageSize", pagination.pageSize.toString());
     replace(`${pathname}?${params.toString()}`);
   };
+
   const columns = [
     {
       title: "Тоот",
@@ -86,6 +88,22 @@ export function TestCaseReportPage({ data, total, page, pageSize }: any) {
           SHARE
         </Button>
       ),
+    },
+    {
+      title: "PDF view",
+      dataIndex: "id",
+      render: (id: number) => {
+        return (
+          <Image
+            alt=""
+            src="/view.svg"
+            width={40}
+            height={40}
+            onClick={() => window.open(`/api/download/view/${id}`, "_blank")}
+            className="hover:cursor-pointer"
+          />
+        );
+      },
     },
   ];
 

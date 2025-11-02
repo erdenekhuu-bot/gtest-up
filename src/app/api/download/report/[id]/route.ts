@@ -13,13 +13,52 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const document = await prisma.document.findUnique({
-      where: { id: parseInt(id) },
-      include: {
-        departmentEmployeeRole: {
-          where: {
-              role: "ACCESSER"
+        const document = await prisma.document.findUnique({
+          where: { id: Number(id) },
+          include: {
+            testcase: { include: { testCaseImage: true } },
+            user: {
+              select: {
+                employee: {
+                  select: {
+                    firstname: true,
+                    lastname: true,
+                    jobPosition: true,
+                    department: true,
+                  },
+                },
+              },
             },
+            detail: true,
+            documentemployee: {
+              select: {
+                employee: {
+                  select: {
+                    firstname: true,
+                    lastname: true,
+                    jobPosition: true,
+                    department: true,
+                  },
+                },
+                role: true,
+                startedDate: true,
+                endDate: true,
+              },
+            },
+            report: { include: { issue: true, team: true, usedphone: true } },
+          },
+        });
+        const accessrole = await prisma.departmentEmployeeRole.findMany({
+          where: {
+            AND: [
+              {
+                role: "ACCESSER",
+              },
+              {
+                documentId: Number(id),
+              },
+            ],
+          },
           distinct: ["employeeId"],
           select: {
             employee: {
@@ -37,59 +76,82 @@ export async function GET(
           orderBy: {
             startedDate: "asc",
           },
-        },
-        testcase: { include: { testCaseImage: true } },
-        user: {
-          select: {
-            employee: {
-              select: {
-                firstname: true,
-                lastname: true,
-                jobPosition: true,
-                department: true,
+        });
+        const middlerole = await prisma.departmentEmployeeRole.findMany({
+          where: {
+            AND: [
+              {
+                role: "MIDDLE",
               },
-            },
+              {
+                documentId: Number(id),
+              },
+            ],
           },
-        },
-        detail: true,
-        attribute: true,
-        budget: true,
-        riskassessment: true,
-        documentemployee: {
+          distinct: ["employeeId"],
           select: {
             employee: {
-              select: {
-                firstname: true,
-                lastname: true,
+              include: {
                 jobPosition: true,
                 department: true,
+                authUser: true,
               },
             },
             role: true,
+            state: true,
             startedDate: true,
             endDate: true,
           },
-        },
-        report: { include: { issue: true, team: true, usedphone: true } },
-      },
-    });
-
-    if (!document) {
-      return NextResponse.json(
-        { success: false, message: "Document not found" },
-        { status: 404 }
-      );
-    }
-
-    const templatePath = path.join(
-      process.cwd(),
-      "public",
-      "templates",
-      "newreport.ejs"
-    );
-    const templateContent = fs.readFileSync(templatePath, "utf-8");
-
-    const htmlContent = ejs.render(templateContent, { document });
+          orderBy: {
+            startedDate: "asc",
+          },
+        });
+        const viewrole = await prisma.documentEmployee.findMany({
+          where: {
+            AND: [
+              {
+                role: "Техникийн нөхцөлөөр хангах",
+              },
+              {
+                documentId: Number(id),
+              },
+            ],
+          },
+          distinct: ["employeeId"],
+          select: {
+            employee: {
+              include: {
+                jobPosition: true,
+                department: true,
+                authUser: true,
+              },
+            },
+          },
+          orderBy: {
+            startedDate: "asc",
+          },
+        });
+        const makerole = await prisma.shareGroup.findMany({
+          select: {
+            employee: true,
+          },
+          distinct: ["employeeId"],
+        });
+        const templatePath = path.join(
+          process.cwd(),
+          "public",
+          "templates",
+          "newreport.ejs"
+        );
+        const templateContent = fs.readFileSync(templatePath, "utf-8");
+    
+        const htmlContent = ejs.render(templateContent, {
+          document,
+          accessrole,
+          middlerole,
+          viewrole,
+          makerole,
+        });
 
     const browser = await puppeteer.launch({
       headless: true,

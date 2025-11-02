@@ -12,7 +12,6 @@ import { FullUpdate, ReportUpdate } from "@/util/action";
 import { ZUSTAND } from "@/zustand";
 import { useSession } from "next-auth/react";
 import { DownloadOutlined } from "@ant-design/icons";
-import axios from "axios";
 import { useState } from "react";
 
 export function ShareMemberReport({ data }: any) {

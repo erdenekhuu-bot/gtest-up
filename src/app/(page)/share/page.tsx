@@ -16,7 +16,6 @@ export default async function Page(props: {
   const search = searchParams?.search || "";
   const page = Number(searchParams?.page) || 1;
   const pageSize = Number(searchParams?.pageSize) || 10;
-  const isAdmin = session?.user.employee.super === "ADMIN";
 
   const authUser = await prisma.authUser.findUnique({
     where: {
@@ -32,7 +31,7 @@ export default async function Page(props: {
       authUser &&
       (await tx.shareGroup.findMany({
         where: {
-          ...(isAdmin ? {} : { employeeId: authUser.employee?.id }),
+          employeeId: authUser.employee?.id,
         },
         skip: (page - 1) * pageSize,
         take: pageSize,

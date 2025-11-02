@@ -31,14 +31,18 @@ export default async function Page(props: {
       authUser &&
       (await tx.shareReport.findMany({
         where: {
-          ...(isAdmin ? {} : { employeeId: authUser.employee?.id }),
+         employeeId: authUser.employee?.id ,
         },
         skip: (page - 1) * pageSize,
         take: pageSize,
         distinct: ["reportId"],
         include: {
           employee: true,
-          report: true,
+          report: {
+            include: {
+              document: true
+            }
+          },
         },
       }));
     return document;

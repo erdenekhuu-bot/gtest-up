@@ -137,9 +137,6 @@ export function EditPage({ document, id, steps }: any) {
     setSearch(capitalizeFirstLetter(value));
   };
 
-  const handlePdfDownload = () => {
-    messageApi.info("PDF татаж байна...");
-  };
 
   const onFinish: FormProps["onFinish"] = async (values) => {
     let attributeData = [
@@ -312,31 +309,6 @@ export function EditPage({ document, id, steps }: any) {
 
   return (
     <section className="">
-      <div
-        style={{
-          position: "fixed",
-          top: 100, 
-          right: 50, 
-          zIndex: 1000,
-        }}
-      >
-        <Button
-          type="primary"
-          shape="circle" 
-          size="large"
-          icon={<DownloadOutlined />}
-          onClick={handlePdfDownload}
-          style={{
-            width: 30, 
-            height: 40,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 3px 6px rgba(0,0,0,0.2)'
-          }}
-        />
-      </div>
-
       <Breadcrumb
         style={{ margin: "16px 0" }}
         items={[

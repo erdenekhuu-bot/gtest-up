@@ -190,6 +190,13 @@
           <% }) %>
         </tbody>
       </table>
+
+      <div style="margin-top: 20px; margin-bottom: 20px">
+        <p style="font-weight: bold; font-size: 12px">ТЕСТИЙН ДҮГНЭЛТ:</p>
+        <div style="font-size: 10px">
+          <%= document?.report?.reportconclusion %>
+        </div>
+      </div>
       <div
         style="
           font-family: Arial, sans-serif;
@@ -198,58 +205,71 @@
         "
       >
         <table class="signature-table">
-          <% document?.departmentEmployeeRole.forEach((data, index) => { %>
-            <tr>
-              <% if (index === 0) { %>
-                <td class="signature-role">Зөвшөөрсөн:</td>
-              <% } else { %>
-                <td></td>
-              <% } %>
-              <td class="signature-role"><%= data.employee.firstname %></td>
-              <td class="signature-role">/ Зөвшөөрсөн /</td>
-            </tr>
+          <% accessrole?.forEach((data, index) => { %>
+          <tr>
+            <% if (index === 0) { %>
+            <td class="signature-role">Зөвшөөрсөн:</td>
+            <% } else { %>
+            <td></td>
+            <% } %>
+            <td class="signature-role">
+              <%= convertFirst(data?.employee?.lastname) %>
+              <%=data?.employee?.firstname %>
+            </td>
+            <td class="signature-role">/ Зөвшөөрсөн /</td>
+          </tr>
           <% }); %>
         </table>
 
-
-
-        
-        <!-- <table class="signature-table">
-          <tr class="role-spacing">
+        <table class="signature-table">
+          <% middlerole?.forEach((data, index) => { %>
+          <tr>
+            <% if (index === 0) { %>
             <td class="signature-role">Хянасан:</td>
-            <td class="signature-role">Ц.Ууганбаяр</td>
-            <td class="signature-role">/ Хянасан /</td>
-          </tr>
-          <tr>
+            <% } else { %>
             <td></td>
-            <td class="signature-role">Л.Нямхүү</td>
+            <% } %>
+            <td class="signature-role">
+              <%= convertFirst(data?.employee?.lastname) %>
+              <%=data?.employee?.firstname %>
+            </td>
             <td class="signature-role">/ Хянасан /</td>
           </tr>
-        </table> -->
-        <!-- <table class="signature-table">
-          <tr class="role-spacing">
+          <% }); %>
+        </table>
+
+        <table class="signature-table">
+          <% viewrole?.forEach((data, index) => { %>
+          <tr>
+            <% if (index === 0) { %>
             <td class="signature-role">Тестийн гишүүд:</td>
-            <td class="signature-role">Д.Бадамрагчаа</td>
-            <td class="signature-role">/ Тестлсэн /</td>
-          </tr>
-          <tr>
+            <% } else { %>
             <td></td>
-            <td class="signature-role">С.Тэнгис</td>
-            <td class="signature-role">/ Тестлсэн /</td>
+            <% } %>
+            <td class="signature-role">
+              <%= convertFirst(data?.employee?.lastname) %>
+              <%=data?.employee?.firstname %>
+            </td>
+            <td class="signature-role">/ Оролцсон /</td>
           </tr>
+          <% }); %>
         </table>
         <table class="signature-table">
-          <tr class="role-spacing">
-            <td class="signature-role">Боловсруулсан:</td>
-            <td class="signature-role">М.Энх-оргил</td>
-            <td class="signature-role">/ Боловсруулсан /</td>
-          </tr>
+          <% makerole?.forEach((data, index) => { %>
           <tr>
+            <% if (index === 0) { %>
+            <td class="signature-role">Боловсруулсан:</td>
+            <% } else { %>
             <td></td>
-            <td class="signature-role">Г.Саруул</td>
+            <% } %>
+            <td class="signature-role">
+              <%= convertFirst(data?.employee?.lastname) %>
+              <%=data?.employee?.firstname %>
+            </td>
             <td class="signature-role">/ Боловсруулсан /</td>
           </tr>
-        </table> -->
+          <% }); %>
+        </table>
       </div>
     </main>
     <% function convertFirst(lastname){ return lastname[0]+"." } %> <% function

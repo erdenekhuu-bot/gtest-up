@@ -37,6 +37,8 @@ type GlobalStore = {
   getAllShare: (value:number) => Promise<void>;
     countPlan: number;
     countReport: number;
+  shareReport:number;
+  getShareReport:(value:number)=>Promise<void>;
 };
 
 export const ZUSTAND = create<GlobalStore>((set) => ({
@@ -121,5 +123,12 @@ export const ZUSTAND = create<GlobalStore>((set) => ({
       }
     },
     countPlan: 0,
-    countReport: 0
+    countReport: 0,
+    shareReport: 0,
+    getShareReport:async function(id:number){
+      const response = await axios.get(`/api/document/share/report/${id}`);
+      if(response.data.success){
+        set({shareReport: response.data.data.length})
+      }
+    }
 }));
