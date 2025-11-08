@@ -158,7 +158,6 @@ export function AdminWindow() {
             filterOption={false}
             showSearch
             placeholder="Албан тушаал сонгох..."
-            size="large"
           />
         </Form.Item>
 
@@ -176,7 +175,6 @@ export function AdminWindow() {
             filterOption={false}
             showSearch
             placeholder="Газар/хэлтэс сонгох..."
-            size="large"
           />
         </Form.Item>
 

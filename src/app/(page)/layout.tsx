@@ -43,7 +43,7 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
   const { data: session, status } = useSession();
   const hasEdit = session?.user.employee.permission[0].kind.includes("EDIT");
   const manager = session?.user.name;
-  const department=session?.user.employee.department.name
+  const department = session?.user.employee.department.name;
 
   const menu: any = [
     department === "Програм хөгжүүлэлтийн хэлтэс" && {
@@ -102,7 +102,7 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
           onClick: () => router.push("/cc573"),
         }
       : null,
-    department === 'Програм ашиглалт, үйлчилгээний хэлтэс' && {
+    department === "Програм ашиглалт, үйлчилгээний хэлтэс" && {
       key: "9",
       icon: <SettingOutlined />,
       label: "Тохиргоо",
@@ -214,14 +214,14 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
             </Popover>
             <Popover content={sharecase}>
               <Avatar
-              shape="square"
-              size="large"
-              style={{ backgroundColor: "#00569E" }}
-            >
-              <span className="text-2xl">
-                {subLetter(String(session?.user.name))}
-              </span>
-            </Avatar>
+                shape="square"
+                size="large"
+                style={{ backgroundColor: "#00569E" }}
+              >
+                <span className="text-2xl">
+                  {subLetter(String(session?.user.name))}
+                </span>
+              </Avatar>
             </Popover>
           </Flex>
         </Header>
