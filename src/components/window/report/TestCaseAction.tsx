@@ -15,8 +15,6 @@ import { useEffect } from "react";
 import type { FormProps } from "antd";
 import { convertName } from "@/util/usable";
 import { useRouter } from "next/navigation";
-import "@uiw/react-md-editor/markdown-editor.css";
-import "@uiw/react-markdown-preview/markdown.css";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import {
   ClassicEditor,

@@ -4,15 +4,23 @@ import { prisma } from "@/util/prisma";
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
 
-  const page = parseInt(url.searchParams.get("page") || "1", 10); 
-  const pageSize = parseInt(url.searchParams.get("pageSize") || "10", 10); 
+  const page = parseInt(url.searchParams.get("page") || "1", 10);
+  const pageSize = parseInt(url.searchParams.get("pageSize") || "10", 10);
+  const id = parseInt(url.searchParams.get("id") || "0", 10);
 
   try {
     const records = await prisma.testCase.findMany({
       skip: (page - 1) * pageSize,
       take: pageSize,
+      where: {
+        documentId: id,
+      },
     });
-    const total = await prisma.testCase.count();
+    const total = await prisma.testCase.count({
+      where: {
+        documentId: id,
+      },
+    });
 
     return NextResponse.json(
       { success: true, data: records, total },

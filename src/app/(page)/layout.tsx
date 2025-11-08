@@ -12,6 +12,7 @@ import {
   PaperClipOutlined,
   MailOutlined,
   CopyOutlined,
+  FullscreenExitOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -25,12 +26,9 @@ import {
 } from "antd";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import type { MenuProps } from "antd";
 import { ZUSTAND } from "@/zustand";
 import { subLetter } from "@/util/usable";
 import Image from "next/image";
-
-type MenuItem = Required<MenuProps>["items"][number];
 
 const { Header, Sider, Content, Footer } = Layout;
 
@@ -43,11 +41,12 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
   const { countdocument, sharecount, fetchshare, shareReport, getShareReport } =
     ZUSTAND();
   const { data: session, status } = useSession();
-
+  const hasEdit = session?.user.employee.permission[0].kind.includes("EDIT");
   const manager = session?.user.name;
+  const department=session?.user.employee.department.name
 
-  const items: MenuItem[] = [
-    {
+  const menu: any = [
+    department === "Програм хөгжүүлэлтийн хэлтэс" && {
       key: "1",
       icon: <PaperClipOutlined />,
       label: "Баталгаажуулах хуудас",
@@ -56,18 +55,22 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
     {
       key: "2",
       icon: <SelectOutlined />,
-      label: "Тестийн төлөвлөгөө үүсгэх",
+      label: "Тестийн төлөвлөгөө",
       onClick: () => router.push("/plan"),
     },
-    {
+    hasEdit && {
       key: "3",
       icon: <MailOutlined />,
       label: "Тайлан",
       onClick: () => router.push("/testcase"),
     },
-    manager === "uuganbayar.ts" || session?.user.employee.super === "ADMIN"
-      ? {
-          key: "4",
+    manager === "uuganbayar.ts" && {
+      key: "4",
+      icon: <FullscreenExitOutlined />,
+      label: "Хэлтсийн дарга",
+      children: [
+        {
+          key: "5",
           icon: <MailOutlined />,
           label: (
             <Flex align="center" gap={5}>
@@ -76,39 +79,38 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
             </Flex>
           ),
           onClick: () => router.push("/teamplan"),
-        }
-      : null,
-    manager === "uuganbayar.ts" || session?.user.employee.super === "ADMIN"
-      ? {
-          key: "5",
+        },
+        {
+          key: "6",
           icon: <CopyOutlined />,
           label: "Ирсэн тайлан",
           onClick: () => router.push("/teamreport"),
-        }
-      : null,
-    {
-      key: "6",
+        },
+      ],
+    },
+    hasEdit && {
+      key: "7",
       icon: <MobileOutlined />,
       label: "Тестийн бүртгэлтэй дугаарууд",
       onClick: () => router.push("/numbers"),
     },
     manager === "cc573"
       ? {
-          key: "7",
+          key: "8",
           icon: <RadarChartOutlined />,
           label: "Ирсэн төлөвлөгөөн (cc573)",
           onClick: () => router.push("/cc573"),
         }
       : null,
-    {
-      key: "8",
+    department === 'Програм ашиглалт, үйлчилгээний хэлтэс' && {
+      key: "9",
       icon: <SettingOutlined />,
       label: "Тохиргоо",
       onClick: () => router.push("/admin"),
     },
 
     {
-      key: "9",
+      key: "10",
       icon: <LoginOutlined />,
       label: "Системээс гарах",
       onClick: () => signOut({ callbackUrl: "/login" }),
@@ -125,6 +127,13 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
     <div>
       <Button type="text" onClick={() => router.push("/sharereport")}>
         Хуваалцсан тайлан үзэх
+      </Button>
+    </div>
+  );
+  const sharecase = (
+    <div>
+      <Button type="text" onClick={() => router.push("/sharecase")}>
+        Хуваалцсан кейсүүд
       </Button>
     </div>
   );
@@ -148,7 +157,7 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
           mode="inline"
           theme="dark"
           inlineCollapsed={collapsed}
-          items={items}
+          items={menu}
         />
       </Sider>
       <Layout>
@@ -203,18 +212,16 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
                 />
               </Badge>
             </Popover>
-            <Popover content={sharecontent}>
-              <Badge count={sharecount}>
-                <Avatar
-                  shape="square"
-                  size="large"
-                  style={{ backgroundColor: "#00569E" }}
-                >
-                  <span className="text-2xl">
-                    {subLetter(String(session?.user.name))}
-                  </span>
-                </Avatar>
-              </Badge>
+            <Popover content={sharecase}>
+              <Avatar
+              shape="square"
+              size="large"
+              style={{ backgroundColor: "#00569E" }}
+            >
+              <span className="text-2xl">
+                {subLetter(String(session?.user.name))}
+              </span>
+            </Avatar>
             </Popover>
           </Flex>
         </Header>

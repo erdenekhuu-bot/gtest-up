@@ -15,11 +15,10 @@ function stripId(arr: any[]): any[] {
 
 export async function CreateDocument(data: any) {
   try {
-    const validate = v.safeParse(DocumentSchema, data);
-    if (!validate.success) {
-      return 0;
-    }
-
+    // const validate = v.safeParse(DocumentSchema, data);
+    // if (!validate.success) {
+    //   return 0;
+    // }
     const record = await prisma.$transaction(async (tx) => {
       const authuser = await tx.authUser.findUnique({
         where: {
@@ -61,32 +60,18 @@ export async function CreateDocument(data: any) {
         (item: any) => item.employeeId === boss[0].id
       );
       if (bossItem) {
-        data.departmentemployee = data.departmentemployee.map(
-          (item: any) =>
-            item.employeeId === bossItem.employeeId
-              ? { ...item, permissionLvl: 10 } 
-              : { ...item, permissionLvl: null }
+        data.departmentemployee = data.departmentemployee.map((item: any) =>
+          item.employeeId === bossItem.employeeId
+            ? { ...item, permissionLvl: 10 }
+            : { ...item, permissionLvl: null }
         );
       }
-
-     
-      const initials = filterDepartment(authuser?.employee?.department?.name);
-      const numbering = "-ТӨ-" + initials;
-      const lastdocument = await tx.document.findFirst({
-        orderBy: {
-          generate: "desc",
-        },
-      });
-      const lastNumber = lastdocument?.generate
-        ? parseInt(lastdocument.generate.replace(numbering, ""), 10)
-        : 0;
-      const generate = String(lastNumber + 1).padStart(3, "0") + numbering;
 
       const result = await tx.document.create({
         data: {
           authUserId: authuser?.id,
           userDataId: authuser?.id,
-          generate,
+          generate: data.generate,
           state: DocumentStateEnum.DENY,
           title: data.title,
           detail: {
@@ -106,9 +91,8 @@ export async function CreateDocument(data: any) {
     });
 
     return record.id;
-
   } catch (error) {
-      console.log(error)
+    console.error(error);
     return -1;
   }
 }
@@ -209,11 +193,15 @@ export async function ShareGR(data: any) {
 
       const merge = [
         ...data.sharegroup.map((item: any) => ({
-          employeeId: item.employeeId,
+          employeeId:
+            typeof item.employeeId !== "number"
+              ? item.employeeId.value
+              : item.employeeId,
           documentId: item.documentId,
         })),
         userEntry,
       ];
+      console.log(merge);
 
       const document = await tx.shareGroup.findFirst({
         where: {
@@ -238,13 +226,14 @@ export async function ShareGR(data: any) {
           id: data.documentid,
         },
         data: {
-          state: Checking(data.share),
+          state: "SHARED",
         },
       });
     });
 
     return 1;
   } catch (error) {
+    console.error(error);
     return -1;
   }
 }
@@ -267,7 +256,7 @@ export async function ShareRP(data: any) {
 
       const merge = [
         ...data.sharegroup.map((item: any) => ({
-          employeeId: item.employeeId,
+          employeeId: item.employeeId.value,
           reportId: item.reportId,
         })),
         userEntry,
@@ -405,7 +394,6 @@ export async function ReportUpdate(data: any) {
         reportId: data.id,
         employeeId: user?.employee?.id,
       };
-      console.log(result);
       const report = await tx.shareReport.findFirst({
         where: {
           reportId: data.id,
@@ -451,7 +439,6 @@ export async function ReportUpdate(data: any) {
     return -1;
   }
 }
-
 
 export async function FullUpdate(data: any) {
   try {
@@ -518,6 +505,7 @@ export async function FullUpdate(data: any) {
         where: { id: Number(data.id) },
         data: {
           title: data.title,
+          generate: data.generate,
           bank: {
             name: data.bank.bankname,
             address: data.bank.bank,
@@ -639,48 +627,109 @@ export async function ConfirmDoc(data: any) {
   }
 }
 
+// export async function ConfirmMember(data: any) {
+//   try {
+//     await prisma.$transaction(async (tx) => {
+//       const confirmId = Number(data.confirmId);
+
+//       // ✅ Find the employee
+//       const employee = await tx.employee.findUnique({
+//         where: { id: data.employeeId },
+//       });
+//       if (!employee) throw new Error("Employee not found");
+
+//       // ✅ Ensure the confirm paper exists
+//       const paper = await tx.confirmPaper.findUnique({
+//         where: { id: confirmId },
+//       });
+//       if (!paper) throw new Error("ConfirmPaper not found");
+
+//       // ✅ Remove previous confirmSub records linked to this confirm paper
+//       await tx.confirmSub.deleteMany({
+//         where: { confirmId },
+//       });
+
+//       // ✅ Add new confirmSub records (you can loop or expand this as needed)
+//       await tx.confirmSub.createMany({
+//         data: [
+//           {
+//             confirmId: paper.id,
+//             employeeId: data.employeeId,
+//             system: data.system,
+//             jobs: data.jobs,
+//             module: data.module,
+//             version: data.version,
+//             description: data.description,
+//             title: data.title,
+//             check: true,
+//           },
+//         ],
+//       });
+
+//       // ✅ Update confirmPaper with rode info or any other field
+//       await tx.confirmPaper.update({
+//         where: { id: confirmId },
+//         data: {
+//           rode: {
+//             employee: convertName(employee),
+//             rode: true,
+//           },
+//           check: true, // optional — marks as confirmed
+//           title: data.title ?? paper.title, // keep old title if not provided
+//         },
+//       });
+//     });
+
+//     return 1; // success
+//   } catch (error) {
+//     console.error("ConfirmMember error:", error);
+//     return -1;
+//   }
+// }
 export async function ConfirmMember(data: any) {
   try {
     await prisma.$transaction(async (tx) => {
-      const confirmId = Number(data[0].confirmId);
+      const confirmId = Number(data.confirmId);
 
-      let paper = await tx.confirmPaper.findUnique({
+      const employee = await tx.employee.findUnique({
+        where: { id: data.employeeId },
+      });
+      if (!employee) throw new Error("Employee not found");
+
+      const paper = await tx.confirmPaper.findUnique({
         where: { id: confirmId },
       });
+      if (!paper) throw new Error("ConfirmPaper not found");
 
-      if (!paper) {
-        paper = await tx.confirmPaper.create({
-          data: {
-            documentId: data[0].documentId,
-            employeeId: data[0].employeeId,
+      await tx.confirmSub.create({
+        data: {
+          confirmId: paper.id,
+          employeeId: data.employeeId,
+          system: data.system,
+          jobs: data.jobs,
+          module: data.module,
+          version: data.version,
+          description: data.description,
+          title: data.title,
+          check: true,
+        },
+      });
+      await tx.confirmPaper.update({
+        where: { id: confirmId },
+        data: {
+          rode: {
+            employee: convertName(employee),
+            rode: true,
           },
-        });
-      } else {
-        await tx.confirmSub.deleteMany({
-          where: { confirmId },
-        });
-      }
-
-      const subs = data.map((item: any) => ({
-        confirmId: paper!.id,
-        employeeId: item.employeeId,
-        system: item.system,
-        jobs: item.jobs,
-        module: item.module,
-        version: item.version,
-        description: item.description,
-        title: item.title,
-        check: true,
-      }));
-
-      await tx.confirmSub.createMany({
-        data: subs,
+          check: true,
+          title: data.title ?? paper.title,
+        },
       });
     });
 
     return 1;
   } catch (error) {
-    console.error(error);
+    console.error("ConfirmMember error:", error);
     return -1;
   }
 }
@@ -791,7 +840,7 @@ export async function TriggerSuper(employeeId: number) {
   }
 }
 
-export async function setAdmin(employeeId: number, status:number) {
+export async function setAdmin(employeeId: number, status: number) {
   try {
     await prisma.employee.update({
       where: {
@@ -809,8 +858,15 @@ export async function setAdmin(employeeId: number, status:number) {
 
 export async function ChangeStatus(data: any) {
   try {
-    console.log(data)
-    return -1;
+    await prisma.employee.update({
+      where: {
+        id: Number(data.employeeId),
+      },
+      data: {
+        super: data.super,
+      },
+    });
+    return 1;
   } catch (error) {
     console.error("Error updating employee:", error);
     return -1;
@@ -833,4 +889,8 @@ export async function UpdateCase(data: any) {
     console.error(e);
     return -1;
   }
+}
+
+export async function DeleteConfirmPaper(id: number) {
+  await prisma.confirmPaper.delete({ where: { id } });
 }

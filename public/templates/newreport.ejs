@@ -191,6 +191,34 @@
         </tbody>
       </table>
 
+      <div>
+        <p style="font-weight: bold; font-size: 12px">
+          БАТАЛГААЖУУЛАЛТ:
+        </p>
+        <table class="custom-table">
+          <tbody>
+            <tr>
+              <th class="header">№</th>
+              <th class="header">Системийн нэр</th>
+              <th class="header">Хийгдсэн ажлууд</th>
+              <th class="header">Модул</th>
+              <th class="header">Хувилбар</th>
+              <th class="header">Тайлбар</th>
+            </tr>
+            <% document?.confirm?.forEach((data) => { %>
+            <tr>
+              <td><%= data?.rode?.employee %></td>
+              <td><%= data?.sub[0]?.system %></td>
+              <td><%= data?.sub[0]?.jobs %></td>
+              <td><%= data?.sub[0]?.module %></td>
+              <td><%= data?.sub[0]?.version %></td>
+              <td><%= data?.sub[0]?.description %></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
       <div style="margin-top: 20px; margin-bottom: 20px">
         <p style="font-weight: bold; font-size: 12px">ТЕСТИЙН ДҮГНЭЛТ:</p>
         <div style="font-size: 10px">

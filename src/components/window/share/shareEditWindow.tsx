@@ -69,7 +69,7 @@ export function EditShareWindow() {
   const detail = async (id: number) => {
     const response = await axios.get("/api/document/share/" + id);
     if (response.data.success) {
-     console.log(response.data.data);
+
       const data = response.data?.data?.shareGroup.map((item: any) => {
         return {
           key: uuidv4(),

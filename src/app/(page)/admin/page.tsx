@@ -36,7 +36,11 @@ export default async function Page(props: {
 
     return employee;
   });
-  const totalCount = await prisma.employee.count();
+  const totalCount = await prisma.employee.count({
+    where: {
+      isDeleted: false
+    }
+  });
 
   return (
     <JobPosition

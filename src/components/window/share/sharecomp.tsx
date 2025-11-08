@@ -59,33 +59,6 @@ export function ShareComp({ document, total, page, pageSize }: any) {
               );
             },
           },
-          // {
-          //   title: "Тайлан",
-          //   dataIndex: "document",
-          //   render: (record: any) => {
-          //     return (
-          //       <Flex gap={10}>
-          //         <Button
-          //           type="primary"
-          //           onClick={() => {
-          //             getDocumentId(Number(record.documentId));
-          //             redirect(`/sharereport/${Number(record.id)}`);
-          //           }}
-          //         >
-          //           Тайлан үзэх
-          //         </Button>
-          //         <Button
-          //           onClick={() => {
-          //             getDocumentId(Number(record.id));
-          //             getCheckout(17);
-          //           }}
-          //         >
-          //           Хуваалцсан хүмүүс
-          //         </Button>
-          //       </Flex>
-          //     );
-          //   },
-          // },
         ]}
         rowKey="id"
         pagination={{

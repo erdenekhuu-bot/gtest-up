@@ -46,6 +46,11 @@ export async function GET(
           },
         },
         report: { include: { issue: true, team: true, usedphone: true } },
+        confirm: {
+          include: {
+            sub: true,
+          },
+        },
       },
     });
     const accessrole = await prisma.departmentEmployeeRole.findMany({

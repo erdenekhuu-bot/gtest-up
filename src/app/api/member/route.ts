@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
             },
           },
         },
+        confirm: true
       },
     });
     return NextResponse.json(

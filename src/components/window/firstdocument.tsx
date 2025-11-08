@@ -95,12 +95,15 @@ export function FirstDocument() {
         {contextHolder}
 
         <Form form={mainForm} onFinish={onFinish}>
-          <div className="mt-8">
-            <Form.Item
-              name="title"
-              rules={[{ required: true, message: "Тестийн нэр бичнэ үү" }]}
-            >
-              <Input size="large" placeholder="Тестийн нэр бичнэ үү..." />
+          <div className="mt-4">
+            <Form.Item name="generate">
+              <Input size="large" placeholder="Тестийн тоот" />
+            </Form.Item>
+          </div>
+          <div className="mt-4">
+            <p className="font-bold">Тестийн нэр</p>
+            <Form.Item name="title">
+              <Input size="large" />
             </Form.Item>
           </div>
           <div className="my-2">
@@ -227,15 +230,7 @@ export function FirstDocument() {
             <div className="font-bold my-2 text-lg mx-4">
               1. Үйл ажиллагааны зорилго
             </div>
-            <Form.Item
-              name="aim"
-              rules={[
-                {
-                  required: true,
-                  message: "Үйл ажиллагааны зорилгоо бичнэ үү",
-                },
-              ]}
-            >
+            <Form.Item name="aim">
               <Input.TextArea
                 rows={5}
                 placeholder="Тестийн зорилго бичнэ үү..."
@@ -246,20 +241,10 @@ export function FirstDocument() {
             <div className="font-bold my-2 text-lg mx-4">
               2. Тестийн танилцуулга
             </div>
-            <Form.Item
-              name="intro"
-              rules={[
-                {
-                  required: true,
-                  message: "Танилцуулгаа бичнэ үү",
-                },
-              ]}
-            >
+            <Form.Item name="intro">
               <Input.TextArea
-               
                 rows={5}
                 placeholder="Тестийн танилцуулга бичнэ үү..."
-                
               />
             </Form.Item>
           </div>

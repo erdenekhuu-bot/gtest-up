@@ -24,6 +24,7 @@ export function EditCaseCard({ documentId }: any) {
         params: {
           page,
           pageSize,
+          id
         },
       });
       if (request.data.success) {

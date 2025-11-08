@@ -11,6 +11,7 @@ declare module "next-auth" {
         gender: string;
         department: any;
         permission: any;
+        super: string;
         jobPosition?: {
           jobPositionGroup?: {
             id: number;

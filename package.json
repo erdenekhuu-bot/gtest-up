@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "db:update": "npx prisma db push",
-    "find:unused": "next-unused"
+    "find:unused": "next-unused",
+    "dev:socket": "ts-node src/server-socket.ts"
   },
   "dependencies": {
     "@ant-design/icons": "4.0.0",
@@ -23,6 +24,7 @@
     "axios": "^1.10.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "concurrently": "^9.2.1",
     "ejs": "^3.1.10",
     "fs": "^0.0.1-security",
     "lucide-react": "^0.536.0",
@@ -39,6 +41,8 @@
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "tailwind-merge": "^3.3.1",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "uuid": "^11.1.0",
     "valibot": "^1.1.0",
     "xlsx": "^0.18.5",

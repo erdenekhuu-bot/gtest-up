@@ -18,13 +18,13 @@ export function PlanPage({ data, total, page, pageSize }: TablePagination) {
   const pathname = usePathname();
   const { replace } = useRouter();
   const { getCheckout, getDocumentId } = ZUSTAND();
-  const department = session?.user.employee.department.name;
   const dataWithKeys = data.map((item: any) => ({
     ...item.data,
     key: item.data.id,
   }));
   const checkout = session?.user.employee.permission[0].kind.includes("READ");
-  const hasEdit = session?.user.employee.permission.includes("EDIT");
+  const hasEdit = session?.user.employee.permission[0].kind.includes("EDIT");
+  const solopermission = session?.user.employee.super;
   const router = useRouter();
 
   const generateSearch = (term: string) => {
@@ -52,11 +52,6 @@ export function PlanPage({ data, total, page, pageSize }: TablePagination) {
       title: "Үүсгэсэн ажилтан",
       dataIndex: "employee",
     },
-    department === "Програм хөгжүүлэлтийн хэлтэс" && {
-      title: "Баталгаажуулах хуудас",
-      dataIndex: "paper",
-      render: (id: number) => <Button type="primary">Шалгах</Button>,
-    },
     {
       title: "Төлөв",
       dataIndex: "departmentRoles",
@@ -74,43 +69,50 @@ export function PlanPage({ data, total, page, pageSize }: TablePagination) {
         );
       },
     },
-    checkout
-      && {
-          title: "Шалгах",
-          dataIndex: "id",
-          render: (id: number) => (
-            <Button
-              type="primary"
-              onClick={() => {
-                router.push("plan/listplan/" + id);
-              }}
-            >
-              Шалгах
-            </Button>
-          ),
-        },
-      
-    hasEdit
-      ? {
-          title: "Хуваалцах",
-          dataIndex: "id",
-          render: (id: number, record: any) => {
-            return record.state === "SHARED" ? (
-              <Badge variant="secondary">Хуваалцсан</Badge>
-            ) : (
-              <Button
-                onClick={() => {
-                  getDocumentId(id);
-                  getCheckout(4);
-                }}
-              >
-                Хуваалцах
-              </Button>
-            );
-          },
-        }
-      : null,
-    {
+    solopermission === "VIEWER" && {
+      title: "Шалгах",
+      dataIndex: "id",
+      render: (id: number) => (
+        <Button
+          type="primary"
+          onClick={() => {
+            router.push("plan/listplan/" + id);
+          }}
+        >
+          Шалгах
+        </Button>
+      ),
+    },
+
+    hasEdit && {
+      title: "Хуваалцах",
+      dataIndex: "id",
+      render: (id: number, record: any) => {
+        return record.state === "SHARED" ? (
+          <Badge
+            variant="secondary"
+            className="hover:cursor-pointer"
+            onClick={() => {
+              getDocumentId(id);
+              getCheckout(4);
+            }}
+          >
+            Хуваалцсан
+          </Badge>
+        ) : (
+          <Button
+            onClick={() => {
+              getDocumentId(id);
+              getCheckout(4);
+            }}
+          >
+            Хуваалцах
+          </Button>
+        );
+      },
+    },
+
+    hasEdit && {
       title: "Кэйс нэмэх",
       dataIndex: "id",
       render: (id: number) => (
@@ -125,7 +127,7 @@ export function PlanPage({ data, total, page, pageSize }: TablePagination) {
         </Button>
       ),
     },
-    {
+    hasEdit && {
       title: "Засах",
       dataIndex: "id",
       render: (id: number) => {
@@ -159,14 +161,16 @@ export function PlanPage({ data, total, page, pageSize }: TablePagination) {
             allowClear
           />
 
-          <Button
-            type="primary"
-            onClick={() => {
-              getCheckout(1);
-            }}
-          >
-            Төлөвлөгөө үүсгэх
-          </Button>
+          {hasEdit && (
+            <Button
+              type="primary"
+              onClick={() => {
+                getCheckout(1);
+              }}
+            >
+              Төлөвлөгөө үүсгэх
+            </Button>
+          )}
         </Flex>
       </div>
 

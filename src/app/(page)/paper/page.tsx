@@ -27,9 +27,9 @@ export default async function Page(props: {
     });
     const confirm = await tx.confirmPaper.findMany({
       where: {
-        ...(isAdmin ? {} : { employeeId: user?.employee?.id }),
+        employeeId: user?.employee?.id,
       },
-      distinct: ["documentId"],
+      // distinct: ["documentId"],
       orderBy: {
         id: "asc",
       },
@@ -41,6 +41,7 @@ export default async function Page(props: {
         },
       },
     });
+    
     return confirm;
   });
   const totalCount = record.length;

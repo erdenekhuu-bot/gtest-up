@@ -16,11 +16,13 @@ export async function POST(req: NextRequest) {
           id: Number(id),
         },
         select: {
+          id: true,
           confirm: {
             where: {
               employeeId: Number(user?.employee?.id),
             },
             select: {
+              id:true,
               sub: {
                 include: {
                   employee: true,
@@ -60,5 +62,23 @@ export async function PUT(req: NextRequest) {
   } catch (error) {
     console.error(error);
     return NextResponse.json({ success: false, data: error }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { id } = body;
+
+    await prisma.confirmSub.delete({
+      where: { id: Number(id) },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "Deleted successfully",
+    });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: error }, { status: 500 });
   }
 }

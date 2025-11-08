@@ -2,7 +2,6 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/util/prisma";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { DecryptAndChecking } from "@/util/checkout";
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt", maxAge: 60 * 60 },
@@ -53,7 +52,8 @@ export const authOptions: NextAuthOptions = {
         const jobAuthRank = Number(
           user.employee.jobPosition?.jobPositionGroup?.jobAuthRank ?? 0
         );
-        const permissionKinds = jobAuthRank > 1 ? ["READ"] : ["EDIT"];
+        const permissionKinds =
+          jobAuthRank > 1 ? (jobAuthRank <= 2 ? ["VIEW"] : ["READ"]) : ["EDIT"];
 
         const existingPermission = await prisma.permission.findFirst({
           where: {

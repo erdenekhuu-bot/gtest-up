@@ -30,7 +30,6 @@ import { PaperWindow } from "../../paperwindow";
 import { FullUpdate } from "@/util/action";
 import { parseLocaleNumber, convertName } from "@/util/usable";
 import { Badge } from "@/components/ui/badge";
-import { DownloadOutlined } from "@ant-design/icons"; //
 
 dayjs.extend(customParseFormat);
 
@@ -137,7 +136,6 @@ export function EditPage({ document, id, steps }: any) {
     setSearch(capitalizeFirstLetter(value));
   };
 
-
   const onFinish: FormProps["onFinish"] = async (values) => {
     let attributeData = [
       {
@@ -228,6 +226,7 @@ export function EditPage({ document, id, steps }: any) {
       bank,
       testteam,
       id,
+      authuserId:Number(session?.user.id)
     };
     const update = await FullUpdate(merge);
     if (update > 0) {
@@ -245,6 +244,7 @@ export function EditPage({ document, id, steps }: any) {
     }))
     .sort((a: any, b: any) => a.sublevel - b.sublevel);
 
+
   useEffect(() => {
     const handleScroll = () => {
       setScrollPosition(window.scrollY);
@@ -255,6 +255,7 @@ export function EditPage({ document, id, steps }: any) {
 
   useEffect(() => {
     mainForm.setFieldsValue({
+      generate: document.generate,
       title: document.title,
       aim: document.detail.aim,
       intro: document.detail.intro,
@@ -341,6 +342,9 @@ export function EditPage({ document, id, steps }: any) {
         }}
       >
         <section className="flex-1 w-3/4">
+          <Form.Item name="generate">
+            <Input size="large" placeholder="Тестийн тоот..." />
+          </Form.Item>
           <Form.Item name="title">
             <Input size="large" placeholder="Тестийн нэр бичнэ үү..." />
           </Form.Item>

@@ -90,7 +90,7 @@ export const ZUSTAND = create<GlobalStore>((set) => ({
       authId: id,
     });
     if (response.data.success) {
-      set({ sharecount: response.data.data });
+      set({ sharecount: response.data.data.length });
     }
   },
   confirmpaperid: 0,

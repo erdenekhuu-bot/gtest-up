@@ -12,12 +12,14 @@ import { useRouter } from "next/navigation";
 
 export function ShareWindow() {
   const [mainForm] = Form.useForm();
-  const { checkout, getCheckout, documentid,getAllShare } = ZUSTAND();
+  const { checkout, getCheckout, documentid, getAllShare } = ZUSTAND();
   const handleCancel = () => {
     getCheckout(-1);
+    mainForm.resetFields();
   };
   const router = useRouter();
   const { data: session } = useSession();
+
   const onFinish: FormProps["onFinish"] = async (values) => {
     const sharegroup = values.sharegroup.map((item: any) => {
       return {
@@ -25,13 +27,12 @@ export function ShareWindow() {
         documentId: documentid,
       };
     });
+ 
     const merge = {
       authuser: Number(session?.user.id),
       documentid,
-      share: 4,
       sharegroup,
     };
-
     const result = await ShareGR(merge);
     if (result > 0) {
       messageApi.success("Амжилттай хуваалцлаа!");
@@ -68,9 +69,32 @@ export function ShareWindow() {
     } catch (error) {}
   };
 
+  const detail = async (id: number) => {
+    const response = await axios.put("/api/document/share", {
+      id,
+    });
+    if (response.data.success) {
+      const updatedData = response.data.data.map((item: any) => {
+        return {
+          employeeId: {
+            value: item.employee.id,
+            label: item.employee.firstname,
+          },
+        };
+      });
+      mainForm.setFieldsValue({
+        sharegroup: updatedData,
+      });
+    }
+  };
+
   useEffect(() => {
     search ? fetchEmployees(search) : setEmployee([]);
   }, [search, fetchEmployees]);
+
+  useEffect(() => {
+    detail(documentid);
+  }, [documentid]);
 
   return (
     <Modal

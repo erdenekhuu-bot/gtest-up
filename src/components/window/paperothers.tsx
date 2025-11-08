@@ -205,18 +205,6 @@ export function PaperOthers() {
                     },
                   ]}
                 ></Table>
-                <div className="text-end mt-4">
-                  <Button
-                    type="primary"
-                    onClick={() =>
-                      add({
-                        employeeId: "",
-                      })
-                    }
-                  >
-                    Мөр нэмэх
-                  </Button>
-                </div>
               </section>
             )}
           </Form.List>

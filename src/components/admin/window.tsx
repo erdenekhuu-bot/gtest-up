@@ -5,12 +5,10 @@ import {
   Form,
   Select,
   message,
-  Checkbox,
-  Row,
-  Col,
   Typography,
   Divider,
   Space,
+  Radio,
 } from "antd";
 import type { FormProps } from "antd";
 import { ZUSTAND } from "@/zustand";
@@ -23,32 +21,22 @@ import {
   SolutionOutlined,
   EnvironmentOutlined,
 } from "@ant-design/icons";
-
 const { Title } = Typography;
 
 const PERMISSIONS_OPTIONS = [
-  { label: "Үзэх", value: "VIEW" },
-  { label: "Унших", value: "READ" },
-  { label: "Засах", value: "EDIT"},
-  { label: "Хуваалцах", value: "SHARE"}
+  { label: "Бүгд", value: "ADMIN" },
+  { label: "Унших", value: "VIEWER" },
+  { label: "Засах", value: "DEV" },
 ];
-
-interface AdminOption {
-  value: string | number;
-  label: string;
-}
 
 export function AdminWindow() {
   const { checkout, getCheckout, employeeId } = ZUSTAND();
-  const [department, setDepartment] = useState<AdminOption[]>([]);
-  const [jobposition, setJobposition] = useState<AdminOption[]>([]);
+  const [department, setDepartment] = useState([]);
+  const [jobposition, setJobposition] = useState([]);
   const [mainForm] = Form.useForm();
-  const [search, setSearch] = useState<string>("");
-  const [finddepartment, setFindingDepartment] = useState<string>("");
+  const [search, setSearch] = useState("");
+  const [finddepartment, setFindingDepartment] = useState("");
   const [messageApi, contextHolder] = message.useMessage();
-
-  const modalTitle =
-    employeeId > 0 ? "Ажилтны Мэдээлэл Засах" : "Шинэ Ажилтан Нэмэх";
 
   const handleCancel = () => {
     getCheckout(-1);
@@ -83,11 +71,6 @@ export function AdminWindow() {
 
   const employee = useCallback(
     async (id: number) => {
-      if (id <= 0) {
-        mainForm.resetFields();
-        return;
-      }
-
       try {
         const response = await axios.get("/api/admin/" + id);
         if (response.data?.success) {
@@ -95,15 +78,11 @@ export function AdminWindow() {
           mainForm.setFieldsValue({
             jobposition: data.jobPosition?.name,
             department: data.department?.name,
-            permissions: data.permissions || [],
-            isAdmin: data.isAdmin || false,
+            super: data.super,
           });
-        } else if (response.data && !response.data.success) {
-          messageApi.warning(`Ажилтан (${id})-ийн мэдээлэл олдсонгүй.`);
         }
       } catch (error) {
         console.error(error);
-        messageApi.error("Ажилтан мэдээллийг татаж чадсангүй.");
       }
     },
     [mainForm, messageApi]
@@ -113,16 +92,11 @@ export function AdminWindow() {
     setSearch(value);
   };
 
-  const searchDep = (value: string) => {
-    setFindingDepartment(value);
-  };
-
   const onFinish: FormProps["onFinish"] = async (values) => {
     const merged = {
       ...values,
       employeeId,
     };
-    console.log(merged);
 
     const response = await ChangeStatus(merged);
     if (response > 0) {
@@ -150,7 +124,7 @@ export function AdminWindow() {
         <Space>
           <UserSwitchOutlined style={{ color: "#1890ff" }} />
           <Title level={4} style={{ margin: 0, fontWeight: 600 }}>
-            {modalTitle}
+            Ажилтны Мэдээлэл Засах
           </Title>
         </Space>
       }
@@ -199,7 +173,6 @@ export function AdminWindow() {
         >
           <Select
             options={convertAdmin(department)}
-            onSearch={searchDep}
             filterOption={false}
             showSearch
             placeholder="Газар/хэлтэс сонгох..."
@@ -208,35 +181,16 @@ export function AdminWindow() {
         </Form.Item>
 
         <Form.Item
-          name="admin"
-          valuePropName="checked"
-          style={{ marginBottom: 24 }}
+          label={<span style={{ fontWeight: 500 }}>Эрх</span>}
+          name="super"
         >
-          <Checkbox>
-            <span
-              style={{ fontWeight: 600, color: "#1850f5", fontSize: "1.05em" }}
-            >
-              Админ Эрх Олгох
-            </span>
-          </Checkbox>
-        </Form.Item>
-
-        <Form.Item
-          label={<span style={{ fontWeight: 500 }}>Бусад Нэмэлт Эрхүүд</span>}
-          name="permissions"
-          valuePropName="value"
-        >
-          <Checkbox.Group style={{ width: "100%" }}>
-            <Row gutter={[16, 8]}>
-              {PERMISSIONS_OPTIONS.map((p) => (
-                <Col span={24} key={p.value}>
-                  <Checkbox value={p.value} style={{ padding: "4px 0" }}>
-                    {p.label}
-                  </Checkbox>
-                </Col>
-              ))}
-            </Row>
-          </Checkbox.Group>
+          <Radio.Group>
+            {PERMISSIONS_OPTIONS.map((option) => (
+              <Radio key={option.value} value={option.value}>
+                {option.label}
+              </Radio>
+            ))}
+          </Radio.Group>
         </Form.Item>
       </Form>
     </Modal>

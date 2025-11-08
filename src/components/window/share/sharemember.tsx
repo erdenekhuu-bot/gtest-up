@@ -8,16 +8,12 @@ import {
   Button,
   Flex,
   Breadcrumb,
-  Steps
+  Steps,
 } from "antd";
 import type { FormProps } from "antd";
 import Image from "next/image";
-import {
-  convertUtil,
-  capitalizeFirstLetter,
-  convertName
-} from "@/util/usable";
-import { useCallback, useEffect, useState, useRef,useMemo } from "react";
+import { convertUtil, capitalizeFirstLetter, convertName } from "@/util/usable";
+import { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import axios from "axios";
 import { TestSchedule } from "../creation/Schedule";
 import { TestRisk } from "../creation/Risk";
@@ -50,12 +46,12 @@ export function ShareMember({ document, id, steps }: any) {
   const [scrollPosition, setScrollPosition] = useState(0);
 
   const transformStyle = useMemo(
-      () => ({
-        transform: `translateY(${scrollPosition}px)`,
-        willChange: "transform",
-      }),
-      [scrollPosition]
-    );
+    () => ({
+      transform: `translateY(${scrollPosition}px)`,
+      willChange: "transform",
+    }),
+    [scrollPosition]
+  );
 
   // convert department employee
   const updatedData = document.departmentEmployeeRole.map((data: any) => ({
@@ -236,7 +232,6 @@ export function ShareMember({ document, id, steps }: any) {
     }
   };
 
-
   useEffect(() => {
     search ? fetchEmployees(search) : setEmployee([]);
     mainForm.setFieldsValue({
@@ -286,7 +281,8 @@ export function ShareMember({ document, id, steps }: any) {
           attr.categoryMain === "Түтгэлзүүлэх болон дахин эхлүүлэх шалгуур"
       ),
     });
-  }, [document, fetchEmployees]);
+  }, [id, fetchEmployees]);
+
 
   useEffect(() => {
     search ? fetchEmployees(search) : setEmployee([]);
@@ -461,7 +457,10 @@ export function ShareMember({ document, id, steps }: any) {
               1. Үйл ажиллагааны зорилго
             </div>
             <Form.Item name="aim">
-              <Input.TextArea rows={5} placeholder="Тестийн зорилго бичнэ үү..."/>
+              <Input.TextArea
+                rows={5}
+                placeholder="Тестийн зорилго бичнэ үү..."
+              />
             </Form.Item>
           </div>
           <div className="pb-4">
@@ -469,7 +468,10 @@ export function ShareMember({ document, id, steps }: any) {
               2. Тестийн танилцуулга
             </div>
             <Form.Item name="intro">
-              <Input.TextArea rows={5} placeholder="Тестийн танилцуулга бичнэ үү..."/>
+              <Input.TextArea
+                rows={5}
+                placeholder="Тестийн танилцуулга бичнэ үү..."
+              />
             </Form.Item>
           </div>
           <TestSchedule />
@@ -477,9 +479,7 @@ export function ShareMember({ document, id, steps }: any) {
           <div className="font-bold my-2 text-lg">
             4. Төслийн үр дүнгийн таамаглал, эрсдэл, хараат байдал
           </div>
-          <li>
-            4.1 Таамаглал
-          </li>
+          <li>4.1 Таамаглал</li>
           <div className="mt-2">
             <Form.Item name="predict">
               <Input.TextArea rows={5} />
@@ -487,43 +487,35 @@ export function ShareMember({ document, id, steps }: any) {
           </div>
           <TestRisk form={mainForm} />
           <div>
-            <li>
-              4.3 Хараат байдал
-            </li>
+            <li>4.3 Хараат байдал</li>
             <div className="mt-2">
               <Form.Item name="dependecy">
-                <Input.TextArea rows={5}/>
+                <Input.TextArea rows={5} />
               </Form.Item>
             </div>
           </div>
           <div className="font-bold my-2 text-lg mx-4">5. Тестийн үе шат</div>
           <div>
-            <li>
-              5.1 Бэлтгэл үе
-            </li>
+            <li>5.1 Бэлтгэл үе</li>
             <div className="mt-2">
               <Form.Item name="standby">
-                <Input.TextArea rows={5}/>
+                <Input.TextArea rows={5} />
               </Form.Item>
             </div>
           </div>
           <div>
-            <li>
-              5.2 Тестийн гүйцэтгэл
-            </li>
+            <li>5.2 Тестийн гүйцэтгэл</li>
             <div className="mt-2">
               <Form.Item name="execute">
-                <Input.TextArea rows={5}/>
+                <Input.TextArea rows={5} />
               </Form.Item>
             </div>
           </div>
           <div>
-            <li>
-              5.3 Тестийн хаалт
-            </li>
+            <li>5.3 Тестийн хаалт</li>
             <div className="mt-2">
               <Form.Item name="terminate">
-                <Input.TextArea rows={5}/>
+                <Input.TextArea rows={5} />
               </Form.Item>
             </div>
           </div>
@@ -560,35 +552,34 @@ export function ShareMember({ document, id, steps }: any) {
             >
               Батлах хуудас
             </Button>
-            {
-              document.state !== "FORWARD" ?
+            {document.state !== "FORWARD" ? (
               <Button
-              size="large"
-              type="link"
-
-              onClick={() => mainForm.submit()}
-            >
-              Засаад, хадгалах
-            </Button>
-            : <Badge variant="viewing">Шалгагдаж байгаа</Badge>
-            }
-            {
-              document.state !== "FORWARD" && <Button
-              size="large"
-              type="primary"
-              onClick={async () => {
-                await axios.put(`/api/final/`, {
-                  authuserId: session?.user.id,
-                  reject: 1,
-                  documentId: id,
-                });
-                router.refresh();
-                messageApi.success("Амжилттай илгээгдлээ");
-              }}
-            >
-              Алдаа байхгүй, Илгээх
-            </Button> 
-            }
+                size="large"
+                type="link"
+                onClick={() => mainForm.submit()}
+              >
+                Засаад, хадгалах
+              </Button>
+            ) : (
+              <Badge variant="viewing">Шалгагдаж байгаа</Badge>
+            )}
+            {document.state !== "FORWARD" && (
+              <Button
+                size="large"
+                type="primary"
+                onClick={async () => {
+                  await axios.put(`/api/final/`, {
+                    authuserId: session?.user.id,
+                    reject: 1,
+                    documentId: id,
+                  });
+                  router.refresh();
+                  messageApi.success("Амжилттай илгээгдлээ");
+                }}
+              >
+                Алдаа байхгүй, Илгээх
+              </Button>
+            )}
           </Flex>
         </section>
         <div
@@ -644,6 +635,3 @@ export function ShareMember({ document, id, steps }: any) {
     </section>
   );
 }
-
-
-

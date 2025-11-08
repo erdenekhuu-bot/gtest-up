@@ -7,6 +7,10 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    const url = new URL(req.url);
+
+    const page = parseInt(url.searchParams.get("page") || "1", 10);
+    const pageSize = parseInt(url.searchParams.get("pageSize") || "10", 10);
     const record = await prisma.testCase.findUnique({
       where: {
         id: Number(id),

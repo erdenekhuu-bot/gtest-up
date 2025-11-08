@@ -4,15 +4,16 @@ import { Flex, Button, Pagination, Table } from "antd";
 import { ZUSTAND } from "@/zustand";
 import { PaperOthers } from "./paperothers";
 import { Badge } from "../ui/badge";
-import axios from "axios";
-import { useSession } from "next-auth/react";
+import Image from "next/image";
+import { DeleteConfirmPaper } from "@/util/action";
 
 export function PaperDocument({ data, total, page, pageSize }: any) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const { replace } = useRouter();
-  const { getEmployeeId, getDocumentId, takeConfirmId } = ZUSTAND();
+  const { getEmployeeId, getDocumentId, takeConfirmId, triggerPaper } =
+    ZUSTAND();
 
   const handlePaginationChange = (page: number, pageSize?: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -35,17 +36,27 @@ export function PaperDocument({ data, total, page, pageSize }: any) {
           {
             title: "Үзсэн",
             dataIndex: "rode",
-            render: (record: any, result: any) => {
+            render: (record: any) => {
               return record?.rode ? (
                 <Badge variant="info">Бөглөсөн</Badge>
               ) : (
+                <Badge variant="secondary">Бөглөөгүй</Badge>
+              );
+            },
+          },
+          {
+            title: "Бөглөх",
+            dataIndex: "id",
+            render: (id: number, result: any) => {
+              return (
                 <Button
                   type="primary"
                   onClick={async () => {
                     getEmployeeId(result.employeeId);
                     getDocumentId(result.document.id);
                     takeConfirmId(result.id);
-                    router.push("/paper/action");
+                    triggerPaper(id);
+                    router.push("/paper/action/" + Number(result.document.id));
                   }}
                 >
                   Хуудсыг бөглөх
@@ -54,32 +65,21 @@ export function PaperDocument({ data, total, page, pageSize }: any) {
             },
           },
           {
-            title: "Ахин хянах",
+            title: "Устгах",
             dataIndex: "id",
-            render: (id: number, result:any) => {
-              return (
-                <Button
-                  size="large"
-                  type="link"
-                  // onClick={async () => {
-                  //   await axios.patch("/api/document/paper", {
-                  //     authUser: session?.user.id,
-                  //     paperid: id,
-                  //     action: false,
-                  //   });
-                  //   router.refresh();
-                  // }}
-                  onClick={()=>{
-                    getEmployeeId(result.employeeId);
-                    getDocumentId(result.document.id);
-                    takeConfirmId(result.id);
-                    router.push("/paper/action");
-                  }}
-                >
-                  Засаад, хадгалах
-                </Button>
-              );
-            },
+            render: (id: number) => (
+              <Image
+                src="/trash.svg"
+                alt=""
+                width={20}
+                height={20}
+                onClick={async () => {
+                  await DeleteConfirmPaper(id);
+                  router.refresh();
+                }}
+                className="hover:cursor-pointer"
+              />
+            ),
           },
         ]}
         dataSource={data.map((c: any) => ({
