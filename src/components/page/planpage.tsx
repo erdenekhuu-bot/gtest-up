@@ -26,6 +26,7 @@ export function PlanPage({ data, total, page, pageSize }: TablePagination) {
   const hasEdit = session?.user.employee.permission[0].kind.includes("EDIT");
   const solopermission = session?.user.employee.super;
   const router = useRouter();
+  console.log(session)
 
   const generateSearch = (term: string) => {
     const params = new URLSearchParams(searchParams);
@@ -55,17 +56,15 @@ export function PlanPage({ data, total, page, pageSize }: TablePagination) {
     {
       title: "Төлөв",
       dataIndex: "departmentRoles",
-      render: (record: any, document: any) => {
-        const accessed = record.every((item: any) => item.rode === true);
-        if (accessed) {
-          return <Badge variant="info">Батлагдсан</Badge>;
-        }
-        return document.state === "PENDING" ? (
-          <Badge variant="default">Хүлээгдэж байна</Badge>
-        ) : document.state === "FORWARD" ? (
+      render: (record: any) => {
+        const accessed = record.every((item: any) => item.state === "ACCESS");
+        const checkout = record.some((item: any) => item.state === "ACCESS");
+        return accessed ? (
+          <Badge variant="info">Батлагдсан</Badge>
+        ) : checkout ? (
           <Badge variant="viewing">Хянагдаж байна</Badge>
         ) : (
-          <Badge variant="outline">Шинэ</Badge>
+          <Badge variant="secondary">Шинэ</Badge>
         );
       },
     },

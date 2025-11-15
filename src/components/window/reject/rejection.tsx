@@ -22,7 +22,7 @@ export function Rejection() {
       messageApi.success("Амжилттай хадгалагдлаа!");
       checkcountdoc(Number(session?.user.id));
       getCheckout(-1);
-      redirect("/listplan");
+      redirect("/teamplan");
     } else {
       messageApi.error("Алдаа гарлаа");
     }

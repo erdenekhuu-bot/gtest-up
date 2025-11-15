@@ -74,7 +74,7 @@ export function DirPage({ data, total, page, pageSize }: any) {
             )}
           </div>
         );
-        return <span>1</span>;
+       
       },
     },
     {

@@ -55,6 +55,9 @@ export default async function Page({
               not: "MIDDLE",
             },
           },
+          orderBy: {
+            permissionLvl: "asc",
+          },
           select: {
             employee: {
               include: {
@@ -109,15 +112,9 @@ export default async function Page({
           },
         },
       },
-    });
-    steps.sort((a: any, b: any) => {
-      if (a.permissionLvl === null && b.permissionLvl !== null) return -1;
-      if (a.permissionLvl !== null && b.permissionLvl === null) return 1;
-
-      return (
-        b.employee.jobPosition.jobPositionGroup.jobAuthRank -
-        a.employee.jobPosition.jobPositionGroup.jobAuthRank
-      );
+      orderBy: {
+        permissionLvl: "asc",
+      },
     });
 
     return {

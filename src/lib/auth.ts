@@ -44,6 +44,7 @@ export const authOptions: NextAuthOptions = {
                     },
                   },
                 },
+                department: true,
               },
             },
           },
@@ -52,8 +53,18 @@ export const authOptions: NextAuthOptions = {
         const jobAuthRank = Number(
           user.employee.jobPosition?.jobPositionGroup?.jobAuthRank ?? 0
         );
-        const permissionKinds =
-          jobAuthRank > 1 ? (jobAuthRank <= 2 ? ["VIEW"] : ["READ"]) : ["EDIT"];
+        const checkout = user.employee.department?.name;
+        let permissionKinds: string[];
+
+        if (checkout === "Програм хөгжүүлэлтийн хэлтэс") {
+          permissionKinds = ["READ"];
+        } else if (jobAuthRank <= 1) {
+          permissionKinds = ["EDIT"];
+        } else if (jobAuthRank <= 2) {
+          permissionKinds = ["VIEW"];
+        } else {
+          permissionKinds = ["READ"];
+        }
 
         const existingPermission = await prisma.permission.findFirst({
           where: {

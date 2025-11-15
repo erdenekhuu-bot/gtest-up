@@ -111,7 +111,7 @@ export function MemberPlanDetail({ document, steps }: any) {
                 Үндсэн хуудас руу буцах
               </span>
             ),
-            onClick: () => redirect("/teamplan"),
+            onClick: () =>router.back(),
           },
           {
             title: "Төлөвлөгөөг хянах хуудас",
@@ -308,7 +308,7 @@ export function MemberPlanDetail({ document, steps }: any) {
             </div>
             <div className="font-bold my-2 text-lg mx-4">5.3. Тестийн кэйс</div>
             <ReadTestCase />
-            {alertShown && session?.user.employee.super == "REPORT" ? (
+            {
               <div className="fixed bottom-0 w-full h-20 bg-white flex items-center gap-40 transition-transform">
                 <Button
                   type="primary"
@@ -351,7 +351,7 @@ export function MemberPlanDetail({ document, steps }: any) {
                   Зөвшөөрөх
                 </Button>
               </div>
-            ) : null}
+            }
           </section>
         </ActionDetail.Provider>
         <div

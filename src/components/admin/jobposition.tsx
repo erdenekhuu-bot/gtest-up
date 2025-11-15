@@ -1,6 +1,16 @@
 "use client";
 import {
-  Table,Tag,Tooltip,Button
+  Table,
+  Flex,
+  Input,
+  Button,
+  Card,
+  Space,
+  Typography,
+  Tag,
+  Tooltip,
+  Dropdown,
+  Checkbox,
 } from "antd";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { ZUSTAND } from "@/zustand";
@@ -154,6 +164,6 @@ export function JobPosition({ data, total, page, pageSize }: any) {
       />
 
       <AdminWindow />
-    </section>
+    </Card>
   );
 }

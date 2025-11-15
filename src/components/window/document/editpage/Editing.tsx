@@ -236,14 +236,6 @@ export function EditPage({ document, id, steps }: any) {
     }
   };
 
-  let sortedSteps = steps
-    .sort((a: any, b: any) => b.level - a.level)
-    .map((item: any, index: number) => ({
-      ...item,
-      sublevel: index + 1,
-    }))
-    .sort((a: any, b: any) => a.sublevel - b.sublevel);
-
 
   useEffect(() => {
     const handleScroll = () => {
@@ -604,11 +596,11 @@ export function EditPage({ document, id, steps }: any) {
           style={transformStyle}
         >
           <Steps
-            current={sortedSteps.findIndex(
+            current={steps.findIndex(
               (item: any) => item.state === "ACCESS"
             )}
             direction="vertical"
-            items={sortedSteps.map((item: any, index: number) => ({
+            items={steps.map((item: any, index: number) => ({
               title: `${
                 item.state === "ACCESS" ? "Баталгаажсан" : "Хүлээгдэж байгаа"
               }`,

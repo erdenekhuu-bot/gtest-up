@@ -9,7 +9,9 @@ import {
   Flex,
   Breadcrumb,
   Steps,
+  FloatButton,
 } from "antd";
+import { CloudUploadOutlined } from "@ant-design/icons";
 import type { FormProps } from "antd";
 import Image from "next/image";
 import { convertUtil, capitalizeFirstLetter, convertName } from "@/util/usable";
@@ -36,6 +38,7 @@ const dateFormat = "YYYY/MM/DD";
 
 export function ShareMember({ document, id, steps }: any) {
   const [messageApi, contextHolder] = message.useMessage();
+  const [socket, setSocket] = useState<WebSocket | null>(null);
   const [mainForm] = Form.useForm();
   const [getEmployee, setEmployee] = useState<any>([]);
   const [search, setSearch] = useState("");
@@ -44,6 +47,7 @@ export function ShareMember({ document, id, steps }: any) {
   const router = useRouter();
   const reference = useRef<HTMLDivElement>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
+  const [logs, setLogs] = useState<string[]>([]);
 
   const transformStyle = useMemo(
     () => ({
@@ -226,6 +230,7 @@ export function ShareMember({ document, id, steps }: any) {
     };
     const update = await FullUpdate(merge);
     if (update > 0) {
+      socket?.send(JSON.stringify({ action: "submitChange" }));
       messageApi.success("Амжилттай засагдсан");
     } else {
       messageApi.error("Алдаа гарлаа");
@@ -283,7 +288,6 @@ export function ShareMember({ document, id, steps }: any) {
     });
   }, [id, fetchEmployees]);
 
-
   useEffect(() => {
     search ? fetchEmployees(search) : setEmployee([]);
   }, [search]);
@@ -295,6 +299,21 @@ export function ShareMember({ document, id, steps }: any) {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+  useEffect(() => {
+    const ws = new WebSocket(
+      `ws://${process.env.SOCKET_URL}?employeeId=${Number(session?.user.employee.id)}`
+    );
+    setSocket(ws);
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "update" && data.employeeId && data.message) {
+        setLogs((prev) => [
+          ...prev,
+          `Employee ${data.employeeId} ${data.message}`,
+        ]);
+      }
+    };
+  }, [Number(session?.user.employee.id)]);
 
   return (
     <section className="">
@@ -630,7 +649,14 @@ export function ShareMember({ document, id, steps }: any) {
           />
         </div>
       </Form>
-
+      <FloatButton.Group shape="circle">
+        <FloatButton
+          badge={{ count: logs.length }}
+          icon={<CloudUploadOutlined />}
+          onClick={() => window.location.reload()}
+        />
+        <FloatButton.BackTop visibilityHeight={0} />
+      </FloatButton.Group>
       <PaperWindow />
     </section>
   );

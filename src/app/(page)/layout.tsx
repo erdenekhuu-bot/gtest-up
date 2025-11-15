@@ -46,7 +46,7 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
   const department = session?.user.employee.department.name;
 
   const menu: any = [
-    department === "Програм хөгжүүлэлтийн хэлтэс" && {
+    (department === "Програм хөгжүүлэлтийн хэлтэс" || hasEdit) && {
       key: "1",
       icon: <PaperClipOutlined />,
       label: "Баталгаажуулах хуудас",

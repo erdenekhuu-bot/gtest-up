@@ -7,9 +7,9 @@ import {
   useRouter,
   redirect,
 } from "next/navigation";
+import Image from "next/image";
 
 export function TeamReportPage({ data, total, page, pageSize }: any) {
-  
   const searchParams = useSearchParams();
   const { getMember } = ZUSTAND();
   const pathname = usePathname();
@@ -29,7 +29,7 @@ export function TeamReportPage({ data, total, page, pageSize }: any) {
     {
       title: "Гишүүд",
       dataIndex: "user",
-      render:(record:any)=>record.employee.firstname
+      render: (record: any) => record.employee.firstname,
     },
     {
       title: "Тайлан үзэх",
@@ -44,12 +44,26 @@ export function TeamReportPage({ data, total, page, pageSize }: any) {
             }}
           >
             Үзэх
-            
           </Button>
         ) : null;
       },
     },
-    
+    {
+      title: "PDF view",
+      dataIndex: "id",
+      render: (id: number) => {
+        return (
+          <Image
+            alt=""
+            src="/view.svg"
+            width={40}
+            height={40}
+            onClick={() => window.open(`/api/download/view/${id}`, "_blank")}
+            className="hover:cursor-pointer"
+          />
+        );
+      },
+    },
   ];
   return (
     <Flex gap="middle" vertical>

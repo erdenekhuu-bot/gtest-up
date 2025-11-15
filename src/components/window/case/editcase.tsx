@@ -24,7 +24,7 @@ export function EditCaseCard({ documentId }: any) {
         params: {
           page,
           pageSize,
-          id
+          id,
         },
       });
       if (request.data.success) {
@@ -111,6 +111,25 @@ export function EditCaseCard({ documentId }: any) {
                 }}
               >
                 Оруулах
+              </Button>
+            ),
+          },
+          {
+            title: "Тест орчин",
+            dataIndex: "id",
+            render: (id: number) => (
+              <Button
+                type="dashed"
+                onClick={async () => {
+                  await axios.put("/api/document/testcase/duplicate", { id });
+                  fetchDetail(
+                    documentId,
+                    pagination.current,
+                    pagination.pageSize
+                  );
+                }}
+              >
+                Үүсгэх
               </Button>
             ),
           },

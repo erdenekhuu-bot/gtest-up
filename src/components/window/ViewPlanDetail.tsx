@@ -10,6 +10,7 @@ import {
   Modal,
   message,
   Popover,
+  Breadcrumb
 } from "antd";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
@@ -23,7 +24,7 @@ import { convertName } from "@/util/usable";
 import { Badge } from "@/components/ui/badge";
 import { ZUSTAND } from "@/zustand";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { useRouter ,redirect} from "next/navigation";
 import { Rejection } from "./reject/rejection";
 
 const columns = [
@@ -171,7 +172,28 @@ let sortedSteps = steps
   );
 
   return (
-    <Form
+   <section>
+    <Breadcrumb
+        style={{ margin: "16px 0" }}
+        items={[
+          {
+            title: (
+              <span
+                style={{
+                  cursor: "pointer",
+                }}
+                onClick={() => redirect("/plan")}
+              >
+                Үндсэн хуудас руу буцах
+              </span>
+            ),
+          },
+          {
+            title: "Төлөвлөгөө засварлах хуудас",
+          },
+        ]}
+      />
+     <Form
       form={attributeForm}
       className="p-2 flex  overflow-auto scrollbar"
       onScroll={(e: React.UIEvent<HTMLFormElement>) => {
@@ -429,5 +451,6 @@ let sortedSteps = steps
         </div>
       </Modal>
     </Form>
+   </section>
   );
 }

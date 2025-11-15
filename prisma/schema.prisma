@@ -421,6 +421,8 @@ enum StateTestCase {
   CREATED
   STARTED
   ENDED
+  MAINENV
+  TESTENV
 }
 
 enum OTP {

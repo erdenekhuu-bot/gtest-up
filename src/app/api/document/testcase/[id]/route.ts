@@ -74,3 +74,35 @@ export async function PATCH(
     );
   }
 }
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const request = await req.json();
+   
+    // const record = await prisma.testCase.create({
+    //   data: {
+    //     testType: request.action,
+    //     description: request.description,
+    //   },
+    // });
+    return NextResponse.json(
+      {
+        success: true,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      {
+        success: false,
+        data: error,
+      },
+      { status: 500 }
+    );
+  }
+}

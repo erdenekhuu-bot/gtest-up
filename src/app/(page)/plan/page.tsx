@@ -32,7 +32,7 @@ export default async function Page(props: {
       WHERE authuser.id = ${userId};
     `) as number;
   return (
-    <PlanPage
+    <PlanPage 
       data={record}
       total={totalCount}
       page={page}
