@@ -10,7 +10,7 @@ import {
   Modal,
   message,
   Popover,
-  Breadcrumb
+  Breadcrumb,
 } from "antd";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
@@ -24,8 +24,9 @@ import { convertName } from "@/util/usable";
 import { Badge } from "@/components/ui/badge";
 import { ZUSTAND } from "@/zustand";
 import axios from "axios";
-import { useRouter ,redirect} from "next/navigation";
+import { useRouter, redirect } from "next/navigation";
 import { Rejection } from "./reject/rejection";
+import { PaperRegister } from "./reject/PaperRegister";
 
 const columns = [
   {
@@ -42,7 +43,7 @@ const columns = [
 
 export function ViewPlanDetail({ document, steps }: any) {
   const [attributeForm] = Form.useForm();
-  const { checkout, getCheckout, getDocumentId,getOTP } = ZUSTAND();
+  const { checkout, getCheckout, getDocumentId, getOTP } = ZUSTAND();
   const reference = useRef<HTMLDivElement>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
   const { data: session } = useSession();
@@ -94,13 +95,13 @@ export function ViewPlanDetail({ document, steps }: any) {
     [scrollPosition]
   );
 
-let sortedSteps = steps
-  .sort((a: any, b: any) => b.level - a.level)
-  .map((item: any, index: number) => ({
-    ...item,
-    sublevel: index + 1,
-  }))
-  .sort((a: any, b: any) => a.sublevel - b.sublevel);
+  let sortedSteps = steps
+    .sort((a: any, b: any) => b.level - a.level)
+    .map((item: any, index: number) => ({
+      ...item,
+      sublevel: index + 1,
+    }))
+    .sort((a: any, b: any) => a.sublevel - b.sublevel);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -142,9 +143,7 @@ let sortedSteps = steps
         document.attribute.find((attr: any) => attr.category === "Нэмэлт")
           ?.value || "",
     });
-    
   }, [transformStyle, scrollPosition]);
-
 
   const content = (
     <Flex gap={10}>
@@ -153,7 +152,7 @@ let sortedSteps = steps
         onClick={async () => {
           getCheckout(7);
           getOTP(Number(session?.user.id));
-          await axios.put('/api/otp/sms',{id: Number(document.id)})
+          await axios.put("/api/otp/sms", { id: Number(document.id) });
         }}
       >
         Зөвшөөрөх
@@ -172,8 +171,8 @@ let sortedSteps = steps
   );
 
   return (
-   <section>
-    <Breadcrumb
+    <section>
+      <Breadcrumb
         style={{ margin: "16px 0" }}
         items={[
           {
@@ -193,264 +192,329 @@ let sortedSteps = steps
           },
         ]}
       />
-     <Form
-      form={attributeForm}
-      className="p-2 flex  overflow-auto scrollbar"
-      onScroll={(e: React.UIEvent<HTMLFormElement>) => {
-        const currentScroll = e.currentTarget.scrollTop;
-        setScrollPosition(currentScroll);
-      }}
-    >
-      <ActionDetail.Provider value={document}>
-        <section className="flex-1 w-3/4">
-          <div className="first-column p-6">
-            <div className="flex justify-between text-xl mb-6">
-              <b>"ЖИМОБАЙЛ" ХХК</b>
-            </div>
-            <div className="mt-8">
-              <Form.Item name="title">
-                <Input size="large" readOnly />
-              </Form.Item>
-            </div>
-            <div className="my-4">
-              <div className="font-bold my-2 text-lg">Зөвшөөрөл</div>
-              <p className="mb-4">
-                Дор гарын үсэг зурсан албан тушаалтнууд нь тестийн үйл
-                ажиллагааны төлөвлөгөөний баримт бичигтэй танилцаж, түүнтэй
-                санал нийлж байгаагаа хүлээн зөвшөөрч, баталгаажуулсан болно.
-                Энэхүү төлөвлөгөөний өөрчлөлтийг доор гарын үсэг зурсан эсвэл
-                тэдгээрийн томилогдсон төлөөлөгчдийн зөвшөөрлийг үндэслэн
-                зохицуулж, нэмэлтээр батална.
-              </p>
-              <ReadDepartmentEmployee />
-            </div>
-            <div className="my-4">
-              <div className="font-bold my-2 text-lg mx-4">
-                1. Үйл ажиллагааны зорилго
-              </div>
-              <Form.Item name="aim">
-                <Input.TextArea rows={5} style={{ resize: "none" }} readOnly />
-              </Form.Item>
-            </div>
-            <div className="my-4">
-              <div className="font-bold my-2 text-lg mx-4">
-                2. Төслийн танилцуулга
-              </div>
-              <Form.Item name="intro">
-                <Input.TextArea rows={5} style={{ resize: "none" }} readOnly />
-              </Form.Item>
-            </div>
-            <ReadTestSchedule />
-            <div className="font-bold my-2 text-lg mx-4">
-              4. Төслийн үр дүнгийн таамаглал, эрсдэл, хараат байдал
-            </div>
-            <ReadTestRisk />
-            <Form.Item name="execute">
-              <div>
-                <li>4.2 Таамаглал</li>
-                <div className="mt-2">
-                  <Form.Item
-                    name="predict"
-                    rules={[{ required: true, message: "Тестийн нэр!" }]}
-                  >
-                    <Input.TextArea
-                      rows={5}
-                      style={{ resize: "none" }}
-                      readOnly
-                    />
-                  </Form.Item>
-                </div>
-              </div>
-
-              <div>
-                <li>4.3 Хараат байдал</li>
-                <div className="mt-2">
-                  <Form.Item
-                    name="dependecy"
-                    rules={[{ required: true, message: "Тестийн нэр!" }]}
-                  >
-                    <Input.TextArea
-                      rows={5}
-                      style={{ resize: "none" }}
-                      readOnly
-                    />
-                  </Form.Item>
-                </div>
-              </div>
-              <div className="font-bold my-2 text-lg mx-4">
-                5. Тестийн үе шат
-              </div>
-              <div>
-                <li>5.1 Бэлтгэл үе</li>
-                <div className="mt-2">
-                  <Form.Item
-                    name="standby"
-                    rules={[{ required: true, message: "Тестийн бэлтгэл үе!" }]}
-                  >
-                    <Input.TextArea
-                      rows={5}
-                      style={{ resize: "none" }}
-                      readOnly
-                    />
-                  </Form.Item>
-                </div>
-              </div>
-
-              <div>
-                <li>5.2 Тестийн гүйцэтгэл</li>
-                <div className="mt-2">
-                  <Form.Item
-                    name="execute"
-                    rules={[{ required: true, message: "Тестийн гүйцэтгэл!" }]}
-                  >
-                    <Input.TextArea
-                      rows={5}
-                      style={{ resize: "none" }}
-                      readOnly
-                    />
-                  </Form.Item>
-                </div>
-              </div>
-            </Form.Item>
-          </div>
-          <div>
-            <li>5.3 Тестийн хаалт</li>
-            <div className="mt-2">
-              <Form.Item
-                name="terminate"
-                rules={[{ required: true, message: "Тестийн хаалт!" }]}
-              >
-                <Input.TextArea rows={5} style={{ resize: "none" }} readOnly />
-              </Form.Item>
-            </div>
-          </div>
-          <div className="font-bold my-2 text-lg mx-4">
-            6. Түтгэлзүүлэх болон дахин эхлүүлэх шалгуур
-          </div>
-
-          <Table
-            rowKey="id"
-            dataSource={document.attribute.filter(
-              (attr: any) =>
-                attr.categoryMain ===
-                "Түтгэлзүүлэх болон дахин эхлүүлэх шалгуур"
-            )}
-            columns={columns}
-            pagination={false}
-            bordered
-          />
-          <ReadTestEnv />
-          <div className="">
-            <p className="my-4 font-bold">ТӨСВИЙН ДАНС</p>
-            <Flex gap={10}>
-              <Form.Item name="bankname" style={{ flex: 1 }}>
-                <Input size="middle" placeholder="Дансны эзэмшигч" readOnly />
-              </Form.Item>
-              <Form.Item name="bank" style={{ flex: 1 }}>
-                <Input
-                  size="middle"
-                  type="number"
-                  placeholder="Дансны дугаар"
-                  readOnly
-                />
-              </Form.Item>
-            </Flex>
-          </div>
-          <div className="font-bold my-2 text-lg mx-4">5.3. Тестийн кэйс</div>
-          <ReadTestCase />
-        </section>
-      </ActionDetail.Provider>
-      <div
-        className="w-1/4 p-4 h-[60vh] sm:h-[70vh] md:h-[80vh] overflow-y-auto"
-        ref={reference}
-        style={transformStyle}
+      <Form
+        form={attributeForm}
+        className="p-2 flex  overflow-auto scrollbar"
+        onScroll={(e: React.UIEvent<HTMLFormElement>) => {
+          const currentScroll = e.currentTarget.scrollTop;
+          setScrollPosition(currentScroll);
+        }}
       >
-        <Steps
-          current={sortedSteps.findIndex((item: any) => item.state === "ACCESS")}
-          direction="vertical"
-          items={sortedSteps.map((item: any, index: number) => ({
-            title: `${
-              item.state === "ACCESS" ? "Баталгаажсан" : "Хүлээгдэж байгаа"
-            }`,
-            description: (
-              <section key={index} className="text-[12px] mb-12">
-                <p className="opacity-50">{item.employee.jobPosition?.name}</p>
-                <p className="opacity-50">{convertName(item.employee)}</p>
-                <p className="opacity-50">
-                  {new Date(item.startedDate).toLocaleString()}
+        <ActionDetail.Provider value={document}>
+          <section className="flex-1 w-3/4">
+            <div className="first-column p-6">
+              <div className="flex justify-between text-xl mb-6">
+                <b>"ЖИМОБАЙЛ" ХХК</b>
+              </div>
+              <div className="mt-8">
+                <Form.Item name="title">
+                  <Input size="large" readOnly />
+                </Form.Item>
+              </div>
+              <div className="my-4">
+                <div className="font-bold my-2 text-lg">Зөвшөөрөл</div>
+                <p className="mb-4">
+                  Дор гарын үсэг зурсан албан тушаалтнууд нь тестийн үйл
+                  ажиллагааны төлөвлөгөөний баримт бичигтэй танилцаж, түүнтэй
+                  санал нийлж байгаагаа хүлээн зөвшөөрч, баталгаажуулсан болно.
+                  Энэхүү төлөвлөгөөний өөрчлөлтийг доор гарын үсэг зурсан эсвэл
+                  тэдгээрийн томилогдсон төлөөлөгчдийн зөвшөөрлийг үндэслэн
+                  зохицуулж, нэмэлтээр батална.
                 </p>
-                <div className="mt-4">
-                  {item.state === "ACCESS" ? (
-                    <Badge variant="info">Баталгаажсан</Badge>
-                  ) :  (
-                    <Popover content={content} title="" trigger="click">
+                <ReadDepartmentEmployee />
+              </div>
+              <div className="my-4">
+                <div className="font-bold my-2 text-lg mx-4">
+                  1. Үйл ажиллагааны зорилго
+                </div>
+                <Form.Item name="aim">
+                  <Input.TextArea
+                    rows={5}
+                    style={{ resize: "none" }}
+                    readOnly
+                  />
+                </Form.Item>
+              </div>
+              <div className="my-4">
+                <div className="font-bold my-2 text-lg mx-4">
+                  2. Төслийн танилцуулга
+                </div>
+                <Form.Item name="intro">
+                  <Input.TextArea
+                    rows={5}
+                    style={{ resize: "none" }}
+                    readOnly
+                  />
+                </Form.Item>
+              </div>
+              <ReadTestSchedule />
+              <div className="font-bold my-2 text-lg mx-4">
+                4. Төслийн үр дүнгийн таамаглал, эрсдэл, хараат байдал
+              </div>
+              <ReadTestRisk />
+              <Form.Item name="execute">
+                <div>
+                  <li>4.2 Таамаглал</li>
+                  <div className="mt-2">
+                    <Form.Item
+                      name="predict"
+                      rules={[{ required: true, message: "Тестийн нэр!" }]}
+                    >
+                      <Input.TextArea
+                        rows={5}
+                        style={{ resize: "none" }}
+                        readOnly
+                      />
+                    </Form.Item>
+                  </div>
+                </div>
+
+                <div>
+                  <li>4.3 Хараат байдал</li>
+                  <div className="mt-2">
+                    <Form.Item
+                      name="dependecy"
+                      rules={[{ required: true, message: "Тестийн нэр!" }]}
+                    >
+                      <Input.TextArea
+                        rows={5}
+                        style={{ resize: "none" }}
+                        readOnly
+                      />
+                    </Form.Item>
+                  </div>
+                </div>
+                <div className="font-bold my-2 text-lg mx-4">
+                  5. Тестийн үе шат
+                </div>
+                <div>
+                  <li>5.1 Бэлтгэл үе</li>
+                  <div className="mt-2">
+                    <Form.Item
+                      name="standby"
+                      rules={[
+                        { required: true, message: "Тестийн бэлтгэл үе!" },
+                      ]}
+                    >
+                      <Input.TextArea
+                        rows={5}
+                        style={{ resize: "none" }}
+                        readOnly
+                      />
+                    </Form.Item>
+                  </div>
+                </div>
+
+                <div>
+                  <li>5.2 Тестийн гүйцэтгэл</li>
+                  <div className="mt-2">
+                    <Form.Item
+                      name="execute"
+                      rules={[
+                        { required: true, message: "Тестийн гүйцэтгэл!" },
+                      ]}
+                    >
+                      <Input.TextArea
+                        rows={5}
+                        style={{ resize: "none" }}
+                        readOnly
+                      />
+                    </Form.Item>
+                  </div>
+                </div>
+              </Form.Item>
+            </div>
+            <div>
+              <li>5.3 Тестийн хаалт</li>
+              <div className="mt-2">
+                <Form.Item
+                  name="terminate"
+                  rules={[{ required: true, message: "Тестийн хаалт!" }]}
+                >
+                  <Input.TextArea
+                    rows={5}
+                    style={{ resize: "none" }}
+                    readOnly
+                  />
+                </Form.Item>
+              </div>
+            </div>
+            <div className="font-bold my-2 text-lg mx-4">
+              6. Түтгэлзүүлэх болон дахин эхлүүлэх шалгуур
+            </div>
+
+            <Table
+              rowKey="id"
+              dataSource={document.attribute.filter(
+                (attr: any) =>
+                  attr.categoryMain ===
+                  "Түтгэлзүүлэх болон дахин эхлүүлэх шалгуур"
+              )}
+              columns={columns}
+              pagination={false}
+              bordered
+            />
+            <ReadTestEnv />
+            <div className="">
+              <p className="my-4 font-bold">ТӨСВИЙН ДАНС</p>
+              <Flex gap={10}>
+                <Form.Item name="bankname" style={{ flex: 1 }}>
+                  <Input size="middle" placeholder="Дансны эзэмшигч" readOnly />
+                </Form.Item>
+                <Form.Item name="bank" style={{ flex: 1 }}>
+                  <Input
+                    size="middle"
+                    type="number"
+                    placeholder="Дансны дугаар"
+                    readOnly
+                  />
+                </Form.Item>
+              </Flex>
+            </div>
+            <div className="font-bold my-2 text-lg mx-4">5.3. Тестийн кэйс</div>
+            <ReadTestCase />
+          </section>
+          {
+              <div className="fixed bottom-0 w-full h-20 bg-white flex items-center gap-40 transition-transform">
+                <Button
+                  type="primary"
+                  size="large"
+                  onClick={() => {
+                    getDocumentId(document.id);
+                    getCheckout(14);
+                  }}
+                >
+                  Баталгаажуулах хуудас
+                </Button>
+                <Button
+                  type="link"
+                  size="large"
+                  onClick={() => {
+                    getDocumentId(document.id);
+                    getCheckout(12);
+                  }}
+                >
+                  Буцаах
+                </Button>
+                <Button
+                  size="large"
+                  type="primary"
+                  onClick={async () => {
+                    await axios.put(`/api/final/`, {
+                      authuserId: session?.user.id,
+                      reject: 2,
+                      documentId: document.id,
+                    });
+                    await axios.patch(`/api/final`, {
+                      authuserId: session?.user.id,
+                      reject: 3,
+                      documentId: document.id,
+                    });
+                    await axios.patch("/api/otp/sms", {
+                      id: Number(document.id),
+                    });
+                    router.refresh();
+                  }}
+                >
+                  Зөвшөөрөх
+                </Button>
+              </div>
+            }
+        </ActionDetail.Provider>
+        <div
+          className="w-1/4 p-4 h-[60vh] sm:h-[70vh] md:h-[80vh] overflow-y-auto"
+          ref={reference}
+          style={transformStyle}
+        >
+          <Steps
+            current={steps[0].result.findIndex(
+              (item: any) => item.state === "ACCESS"
+            )}
+            direction="vertical"
+            items={steps[0].result.map((item: any, index: number) => ({
+              title: `${
+                item.state === "ACCESS" ? "Баталгаажсан" : "Хүлээгдэж байгаа"
+              }`,
+              description: (
+                <section key={index} className="text-[12px] mb-12">
+                  <p className="opacity-50">{item.jobPosition}</p>
+                  <p className="opacity-50">{convertName(item.employee)}</p>
+                  <p className="opacity-50">
+                    {new Date(item.startedDate).toLocaleString()}
+                  </p>
+                  <div className="mt-4">
+                    {item.state === "ACCESS" ? (
+                      <Badge variant="info">Баталгаажсан</Badge>
+                    ) : (
                       <Button
                         type="primary"
                         disabled={
-                          Number(session?.user.id) ===
-                          item.employee.authUser?.id
+                          Number(session?.user.id) === item.authUser
                             ? false
                             : true
                         }
+                        onClick={() => {
+                          getCheckout(7);
+                        }}
                       >
                         Баталгаажуулах
                       </Button>
-                    </Popover>
-                  )}
-                </div>
-              </section>
-            ),
-            status: item.state === "ACCESS" ? "process" : "wait",
-          }))}
-        />
-      </div>
-      <Rejection />
-      <Modal
-        title=""
-        open={checkout === 7}
-        onCancel={cancelOTP}
-        footer={[
-          <Flex justify="space-between">
-            <Button key="back" type="link" className="mx-6" onClick={sendOTP}>
-              Дахин код авах
-            </Button>
-
-            <Button
-              key="next"
-              type="primary"
-              className="mx-6"
-              onClick={checkOTP}
-            >
-              Шалгах
-            </Button>
-          </Flex>,
-        ]}
-      >
-        {contextHolder}
-        <p className="mt-4 text-xl px-2 text-center">
-          {session?.user.mobile} дугаарт илгээсэн 6 оронтой кодыг оруулна уу.
-        </p>
-        <div className="my-4">
-          <Flex gap="middle" align="center" vertical>
-            <Input.OTP
-              size="large"
-              onChange={(e: any) => {
-                setAppend(e);
-              }}
-            />
-            <Button
-              type="primary"
-              className="w-[90%]"
-              onClick={() => {
-                sendOTP();
-              }}
-            >
-              Нууц код авах
-            </Button>
-          </Flex>
+                    )}
+                  </div>
+                </section>
+              ),
+              status: item.state === "ACCESS" ? "process" : "wait",
+            }))}
+          />
         </div>
-      </Modal>
-    </Form>
-   </section>
+        <Rejection />
+        <PaperRegister />
+        <Modal
+          title=""
+          open={checkout === 7}
+          onCancel={cancelOTP}
+          footer={[
+            <Flex justify="space-between">
+              <Button key="back" type="link" className="mx-6" onClick={sendOTP}>
+                Дахин код авах
+              </Button>
+
+              <Button
+                key="next"
+                type="primary"
+                className="mx-6"
+                onClick={checkOTP}
+              >
+                Шалгах
+              </Button>
+            </Flex>,
+          ]}
+        >
+          {contextHolder}
+          <p className="mt-4 text-xl px-2 text-center">
+            {session?.user.mobile} дугаарт илгээсэн 6 оронтой кодыг оруулна уу.
+          </p>
+          <div className="my-4">
+            <Flex gap="middle" align="center" vertical>
+              <Input.OTP
+                size="large"
+                onChange={(e: any) => {
+                  setAppend(e);
+                }}
+              />
+              <Button
+                type="primary"
+                className="w-[90%]"
+                onClick={() => {
+                  sendOTP();
+                }}
+              >
+                Нууц код авах
+              </Button>
+            </Flex>
+          </div>
+        </Modal>
+      </Form>
+    </section>
   );
 }

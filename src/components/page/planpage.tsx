@@ -1,9 +1,6 @@
 "use client";
 import { Table, Flex, Input, Button, message } from "antd";
 import { ZUSTAND } from "@/zustand";
-import { FirstDocument } from "../window/firstdocument";
-import { SecondDocument } from "../window/seconddocument";
-import { ThirdDocument } from "../window/thirddocument";
 import { formatHumanReadable } from "@/util/usable";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { ShareWindow } from "../window/sharewindow";
@@ -26,7 +23,7 @@ export function PlanPage({ data, total, page, pageSize }: TablePagination) {
   const hasEdit = session?.user.employee.permission[0].kind.includes("EDIT");
   const solopermission = session?.user.employee.super;
   const router = useRouter();
-  console.log(session)
+  console.log(session);
 
   const generateSearch = (term: string) => {
     const params = new URLSearchParams(searchParams);
@@ -164,7 +161,7 @@ export function PlanPage({ data, total, page, pageSize }: TablePagination) {
             <Button
               type="primary"
               onClick={() => {
-                getCheckout(1);
+                router.push("/plan/create");
               }}
             >
               Төлөвлөгөө үүсгэх
@@ -185,9 +182,6 @@ export function PlanPage({ data, total, page, pageSize }: TablePagination) {
           onChange={handleTableChange}
         />
 
-        <FirstDocument />
-        <SecondDocument />
-        <ThirdDocument />
         <ShareWindow />
         <RejectCause />
       </Flex>

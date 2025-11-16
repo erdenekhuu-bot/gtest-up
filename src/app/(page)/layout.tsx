@@ -55,14 +55,50 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
     {
       key: "2",
       icon: <SelectOutlined />,
-      label: "Тестийн төлөвлөгөө",
-      onClick: () => router.push("/plan"),
+      label: "Удирдамж",
+      children: [
+        {
+          key: "20",
+          icon: <SelectOutlined />,
+          label: "Удирдамж үүсгэх",
+          onClick: () => router.push("/plan"),
+        },
+        {
+          key: "21",
+          icon: <SelectOutlined />,
+          label: (
+            <Flex align="center" gap={10}>
+              Хуваалцсан удирдамж <Badge count={sharecount} size="small" />
+            </Flex>
+          ),
+          onClick: () => router.push("/share"),
+        },
+        {
+          key: "22",
+          icon: <SelectOutlined />,
+          label: "Хуваалцсан кейс",
+          onClick: () => router.push("/sharecase"),
+        },
+      ],
     },
     hasEdit && {
       key: "3",
       icon: <MailOutlined />,
       label: "Тайлан",
-      onClick: () => router.push("/testcase"),
+      children: [
+        {
+          key: "30",
+          icon: <MailOutlined />,
+          label: "Тайлан үүсгэх",
+          onClick: () => router.push("/testcase"),
+        },
+        {
+          key: "31",
+          icon: <MailOutlined />,
+          label: "Хуваалцсан тайлан",
+          onClick: () => router.push("/sharereport"),
+        },
+      ],
     },
     manager === "uuganbayar.ts" && {
       key: "4",
@@ -108,7 +144,6 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
       label: "Тохиргоо",
       onClick: () => router.push("/admin"),
     },
-
     {
       key: "10",
       icon: <LoginOutlined />,
@@ -116,27 +151,6 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
       onClick: () => signOut({ callbackUrl: "/login" }),
     },
   ];
-  const sharecontent = (
-    <div>
-      <Button type="text" onClick={() => router.push("/share")}>
-        Хуваалцсан төлөвлөгөө үзэх
-      </Button>
-    </div>
-  );
-  const sharereport = (
-    <div>
-      <Button type="text" onClick={() => router.push("/sharereport")}>
-        Хуваалцсан тайлан үзэх
-      </Button>
-    </div>
-  );
-  const sharecase = (
-    <div>
-      <Button type="text" onClick={() => router.push("/sharecase")}>
-        Хуваалцсан кейсүүд
-      </Button>
-    </div>
-  );
 
   useEffect(() => {
     session?.user.id && fetchshare(Number(session.user.id));
@@ -188,41 +202,31 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
             />
           </div>
           <Flex gap={10}>
-            <Popover content={sharereport}>
-              <Badge count={shareReport}>
-                <Avatar
-                  shape="square"
-                  size="large"
-                  style={{ backgroundColor: "#00569E" }}
-                  icon={<ProjectTwoTone className="text-3xl" />}
-                />
-              </Badge>
-            </Popover>
-            <Popover content={sharecontent}>
-              <Badge count={sharecount}>
-                <Image
-                  src={
-                    session?.user.employee.gender === "female"
-                      ? "/female.png"
-                      : "/male.png"
-                  }
-                  alt=""
-                  width={40}
-                  height={40}
-                />
-              </Badge>
-            </Popover>
-            <Popover content={sharecase}>
-              <Avatar
-                shape="square"
-                size="large"
-                style={{ backgroundColor: "#00569E" }}
-              >
-                <span className="text-2xl">
-                  {subLetter(String(session?.user.name))}
-                </span>
-              </Avatar>
-            </Popover>
+            <Avatar
+              shape="square"
+              size="large"
+              style={{ backgroundColor: "#00569E" }}
+              icon={<ProjectTwoTone className="text-3xl" />}
+            />
+            <Image
+              src={
+                session?.user.employee.gender === "female"
+                  ? "/female.png"
+                  : "/male.png"
+              }
+              alt=""
+              width={40}
+              height={40}
+            />
+            <Avatar
+              shape="square"
+              size="large"
+              style={{ backgroundColor: "#00569E" }}
+            >
+              <span className="text-2xl">
+                {subLetter(String(session?.user.name))}
+              </span>
+            </Avatar>
           </Flex>
         </Header>
         <Content

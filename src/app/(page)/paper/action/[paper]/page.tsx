@@ -16,7 +16,7 @@ export default function Page() {
   const [tableData, setTableData] = useState<any[]>([]);
   const [caseForm] = Form.useForm();
   const router = useRouter();
-  const { getEmployeeId, getDocumentId,confirmpaperid } = ZUSTAND();
+  const { getEmployeeId, getDocumentId, takeConfirmId,confirmpaperid } = ZUSTAND();
 
   const [pagination, setPagination] = useState({
     current: 1,
@@ -82,12 +82,13 @@ export default function Page() {
           },
         ]}
       />
-   
+
       <Flex justify="end" style={{ marginBottom: 20 }}>
         <Button
           type="primary"
           onClick={() =>
-            router.push("/paper/action/edit/" + confirmpaperid)
+             router.push("/paper/action/edit/" + confirmpaperid)
+            // router.push("/paper/action/edit")
           }
         >
           Төлөвлөгөө үүсгэх
@@ -120,7 +121,10 @@ export default function Page() {
             render: (id: number) => (
               <Button
                 type="primary"
-                onClick={() => router.push("/paper/action/edit/" + id)}
+                onClick={() => {
+                  takeConfirmId(id);
+                  router.push("/paper/action/edit/" + id);
+                }}
               >
                 Засах
               </Button>

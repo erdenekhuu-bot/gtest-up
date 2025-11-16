@@ -78,30 +78,57 @@ export default async function Page({
         },
       },
     });
-    const steps = await tx.departmentEmployeeRole.findMany({
-      where: { documentId: Number(view) },
-      distinct: ["employeeId"],
-      include: {
-        employee: {
-          include: {
-            jobPosition: {
-              select: { jobPositionGroup: true },
-            },
-            department: true,
-            authUser: true,
-          },
-        },
-      },
-    });
-    steps.sort((a: any, b: any) => {
-      if (a.permissionLvl === null && b.permissionLvl !== null) return -1;
-      if (a.permissionLvl !== null && b.permissionLvl === null) return 1;
-
-      return (
-        b.employee.jobPosition.jobPositionGroup.jobAuthRank -
-        a.employee.jobPosition.jobPositionGroup.jobAuthRank
-      );
-    });
+    const steps = await prisma.$queryRaw`
+        SELECT json_agg(
+            json_build_object(
+              'documentId', dep."documentId",
+              'id', dep.id,
+              'role', dep.role,
+              'rode', dep.rode,
+              'employee', json_build_object(
+                'firstname', emp.firstname,
+                'lastname', emp.lastname
+              ),
+              'jobPosition', job.name,
+              'state', dep.state,
+              'authUser', authUser.id,
+            'startedDate', dep.time_created,
+              'permission_level_category', 
+              CASE 
+                  WHEN emp.firstname = 'Ууганбаяр' THEN 1
+                  WHEN jobgroup.job_auth_rank = 6 THEN 6
+                  WHEN jobgroup.job_auth_rank = 4 THEN 4
+                  WHEN jobgroup.job_auth_rank = 2 THEN 2
+                  ELSE 0
+              END
+            )
+            ORDER BY 
+              CASE 
+                  WHEN emp.firstname = 'Ууганбаяр' THEN 1
+                  WHEN jobgroup.job_auth_rank = 6 THEN 6
+                  WHEN jobgroup.job_auth_rank = 4 THEN 4
+                  WHEN jobgroup.job_auth_rank = 2 THEN 2
+                  ELSE 0
+              END DESC
+          ) AS result
+          FROM (
+            SELECT DISTINCT ON (dep.employee_id) 
+              dep."documentId",
+              dep.id,
+              dep.role,
+              dep.rode,
+              dep.employee_id,
+              dep.state,
+              dep.time_created
+            FROM public."DepartmentEmployeeRole" AS dep
+            WHERE dep."documentId" = ${Number(view)}
+          ) AS dep
+          LEFT JOIN public."Employee" AS emp ON emp.id = dep.employee_id
+          LEFT JOIN public."JobPosition" AS job ON job.id = emp.job_position_id
+          LEFT JOIN public."JobPositionGroup" AS jobgroup ON jobgroup.id = job."jobGroupId"
+          LEFT JOIN public."AuthUser" AS authUser ON authUser.id = emp.auth_user_id
+        WHERE dep."documentId" = ${Number(view)};
+    `;
    
     return {
       data,

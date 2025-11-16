@@ -36,7 +36,6 @@ export default async function Page(props: {
       orderBy: {
         id: "asc",
       },
-      distinct: ["documentId"],
       include: {
         document: {
           include: {
@@ -49,7 +48,7 @@ export default async function Page(props: {
     return confirm;
   });
   const totalCount = record.length;
-
+  console.log(record)
   return (
     <PaperDocument
       data={record}

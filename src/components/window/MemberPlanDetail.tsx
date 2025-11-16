@@ -111,7 +111,7 @@ export function MemberPlanDetail({ document, steps }: any) {
                 Үндсэн хуудас руу буцах
               </span>
             ),
-            onClick: () =>router.back(),
+            onClick: () => router.back(),
           },
           {
             title: "Төлөвлөгөөг хянах хуудас",
@@ -344,7 +344,9 @@ export function MemberPlanDetail({ document, steps }: any) {
                       reject: 3,
                       documentId: document.id,
                     });
-                    await axios.patch('/api/otp/sms',{id: Number(document.id)})
+                    await axios.patch("/api/otp/sms", {
+                      id: Number(document.id),
+                    });
                     router.refresh();
                   }}
                 >
@@ -360,17 +362,17 @@ export function MemberPlanDetail({ document, steps }: any) {
           style={transformStyle}
         >
           <Steps
-            current={steps.findIndex((item: any) => item.state === "ACCESS")}
+            current={steps[0].result.findIndex(
+              (item: any) => item.state === "ACCESS"
+            )}
             direction="vertical"
-            items={steps.map((item: any, index: number) => ({
+            items={steps[0].result.map((item: any, index: number) => ({
               title: `${
                 item.state === "ACCESS" ? "Баталгаажсан" : "Хүлээгдэж байгаа"
               }`,
               description: (
                 <section key={index} className="text-[12px] mb-12">
-                  <p className="opacity-50">
-                    {item.employee.jobPosition?.name}
-                  </p>
+                  <p className="opacity-50">{item.jobPosition}</p>
                   <p className="opacity-50">{convertName(item.employee)}</p>
                   <p className="opacity-50">
                     {new Date(item.startedDate).toLocaleString()}
@@ -382,10 +384,13 @@ export function MemberPlanDetail({ document, steps }: any) {
                       <Button
                         type="primary"
                         disabled={
-                          session?.user.id === item.employee.authUser?.id
+                          Number(session?.user.id) === item.authUser
                             ? false
                             : true
                         }
+                        onClick={() => {
+                          getCheckout(7);
+                        }}
                       >
                         Баталгаажуулах
                       </Button>

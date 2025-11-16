@@ -19,10 +19,32 @@ export async function CreateDocument(data: any) {
     // if (!validate.success) {
     //   return 0;
     // }
-    const record = await prisma.$transaction(async (tx) => {
+
+    const customrelation = data.testteam
+      .map((item: any) => {
+        if (item.role === "Хяналт тавих, Асуудал шийдвэрлэх") {
+          return {
+            employeeId: item.employeeId,
+            role: "MIDDLE",
+          };
+        }
+        return null;
+      })
+      .filter((item: any) => item !== null);
+
+    const attaching = [
+      ...data.converting.departmentemployee,
+      ...customrelation,
+    ];
+  
+    const bankData = {
+      name: data.bank.bankname,
+      address: data.bank.bank,
+    };
+    await prisma.$transaction(async (tx) => {
       const authuser = await tx.authUser.findUnique({
         where: {
-          id: data.authuserId,
+          id: Number(data.converting.authuserId),
         },
         include: {
           employee: {
@@ -32,110 +54,42 @@ export async function CreateDocument(data: any) {
           },
         },
       });
-      const boss = await tx.employee.findMany({
-        where: {
-          AND: [
-            {
-              departmentId: authuser?.employee?.department.id,
-            },
-            {
-              isDeleted: false,
-            },
-          ],
-        },
-        include: {
-          jobPosition: {
-            select: {
-              jobPositionGroup: true,
-            },
-          },
-        },
-      });
-      boss.sort(
-        (a: any, b: any) =>
-          b.jobPosition.jobPositionGroup.jobAuthRank -
-          a.jobPosition.jobPositionGroup.jobAuthRank
-      );
-      const bossItem = data.departmentemployee.find(
-        (item: any) => item.employeeId === boss[0].id
-      );
-      if (bossItem) {
-        data.departmentemployee = data.departmentemployee.map((item: any) =>
-          item.employeeId === bossItem.employeeId
-            ? { ...item, permissionLvl: 10 }
-            : { ...item, permissionLvl: null }
-        );
-      }
-
-      const result = await tx.document.create({
+      await tx.document.create({
         data: {
           authUserId: authuser?.id,
           userDataId: authuser?.id,
-          generate: data.generate,
+          generate: data.converting.generate,
           state: DocumentStateEnum.DENY,
-          title: data.title,
+          title: data.converting.title,
           detail: {
             create: {
-              intro: data.intro,
-              aim: data.aim,
+              intro: data.converting.intro,
+              aim: data.converting.aim,
             },
           },
           departmentEmployeeRole: {
             createMany: {
-              data: data.departmentemployee,
+              data: attaching,
             },
           },
-        },
-      });
-      return result;
-    });
-
-    return record.id;
-  } catch (error) {
-    console.error(error);
-    return -1;
-  }
-}
-
-export async function SecondAction(data: any) {
-  try {
-    const validate = v.safeParse(SecondActionSchema, data);
-    if (!validate.success) {
-      return 0;
-    }
-    const customrelation = data.testteam
-      .map((item: any) => {
-        if (item.role === "Хяналт тавих, Асуудал шийдвэрлэх") {
-          return { ...item, role: "MIDDLE" };
-        }
-        return null;
-      })
-      .filter((item: any) => item !== null);
-
-    const bankData = {
-      name: data.bank.bankname,
-      address: data.bank.bank,
-    };
-
-    await prisma.$transaction(async (tx) => {
-      await tx.document.update({
-        where: { id: Number(data.documentid) },
-        data: {
           documentemployee: {
             createMany: {
               data: stripId(data.testteam),
             },
           },
-          departmentEmployeeRole: {
-            createMany: { data: stripId(customrelation) },
-          },
           attribute: { createMany: { data: stripId(data.attributeData) } },
           budget: { createMany: { data: stripId(data.budgetdata) } },
           riskassessment: { createMany: { data: stripId(data.riskdata) } },
           bank: bankData as Prisma.JsonObject,
-          isFull: 1,
+          testcase: {
+            createMany: {
+              data: data.testcase,
+              skipDuplicates: true,
+            },
+          },
         },
       });
+
     });
 
     return 1;
@@ -144,20 +98,110 @@ export async function SecondAction(data: any) {
     return -1;
   }
 }
-
-export async function ThirdAction(data: any) {
+export async function FullUpdate(data: any) {
   try {
-    const validate = v.safeParse(ThirdActionSchema, data);
-    if (!validate.success) {
-      return 0;
-    }
+    const result = data.departmentemployee.map((item: any) => {
+      return {
+        employeeId:
+          typeof item.employeeId !== "number"
+            ? item.employeeId.value
+            : item.employeeId,
+        role: item.role,
+      };
+    });
+
+    const team = data.testteam.map((item: any) => {
+      return {
+        employeeId:
+          typeof item.employeeId !== "number"
+            ? item.employeeId.value
+            : item.employeeId,
+        role: item.role,
+        startedDate: item.startedDate,
+        endDate: item.endDate,
+      };
+    });
+    const customrelation = data.testteam
+      .map((item: any) => {
+        if (item.role === "Хяналт тавих, Асуудал шийдвэрлэх") {
+          return {
+            employeeId:
+              typeof item.employeeId !== "number"
+                ? item.employeeId.value
+                : item.employeeId,
+
+            role: "MIDDLE",
+          };
+        }
+        return null;
+      })
+      .filter((item: any) => item !== null);
+
+    const finalMerged = [...result, ...customrelation];
 
     await prisma.$transaction(async (tx) => {
+      await tx.documentAttribute.deleteMany({
+        where: { documentId: Number(data.id) },
+      });
+      await tx.riskAssessment.deleteMany({
+        where: { documentId: Number(data.id) },
+      });
+      await tx.documentBudget.deleteMany({
+        where: { documentId: Number(data.id) },
+      });
+      await tx.testCase.deleteMany({
+        where: { documentId: Number(data.id) },
+      });
+      await tx.departmentEmployeeRole.deleteMany({
+        where: { documentId: Number(data.id) },
+      });
+      await tx.documentEmployee.deleteMany({
+        where: { documentId: Number(data.id) },
+      });
+
       await tx.document.update({
-        where: {
-          id: Number(data.documentid),
-        },
+        where: { id: Number(data.id) },
         data: {
+          title: data.title,
+          generate: data.generate,
+          bank: {
+            name: data.bank.bankname,
+            address: data.bank.bank,
+          },
+          detail: {
+            update: {
+              where: { documentId: Number(data.id) },
+              data: {
+                intro: data.intro,
+                aim: data.aim,
+              },
+            },
+          },
+          departmentEmployeeRole: {
+            createMany: {
+              data: finalMerged,
+            },
+          },
+          documentemployee: {
+            createMany: {
+              data: team,
+            },
+          },
+          attribute: {
+            createMany: {
+              data: data.attributeData,
+            },
+          },
+          riskassessment: {
+            createMany: {
+              data: data.riskdata,
+            },
+          },
+          budget: {
+            createMany: {
+              data: data.budgetdata,
+            },
+          },
           testcase: {
             createMany: {
               data: data.testcase,
@@ -167,7 +211,6 @@ export async function ThirdAction(data: any) {
         },
       });
     });
-
     return 1;
   } catch (error) {
     console.error(error);
@@ -440,126 +483,6 @@ export async function ReportUpdate(data: any) {
   }
 }
 
-export async function FullUpdate(data: any) {
-  try {
-    const result = data.departmentemployee.map((item: any) => {
-      return {
-        employeeId:
-          typeof item.employeeId !== "number"
-            ? item.employeeId.value
-            : item.employeeId,
-        role: item.role,
-      };
-    });
-
-    const team = data.testteam.map((item: any) => {
-      return {
-        employeeId:
-          typeof item.employeeId !== "number"
-            ? item.employeeId.value
-            : item.employeeId,
-        role: item.role,
-        startedDate: item.startedDate,
-        endDate: item.endDate,
-      };
-    });
-    const customrelation = data.testteam
-      .map((item: any) => {
-        if (item.role === "Хяналт тавих, Асуудал шийдвэрлэх") {
-          return {
-            employeeId:
-              typeof item.employeeId !== "number"
-                ? item.employeeId.value
-                : item.employeeId,
-
-            role: "MIDDLE",
-          };
-        }
-        return null;
-      })
-      .filter((item: any) => item !== null);
-
-    const finalMerged = [...result, ...customrelation];
-
-    await prisma.$transaction(async (tx) => {
-      await tx.documentAttribute.deleteMany({
-        where: { documentId: Number(data.id) },
-      });
-      await tx.riskAssessment.deleteMany({
-        where: { documentId: Number(data.id) },
-      });
-      await tx.documentBudget.deleteMany({
-        where: { documentId: Number(data.id) },
-      });
-      await tx.testCase.deleteMany({
-        where: { documentId: Number(data.id) },
-      });
-      await tx.departmentEmployeeRole.deleteMany({
-        where: { documentId: Number(data.id) },
-      });
-      await tx.documentEmployee.deleteMany({
-        where: { documentId: Number(data.id) },
-      });
-
-      await tx.document.update({
-        where: { id: Number(data.id) },
-        data: {
-          title: data.title,
-          generate: data.generate,
-          bank: {
-            name: data.bank.bankname,
-            address: data.bank.bank,
-          },
-          detail: {
-            update: {
-              where: { documentId: Number(data.id) },
-              data: {
-                intro: data.intro,
-                aim: data.aim,
-              },
-            },
-          },
-          departmentEmployeeRole: {
-            createMany: {
-              data: finalMerged,
-            },
-          },
-          documentemployee: {
-            createMany: {
-              data: team,
-            },
-          },
-          attribute: {
-            createMany: {
-              data: data.attributeData,
-            },
-          },
-          riskassessment: {
-            createMany: {
-              data: data.riskdata,
-            },
-          },
-          budget: {
-            createMany: {
-              data: data.budgetdata,
-            },
-          },
-          testcase: {
-            createMany: {
-              data: data.testcase,
-              skipDuplicates: true,
-            },
-          },
-        },
-      });
-    });
-    return 1;
-  } catch (error) {
-    console.error(error);
-    return -1;
-  }
-}
-
 export async function AddTestCase(data: any) {
   try {
     await prisma.document.update({
@@ -627,67 +550,9 @@ export async function ConfirmDoc(data: any) {
   }
 }
 
-// export async function ConfirmMember(data: any) {
-//   try {
-//     await prisma.$transaction(async (tx) => {
-//       const confirmId = Number(data.confirmId);
-
-//       // ✅ Find the employee
-//       const employee = await tx.employee.findUnique({
-//         where: { id: data.employeeId },
-//       });
-//       if (!employee) throw new Error("Employee not found");
-
-//       // ✅ Ensure the confirm paper exists
-//       const paper = await tx.confirmPaper.findUnique({
-//         where: { id: confirmId },
-//       });
-//       if (!paper) throw new Error("ConfirmPaper not found");
-
-//       // ✅ Remove previous confirmSub records linked to this confirm paper
-//       await tx.confirmSub.deleteMany({
-//         where: { confirmId },
-//       });
-
-//       // ✅ Add new confirmSub records (you can loop or expand this as needed)
-//       await tx.confirmSub.createMany({
-//         data: [
-//           {
-//             confirmId: paper.id,
-//             employeeId: data.employeeId,
-//             system: data.system,
-//             jobs: data.jobs,
-//             module: data.module,
-//             version: data.version,
-//             description: data.description,
-//             title: data.title,
-//             check: true,
-//           },
-//         ],
-//       });
-
-//       // ✅ Update confirmPaper with rode info or any other field
-//       await tx.confirmPaper.update({
-//         where: { id: confirmId },
-//         data: {
-//           rode: {
-//             employee: convertName(employee),
-//             rode: true,
-//           },
-//           check: true, // optional — marks as confirmed
-//           title: data.title ?? paper.title, // keep old title if not provided
-//         },
-//       });
-//     });
-
-//     return 1; // success
-//   } catch (error) {
-//     console.error("ConfirmMember error:", error);
-//     return -1;
-//   }
-// }
 export async function ConfirmMember(data: any) {
   try {
+    console.log(data)
     await prisma.$transaction(async (tx) => {
       const confirmId = Number(data.confirmId);
 

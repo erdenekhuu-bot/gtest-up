@@ -226,7 +226,7 @@ export function EditPage({ document, id, steps }: any) {
       bank,
       testteam,
       id,
-      authuserId:Number(session?.user.id)
+      authuserId: Number(session?.user.id),
     };
     const update = await FullUpdate(merge);
     if (update > 0) {
@@ -235,7 +235,6 @@ export function EditPage({ document, id, steps }: any) {
       messageApi.error("Алдаа гарлаа");
     }
   };
-
 
   useEffect(() => {
     const handleScroll = () => {
@@ -596,19 +595,17 @@ export function EditPage({ document, id, steps }: any) {
           style={transformStyle}
         >
           <Steps
-            current={steps.findIndex(
+            current={steps[0].result.findIndex(
               (item: any) => item.state === "ACCESS"
             )}
             direction="vertical"
-            items={steps.map((item: any, index: number) => ({
+            items={steps[0].result.map((item: any, index: number) => ({
               title: `${
                 item.state === "ACCESS" ? "Баталгаажсан" : "Хүлээгдэж байгаа"
               }`,
               description: (
                 <section key={index} className="text-[12px] mb-12">
-                  <p className="opacity-50">
-                    {item.employee.jobPosition?.name}
-                  </p>
+                  <p className="opacity-50">{item.jobPosition}</p>
                   <p className="opacity-50">{convertName(item.employee)}</p>
                   <p className="opacity-50">
                     {new Date(item.startedDate).toLocaleString()}
@@ -620,8 +617,7 @@ export function EditPage({ document, id, steps }: any) {
                       <Button
                         type="primary"
                         disabled={
-                          Number(session?.user.id) ===
-                          item.employee.authUser?.id
+                          Number(session?.user.id) === item.authUser
                             ? false
                             : true
                         }
