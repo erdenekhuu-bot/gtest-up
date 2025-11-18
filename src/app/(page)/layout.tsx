@@ -44,9 +44,11 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
   const hasEdit = session?.user.employee.permission[0].kind.includes("EDIT");
   const manager = session?.user.name;
   const department = session?.user.employee.department.name;
+  const supers=session?.user.employee.super.includes('REPORT')
+
 
   const menu: any = [
-    (department === "Програм хөгжүүлэлтийн хэлтэс" || hasEdit) && {
+    (department === "Програм хөгжүүлэлтийн хэлтэс" || supers || hasEdit) && {
       key: "1",
       icon: <PaperClipOutlined />,
       label: "Баталгаажуулах хуудас",

@@ -136,7 +136,6 @@ model Employee {
   shareReport            ShareReport[]            @relation("share_report")
   permission             Permission[]
 
-
   confirm ConfirmPaper[]
   sub     ConfirmSub[]
   super   EROLE          @default(VIEWER)
@@ -221,6 +220,7 @@ model TestCase {
   result        String?
   division      String?
   testType      StateTestCase   @default(CREATED)
+  environment   StateTestCase   @default(TESTENV)
   timeCreated   DateTime        @default(now())
   timeUpdate    DateTime        @updatedAt
   description   String?         @db.Text
@@ -252,10 +252,10 @@ model File {
 }
 
 model Permission {
-  id          Int           @id @default(autoincrement())
-  timeCreated DateTime      @default(now())
-  timeAction  DateTime      @updatedAt
-  kind        Json          @default("[]")
+  id          Int        @id @default(autoincrement())
+  timeCreated DateTime   @default(now())
+  timeAction  DateTime   @updatedAt
+  kind        Json       @default("[]")
   employee    Employee[]
 }
 
@@ -374,7 +374,6 @@ model ConfirmSub {
   title       String?      @db.VarChar(200)
   check       Boolean      @default(false)
 }
-
 
 enum PhoneType {
   POSTPAID

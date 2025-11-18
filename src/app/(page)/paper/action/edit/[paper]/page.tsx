@@ -15,7 +15,7 @@ export default function Page() {
   const [caseForm] = Form.useForm();
   const [jobs, setJobs] = useState("");
   const [description, setDescription] = useState("");
-  const { documentid, fetchpaper, confirmpaperid } = ZUSTAND();
+  const { documentid, fetchpaper, confirmpaperid, confirmId } = ZUSTAND();
   const { data: session } = useSession();
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -34,7 +34,7 @@ export default function Page() {
   };
   const onFinish: FormProps["onFinish"] = async (values) => {
     const merge = {
-      confirmId: Number(params.paper),
+      confirmId: confirmId,
       ...values,
       paperid: confirmpaperid,
       employeeId: Number(session?.user.employee.id),

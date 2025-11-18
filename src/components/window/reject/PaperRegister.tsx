@@ -26,9 +26,10 @@ export function PaperRegister() {
               version: subItem.version,
               description: subItem.description,
               employeeId: convertName(subItem.employee),
-              check: subItem.check,
+              check: confirmItem.check, // << HERE IS THE FIX
             }))
           ) || [];
+
         setData(updatedData);
       }
     } catch (err) {}

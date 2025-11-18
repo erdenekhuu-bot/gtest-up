@@ -1,20 +1,27 @@
 "use client";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
-import { Flex, Button, Pagination, Table } from "antd";
+import { Flex, Button, Pagination, Table, Badge as BD } from "antd";
 import { ZUSTAND } from "@/zustand";
 import { PaperOthers } from "./paperothers";
 import { Badge } from "../ui/badge";
-import Image from "next/image";
 import { DeleteConfirmPaper } from "@/util/action";
 import { useSession } from "next-auth/react";
+import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
+import { CheckConfirmSub } from "./CheckConfirmSub";
 
 export function PaperDocument({ data, total, page, pageSize }: any) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const { replace } = useRouter();
-  const { getEmployeeId, getDocumentId, takeConfirmId, triggerPaper } =
-    ZUSTAND();
+  const {
+    getEmployeeId,
+    getDocumentId,
+    takeConfirmId,
+    triggerPaper,
+    getCheckout,
+  } = ZUSTAND();
   const { data: session } = useSession();
 
   const handlePaginationChange = (page: number, pageSize?: number) => {
@@ -24,8 +31,9 @@ export function PaperDocument({ data, total, page, pageSize }: any) {
     replace(`${pathname}?${params.toString()}`);
   };
   const hasEdit = session?.user.employee.permission[0].kind.includes("EDIT");
+  const isAdmin = session?.user.employee.super === "REPORT";
 
-  const columns:any = [
+  const columns: any = [
     {
       title: "Баталгаажуулах хуудас",
       dataIndex: "document",
@@ -36,27 +44,29 @@ export function PaperDocument({ data, total, page, pageSize }: any) {
     {
       title: "Үзсэн",
       dataIndex: "rode",
-      render: (record: any) => {
+      render: (record: any, paper: any) => {
         return record?.rode ? (
-          <Badge variant="info">Бөглөсөн</Badge>
+          <Badge
+            variant="info"
+            className="hover:cursor-pointer"
+            onClick={() => {
+              getCheckout(18);
+              takeConfirmId(paper.id);
+            }}
+          >
+            Бөглөсөн
+          </Badge>
         ) : (
-          <Badge variant="secondary">Бөглөөгүй</Badge>
-        );
-      },
-    },
-    hasEdit !== true && {
-      title: "Бөглөх",
-      dataIndex: "id",
-      render: (id: number, result: any) => {
-        return (
           <Button
+            disabled={hasEdit || isAdmin ? true : false}
             type="primary"
             onClick={async () => {
-              getEmployeeId(result.employeeId);
-              getDocumentId(result.document.id);
-              takeConfirmId(result.id);
-              triggerPaper(id);
-              router.push("/paper/action/" + Number(result.document.id));
+              getEmployeeId(paper.employeeId);
+              getDocumentId(paper.document.id);
+              takeConfirmId(paper.id);
+              // triggerPaper(id);
+              router.push("/paper/action/edit/" + Number(paper.id));
+              router.refresh();
             }}
           >
             Хуудсыг бөглөх
@@ -64,23 +74,46 @@ export function PaperDocument({ data, total, page, pageSize }: any) {
         );
       },
     },
-    hasEdit !== true && {
-      title: "Устгах",
-      dataIndex: "id",
-      render: (id: number) => (
-        <Image
-          src="/trash.svg"
-          alt=""
-          width={20}
-          height={20}
-          onClick={async () => {
-            await DeleteConfirmPaper(id);
-            router.refresh();
-          }}
-          className="hover:cursor-pointer"
-        />
-      ),
+    isAdmin && {
+      title: "Хянах",
+      dataIndex: "rode",
+      render: (record: any, paper: any) => {
+        return (
+          <BD
+            status={paper.check ? "success" : "warning"}
+            text={paper.check ? "Хянасан" : "Шинэ"}
+            className="hover:cursor-pointer"
+            onClick={() => {
+              getCheckout(18);
+              takeConfirmId(paper.id);
+            }}
+          />
+        );
+      },
     },
+
+    // hasEdit !== true && {
+    //   title: "Бөглөх",
+    //   dataIndex: "id",
+    //   render: (id: number, result: any) => {
+    //     return (
+    //       <Button
+    //         type="primary"
+    //         onClick={async () => {
+    //           getEmployeeId(result.employeeId);
+    //           getDocumentId(result.document.id);
+    //           takeConfirmId(result.id);
+    //           triggerPaper(id);
+
+    //           // router.push("/paper/action/" + Number(result.document.id));
+    //           router.push("/paper/action/edit/" + Number(result.id));
+    //         }}
+    //       >
+    //         Хуудсыг бөглөх
+    //       </Button>
+    //     );
+    //   },
+    // },
   ];
   return (
     <section>
@@ -94,6 +127,7 @@ export function PaperDocument({ data, total, page, pageSize }: any) {
         bordered
       />
       <PaperOthers />
+      <CheckConfirmSub />
       <Flex justify="end">
         <Pagination
           current={page}

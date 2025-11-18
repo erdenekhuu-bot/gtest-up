@@ -16,7 +16,6 @@ export default function ViewPlan(id: any) {
   const fetchData = async () => {
     const response = await axios.post("/api/member", { tm: id.id });
     if (response.data.success) {
-      console.log(response.data.data);
       setDocument(response.data.data);
     }
   };
@@ -40,7 +39,7 @@ export default function ViewPlan(id: any) {
                 Үндсэн хуудас руу буцах
               </span>
             ),
-            onClick: () => redirect('/teamplan')
+            onClick: () => redirect("/teamplan"),
           },
           {
             title: "Хянах хуудас",

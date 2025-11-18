@@ -16,42 +16,39 @@ export default async function Page(props: {
   const page = Number(searchParams?.page) || 1;
   const pageSize = Number(searchParams?.pageSize) || 10;
   const session = await getServerSession(authOptions);
-  const isAdmin = session?.user.employee.super === "ADMIN";
+  const isAdmin = session?.user.employee.super === "REPORT";
   const hasEdit = session?.user.employee.permission[0].kind.includes("EDIT");
+  const user = await prisma.authUser.findUnique({
+    where: { id: Number(session?.user.id) },
+    select: {
+      employee: true,
+    },
+  });
 
-  const record = await prisma.$transaction(async (tx) => {
-    const user = await tx.authUser.findUnique({
-      where: { id: Number(session?.user.id) },
-      select: {
-        employee: true,
-      },
-    });
-
-    const confirm = await tx.confirmPaper.findMany({
-      where: hasEdit
+  const confirm = await prisma.confirmPaper.findMany({
+    where:
+      hasEdit || isAdmin
         ? {}
         : {
             employeeId: user?.employee?.id,
           },
-      orderBy: {
-        id: "asc",
-      },
-      include: {
-        document: {
-          include: {
-            detail: true,
-          },
+    orderBy: {
+      id: "asc",
+    },
+    ...(hasEdit || (isAdmin && { distinct: ["documentId"] })),
+    include: {
+      document: {
+        include: {
+          detail: true,
         },
       },
-    });
-
-    return confirm;
+    },
   });
-  const totalCount = record.length;
-  console.log(record)
+  const totalCount = confirm.length;
+
   return (
     <PaperDocument
-      data={record}
+      data={confirm}
       total={totalCount}
       page={page}
       pageSize={pageSize}

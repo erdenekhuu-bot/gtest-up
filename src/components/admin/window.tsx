@@ -27,6 +27,7 @@ const PERMISSIONS_OPTIONS = [
   { label: "Бүгд", value: "ADMIN" },
   { label: "Унших", value: "VIEWER" },
   { label: "Засах", value: "DEV" },
+  { label: "Хянах", value: "REPORT" },
 ];
 
 export function AdminWindow() {

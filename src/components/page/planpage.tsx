@@ -23,7 +23,6 @@ export function PlanPage({ data, total, page, pageSize }: TablePagination) {
   const hasEdit = session?.user.employee.permission[0].kind.includes("EDIT");
   const solopermission = session?.user.employee.super;
   const router = useRouter();
-  console.log(session);
 
   const generateSearch = (term: string) => {
     const params = new URLSearchParams(searchParams);
@@ -65,7 +64,7 @@ export function PlanPage({ data, total, page, pageSize }: TablePagination) {
         );
       },
     },
-    solopermission === "VIEWER" && {
+    (solopermission === "VIEWER" || solopermission === "REPORT") && {
       title: "Шалгах",
       dataIndex: "id",
       render: (id: number) => (

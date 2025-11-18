@@ -36,7 +36,7 @@ export async function CreateDocument(data: any) {
       ...data.converting.departmentemployee,
       ...customrelation,
     ];
-  
+
     const bankData = {
       name: data.bank.bankname,
       address: data.bank.bank,
@@ -89,7 +89,6 @@ export async function CreateDocument(data: any) {
           },
         },
       });
-
     });
 
     return 1;
@@ -552,7 +551,6 @@ export async function ConfirmDoc(data: any) {
 
 export async function ConfirmMember(data: any) {
   try {
-    console.log(data)
     await prisma.$transaction(async (tx) => {
       const confirmId = Number(data.confirmId);
 
@@ -586,7 +584,6 @@ export async function ConfirmMember(data: any) {
             employee: convertName(employee),
             rode: true,
           },
-          check: true,
           title: data.title ?? paper.title,
         },
       });
@@ -758,4 +755,19 @@ export async function UpdateCase(data: any) {
 
 export async function DeleteConfirmPaper(id: number) {
   await prisma.confirmPaper.delete({ where: { id } });
+}
+
+export async function DeleteConfirmSub(id: number) {
+  await prisma.confirmSub.delete({ where: { id } });
+}
+
+export async function UpdateConfirmPaper(id: number) {
+  await prisma.confirmPaper.update({
+    where: {
+      id,
+    },
+    data: {
+      check: true,
+    },
+  });
 }

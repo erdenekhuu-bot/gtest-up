@@ -31,8 +31,10 @@ export default async function Page(props: {
         LEFT JOIN public."AuthUser" AS authuser ON authuser.id = doc."authUserId"
       WHERE authuser.id = ${userId};
     `) as number;
+
+  
   return (
-    <PlanPage 
+    <PlanPage
       data={record}
       total={totalCount}
       page={page}

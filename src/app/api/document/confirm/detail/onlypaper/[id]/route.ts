@@ -3,24 +3,20 @@ import { prisma } from "@/util/prisma";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { slug } = await params;
-    const record = await prisma.document.findUnique({
-      where: { id: Number(slug) },
+    const { id } = await params;
+    console.log(id)
+    const record = await prisma.confirmPaper.findUnique({
+      where: {
+        id:Number(id),
+      },
       include: {
-        confirm: {
+        sub: {
           include: {
-            sub: {
-              where: {
-                check: true,
-              },
-              include: {
-                employee: true,
-              },
-            },
-          },
+            employee: true
+          }
         },
       },
     });
