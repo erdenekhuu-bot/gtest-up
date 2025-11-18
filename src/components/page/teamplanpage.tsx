@@ -16,7 +16,6 @@ interface DataType {
 }
 
 export function TeamPlanPage({ data, total, page, pageSize }: any) {
-  
   const searchParams = useSearchParams();
   const { getMember } = ZUSTAND();
   const pathname = usePathname();
@@ -41,6 +40,7 @@ export function TeamPlanPage({ data, total, page, pageSize }: any) {
       title: "Үүсгэсэн төлөвлөгөө",
       dataIndex: "authUser",
       render: (record: any) => {
+        console.log(record);
         return (
           <Button
             type="primary"
@@ -54,7 +54,6 @@ export function TeamPlanPage({ data, total, page, pageSize }: any) {
         );
       },
     },
-    
   ];
   return (
     <Flex gap="middle" vertical>

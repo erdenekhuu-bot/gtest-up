@@ -12,16 +12,22 @@ export async function GET(
       include: {
         confirm: {
           include: {
-            sub: {
-              where: {
-                check: true,
-              },
-              include: {
-                employee: true,
-              },
-            },
+            sub: true,
+            employee: true,
           },
         },
+        // confirm: {
+        //   include: {
+        //     sub: {
+        //       where: {
+        //         check: true,
+        //       },
+        //       include: {
+        //         employee: true,
+        //       },
+        //     },
+        //   },
+        // },
       },
     });
 

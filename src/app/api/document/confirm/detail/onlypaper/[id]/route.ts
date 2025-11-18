@@ -7,17 +7,12 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    console.log(id)
     const record = await prisma.confirmPaper.findUnique({
       where: {
-        id:Number(id),
+        id: Number(id),
       },
       include: {
-        sub: {
-          include: {
-            employee: true
-          }
-        },
+        sub: true,
       },
     });
 

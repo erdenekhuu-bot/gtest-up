@@ -567,16 +567,79 @@ export async function ConfirmMember(data: any) {
       await tx.confirmSub.create({
         data: {
           confirmId: paper.id,
-          employeeId: data.employeeId,
           system: data.system,
           jobs: data.jobs,
           module: data.module,
           version: data.version,
           description: data.description,
           title: data.title,
-          check: true,
         },
       });
+      await tx.confirmPaper.update({
+        where: { id: confirmId },
+        data: {
+          rode: {
+            employee: convertName(employee),
+            rode: true,
+          },
+          title: data.title ?? paper.title,
+        },
+      });
+    });
+
+    return 1;
+  } catch (error) {
+    console.error("ConfirmMember error:", error);
+    return -1;
+  }
+}
+
+export async function UpdateMember(data: any) {
+  try {
+    await prisma.$transaction(async (tx) => {
+      const confirmId = Number(data.confirmId);
+
+      const employee = await tx.employee.findUnique({
+        where: { id: data.employeeId },
+      });
+      if (!employee) throw new Error("Employee not found");
+
+      const paper = await tx.confirmPaper.findUnique({
+        where: { id: confirmId },
+      });
+      if (!paper) throw new Error("ConfirmPaper not found");
+
+      const existing = await tx.confirmSub.findFirst({
+        where: { confirmId: paper.id },
+      });
+
+      if (existing) {
+        await tx.confirmSub.update({
+          where: { id: existing.id },
+          data: {
+            system: data.system,
+            jobs: data.jobs,
+            module: data.module,
+            version: data.version,
+            description: data.description,
+            title: data.title,
+          },
+        });
+      } else {
+        await tx.confirmSub.create({
+          data: {
+            confirmId: paper.id,
+            system: data.system,
+            jobs: data.jobs,
+            module: data.module,
+            version: data.version,
+            description: data.description,
+            title: data.title,
+          },
+        });
+      }
+
+      // ==== ConfirmPaper update ====
       await tx.confirmPaper.update({
         where: { id: confirmId },
         data: {

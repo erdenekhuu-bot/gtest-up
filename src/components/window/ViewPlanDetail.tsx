@@ -374,52 +374,6 @@ export function ViewPlanDetail({ document, steps }: any) {
             <div className="font-bold my-2 text-lg mx-4">5.3. Тестийн кэйс</div>
             <ReadTestCase />
           </section>
-          {
-              <div className="fixed bottom-0 w-full h-20 bg-white flex items-center gap-40 transition-transform">
-                <Button
-                  type="primary"
-                  size="large"
-                  onClick={() => {
-                    getDocumentId(document.id);
-                    getCheckout(14);
-                  }}
-                >
-                  Баталгаажуулах хуудас
-                </Button>
-                <Button
-                  type="link"
-                  size="large"
-                  onClick={() => {
-                    getDocumentId(document.id);
-                    getCheckout(12);
-                  }}
-                >
-                  Буцаах
-                </Button>
-                <Button
-                  size="large"
-                  type="primary"
-                  onClick={async () => {
-                    await axios.put(`/api/final/`, {
-                      authuserId: session?.user.id,
-                      reject: 2,
-                      documentId: document.id,
-                    });
-                    await axios.patch(`/api/final`, {
-                      authuserId: session?.user.id,
-                      reject: 3,
-                      documentId: document.id,
-                    });
-                    await axios.patch("/api/otp/sms", {
-                      id: Number(document.id),
-                    });
-                    router.refresh();
-                  }}
-                >
-                  Зөвшөөрөх
-                </Button>
-              </div>
-            }
         </ActionDetail.Provider>
         <div
           className="w-1/4 p-4 h-[60vh] sm:h-[70vh] md:h-[80vh] overflow-y-auto"

@@ -91,29 +91,6 @@ export function PaperDocument({ data, total, page, pageSize }: any) {
         );
       },
     },
-
-    // hasEdit !== true && {
-    //   title: "Бөглөх",
-    //   dataIndex: "id",
-    //   render: (id: number, result: any) => {
-    //     return (
-    //       <Button
-    //         type="primary"
-    //         onClick={async () => {
-    //           getEmployeeId(result.employeeId);
-    //           getDocumentId(result.document.id);
-    //           takeConfirmId(result.id);
-    //           triggerPaper(id);
-
-    //           // router.push("/paper/action/" + Number(result.document.id));
-    //           router.push("/paper/action/edit/" + Number(result.id));
-    //         }}
-    //       >
-    //         Хуудсыг бөглөх
-    //       </Button>
-    //     );
-    //   },
-    // },
   ];
   return (
     <section>

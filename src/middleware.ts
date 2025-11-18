@@ -9,23 +9,22 @@ export async function middleware(req: NextRequest) {
     "/api",
     "/_next",
     "/favicon.ico",
-    "/upload/images"
+    "/upload/images",
   ];
 
   const isPublic = publicPaths.some((path) => pathname.startsWith(path));
   if (isPublic) return NextResponse.next();
 
   const token = await getToken({ req, secret: process.env.SECRET });
-  
+
   if (!token) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-
   if (req.nextUrl.pathname === "/") {
     return NextResponse.redirect(new URL("/plan", req.nextUrl));
   }
-  
+
   return NextResponse.next();
 }
 

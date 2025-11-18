@@ -5,7 +5,7 @@ import type { FormProps } from "antd";
 import MDEditor from "@uiw/react-md-editor";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { ConfirmMember } from "@/util/action";
+import { UpdateMember } from "@/util/action";
 import { ZUSTAND } from "@/zustand";
 import { useSession } from "next-auth/react";
 
@@ -41,7 +41,7 @@ export default function Page() {
       documentId: documentid,
     };
 
-    const response = await ConfirmMember(merge);
+    const response = await UpdateMember(merge);
     if (response > 0) {
       messageApi.success("Амжилттай хадгалагдлаа!");
     } else {

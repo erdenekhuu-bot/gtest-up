@@ -10,7 +10,6 @@ import { ZUSTAND } from "@/zustand";
 import { useSession } from "next-auth/react";
 
 export default function Page() {
-  const params = useParams();
   const router = useRouter();
   const [caseForm] = Form.useForm();
   const [jobs, setJobs] = useState("");
@@ -19,10 +18,9 @@ export default function Page() {
   const { data: session } = useSession();
   const [messageApi, contextHolder] = message.useMessage();
 
- 
   const onFinish: FormProps["onFinish"] = async (values) => {
     const merge = {
-      confirmId: Number(params.paper),
+      confirmId: confirmpaperid,
       ...values,
       paperid: confirmpaperid,
       employeeId: Number(session?.user.employee.id),
@@ -36,7 +34,6 @@ export default function Page() {
       messageApi.error("Амжилтгүй боллоо.");
     }
   };
-
 
   return (
     <div>

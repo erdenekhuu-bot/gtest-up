@@ -137,7 +137,6 @@ model Employee {
   permission             Permission[]
 
   confirm ConfirmPaper[]
-  sub     ConfirmSub[]
   super   EROLE          @default(VIEWER)
 }
 
@@ -364,15 +363,12 @@ model ConfirmSub {
   id          Int          @id @default(autoincrement())
   paper       ConfirmPaper @relation(fields: [confirmId], references: [id], onDelete: Cascade)
   confirmId   Int
-  employee    Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  employeeId  Int
   system      String?      @db.VarChar(500)
   description String?      @db.VarChar(500)
   module      String?      @db.VarChar(500)
   version     String?      @db.VarChar(500)
   jobs        String?
   title       String?      @db.VarChar(200)
-  check       Boolean      @default(false)
 }
 
 enum PhoneType {

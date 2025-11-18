@@ -16,12 +16,19 @@ export function CheckConfirmSub() {
   const { data: session } = useSession();
   const isAdmin = session?.user.employee.super === "REPORT";
   const [checking, setChecking] = useState(false);
-  const { getCheckout, checkout, getDocumentId, confirmId, takeConfirmId } =
-    ZUSTAND();
+  const [takeId, setConfirmId] = useState(0);
+  const {
+    getCheckout,
+    checkout,
+    getDocumentId,
+    confirmId,
+    takeConfirmId,
+    triggerPaper,
+  } = ZUSTAND();
   const handleCancel = () => {
     getCheckout(-1);
   };
-  console.log(confirmId);
+
   const [data, setData] = useState<any[]>([]);
 
   const detail = async (id: number) => {
@@ -29,6 +36,7 @@ export function CheckConfirmSub() {
       "/api/document/confirm/detail/onlypaper/" + id
     );
     if (response.data.success) {
+      setConfirmId(response.data.data.id);
       setData(response.data.data.sub);
       setChecking(response.data.data.check);
     }
@@ -48,35 +56,39 @@ export function CheckConfirmSub() {
       width="80%"
       style={{ padding: 6 }}
       footer={[
-        <div
-          style={{ display: "flex", justifyContent: "space-between", gap: 8 }}
-        >
-          {checking ? (
-            <Badge variant="info">Шалгагдсан</Badge>
-          ) : (
-            <Button
-              key="back"
-              onClick={async () => {
-                await UpdateConfirmPaper(confirmId);
-                detail(confirmId);
-              }}
-            >
-              Шалгаж дуусгах
-            </Button>
-          )}
+        isAdmin ? (
+          <div
+            style={{ display: "flex", justifyContent: "space-between", gap: 8 }}
+          >
+            {checking ? (
+              <Badge variant="info">Шалгагдсан</Badge>
+            ) : (
+              <Button
+                key="back"
+                onClick={async () => {
+                  await UpdateConfirmPaper(confirmId);
+                  detail(confirmId);
+                }}
+              >
+                Шалгаж дуусгах
+              </Button>
+            )}
 
-          <Button key="next" type="primary" onClick={handleCancel}>
-            Ok
-          </Button>
-        </div>,
+            <Button key="next" type="primary" onClick={handleCancel}>
+              Ok
+            </Button>
+          </div>
+        ) : null,
       ]}
     >
-      {!isAdmin && (
+      {isAdmin ? null : (
         <div className="flex justify-end my-2">
           <Button
-            onClick={() =>
-              router.push("/paper/action/edit/" + Number(confirmId))
-            }
+            onClick={() => {
+              // router.push("/paper/action/edit/" + Number(confirmId))
+              triggerPaper(takeId);
+              router.push("/paper/action/edit");
+            }}
           >
             Шинээр үүсгэх
           </Button>

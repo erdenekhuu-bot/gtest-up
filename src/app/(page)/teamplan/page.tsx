@@ -42,21 +42,16 @@ export default async function Page(props: {
       include: {
         jobPosition: {
           select: {
-            jobPositionGroup: true
-          }
+            jobPositionGroup: true,
+          },
         },
         authUser: {
           select: {
             id: true,
             Document: {
-              where: {
-                state: {
-                  not: "DENY",
-                },
-              },
               include: {
-                reject: true
-              }
+                reject: true,
+              },
             },
           },
         },
@@ -65,9 +60,13 @@ export default async function Page(props: {
     return result;
   });
 
-  record.sort((a:any, b:any) => b.jobPosition.jobPositionGroup.jobAuthRank - a.jobPosition.jobPositionGroup.jobAuthRank)
+  record.sort(
+    (a: any, b: any) =>
+      b.jobPosition.jobPositionGroup.jobAuthRank -
+      a.jobPosition.jobPositionGroup.jobAuthRank
+  );
   const totalCount = record.length;
-  
+
   return (
     <TeamPlanPage
       data={record}
