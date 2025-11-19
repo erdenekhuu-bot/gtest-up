@@ -25,8 +25,8 @@ export function PaperRegister() {
               system: subItem.system,
               version: subItem.version,
               description: subItem.description,
-              employeeId: convertName(subItem.employee),
-              check: confirmItem.check, // << HERE IS THE FIX
+              employeeId: convertName(confirmItem.employee),
+              check: confirmItem.check,
             }))
           ) || [];
 

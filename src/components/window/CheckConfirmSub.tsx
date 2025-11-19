@@ -141,8 +141,9 @@ export function CheckConfirmSub() {
                 return (
                   <Button
                     onClick={() => {
-                      router.push("/paper/action/edit/" + id);
                       takeConfirmId(Number(record.confirmId));
+                      router.push("/paper/action/edit/" + id);
+                      
                     }}
                   >
                     Засах

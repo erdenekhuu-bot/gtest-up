@@ -129,7 +129,7 @@ export default async function Page({
           LEFT JOIN public."AuthUser" AS authUser ON authUser.id = emp.auth_user_id
         WHERE dep."documentId" = ${Number(view)};
     `;
-   
+
     return {
       data,
       steps,

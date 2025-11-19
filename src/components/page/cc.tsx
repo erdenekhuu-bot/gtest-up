@@ -5,7 +5,6 @@ import { convertName, formatHumanReadable } from "@/util/usable";
 import { useState } from "react";
 
 export function CCpage({ data, total, page, pageSize }: any) {
-
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
@@ -35,8 +34,7 @@ export function CCpage({ data, total, page, pageSize }: any) {
     replace(`${pathname}?${params.toString()}`);
   };
 
-
-   const handleDownloadPDF = async (id: number) => {
+  const handleDownloadPDF = async (id: number) => {
     setPdfLoading(id);
     try {
       const response = await fetch(`/api/download/${id}`);
@@ -57,7 +55,6 @@ export function CCpage({ data, total, page, pageSize }: any) {
       setPdfLoading(null);
     }
   };
-
 
   const columns = [
     {

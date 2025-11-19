@@ -40,7 +40,6 @@ export function TeamPlanPage({ data, total, page, pageSize }: any) {
       title: "Үүсгэсэн төлөвлөгөө",
       dataIndex: "authUser",
       render: (record: any) => {
-        console.log(record);
         return (
           <Button
             type="primary"

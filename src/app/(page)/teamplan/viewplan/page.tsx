@@ -13,15 +13,15 @@ export default function ViewPlan(id: any) {
   const router = useRouter();
   const { getCheckout, checkout, getDocumentId } = ZUSTAND();
 
-  const fetchData = async () => {
-    const response = await axios.post("/api/member", { tm: id.id });
+  const fetchData = async (id: number) => {
+    const response = await axios.put("/api/member", { tm: id });
     if (response.data.success) {
       setDocument(response.data.data);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchData(Number(id.id));
   }, [Number(id.id)]);
 
   return (
@@ -68,7 +68,7 @@ export default function ViewPlan(id: any) {
               ) : checkout ? (
                 <Badge variant="viewing">Хянагдаж байна</Badge>
               ) : (
-                <Badge variant="secondary">Хүлээгдэж байна</Badge>
+                <Badge variant="secondary">Шинэ</Badge>
               );
             },
           },

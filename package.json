@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:update": "npx prisma db push",
-    "start:socket": "node src/socketserver.ts"
+    "db:update": "npx prisma db push"
   },
   "dependencies": {
     "@ant-design/icons": "4.0.0",
@@ -18,7 +17,6 @@
     "@prisma/client": "^6.11.1",
     "@radix-ui/react-slot": "^1.2.3",
     "@types/ejs": "^3.1.5",
-    "@types/ws": "^8.18.1",
     "@uiw/react-md-editor": "^4.0.8",
     "antd": "^5.26.3",
     "axios": "^1.10.0",
@@ -38,14 +36,11 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-drag-listview": "^2.0.0",
-    "socket.io": "^4.8.1",
-    "socket.io-client": "^4.8.1",
     "tailwind-merge": "^3.3.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "uuid": "^11.1.0",
     "valibot": "^1.1.0",
-    "ws": "^8.18.3",
     "xlsx": "^0.18.5",
     "zustand": "^5.0.6"
   },

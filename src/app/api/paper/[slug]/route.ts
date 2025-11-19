@@ -13,21 +13,14 @@ export async function GET(
         confirm: {
           include: {
             sub: true,
-            employee: true,
+            employee: {
+              select: {
+                firstname: true,
+                lastname: true,
+              },
+            },
           },
         },
-        // confirm: {
-        //   include: {
-        //     sub: {
-        //       where: {
-        //         check: true,
-        //       },
-        //       include: {
-        //         employee: true,
-        //       },
-        //     },
-        //   },
-        // },
       },
     });
 

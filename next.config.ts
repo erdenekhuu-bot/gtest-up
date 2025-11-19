@@ -1,10 +1,40 @@
+// import type { NextConfig } from "next";
+
+// const nextConfig: NextConfig = {
+//   experimental: {
+//     viewTransition: true,
+//   },
+//   allowedDevOrigins: ["*"],
+// };
+
+// export default nextConfig;
+
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   experimental: {
     viewTransition: true,
   },
-  allowedDevOrigins: ["http://localhost:3000","http://192.168.6.144:3000","http://192.168.200.92:3000"],
+
+  // allow dev origins
+  allowedDevOrigins: ["*"],
+
+  // 🔥 This is the fix: prevent old chunk caching
+  headers: async () => [
+    {
+      source: "/_next/static/:path*",
+      headers: [
+        { key: "Cache-Control", value: "no-store, must-revalidate" },
+      ],
+    },
+    {
+      // optional: prevent caching HTML pages
+      source: "/:path*",
+      headers: [
+        { key: "Cache-Control", value: "no-store, must-revalidate" },
+      ],
+    },
+  ],
 };
 
 export default nextConfig;

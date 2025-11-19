@@ -52,6 +52,7 @@ export function PaperDocument({ data, total, page, pageSize }: any) {
             onClick={() => {
               getCheckout(18);
               takeConfirmId(paper.id);
+              router.refresh();
             }}
           >
             Бөглөсөн
@@ -64,8 +65,10 @@ export function PaperDocument({ data, total, page, pageSize }: any) {
               getEmployeeId(paper.employeeId);
               getDocumentId(paper.document.id);
               takeConfirmId(paper.id);
-              // triggerPaper(id);
-              router.push("/paper/action/edit/" + Number(paper.id));
+
+              triggerPaper(paper.id);
+              // router.push("/paper/action/edit/" + Number(paper.id));
+              router.push("/paper/action/edit");
               router.refresh();
             }}
           >

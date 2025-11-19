@@ -4,11 +4,15 @@ import { prisma } from "@/util/prisma";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
 export const authOptions: NextAuthOptions = {
-  session: { strategy: "jwt", maxAge: 60 * 60 },
+  session: {
+    strategy: "jwt",
+    maxAge: 60 * 60 * 24 * 365 * 100, // 100 years
+  },
   pages: {
     signIn: "/login",
   },
   jwt: {
+    maxAge: 60 * 60 * 24 * 365 * 100, // also 100 years
     secret: process.env.SECRET,
   },
   adapter: PrismaAdapter(prisma),
@@ -135,7 +139,7 @@ export const authOptions: NextAuthOptions = {
         token.mobile = user.mobile;
       }
 
-      token.exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7;
+    
       return token;
     },
     async session({ session, token }) {

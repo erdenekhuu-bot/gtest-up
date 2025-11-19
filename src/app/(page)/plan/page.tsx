@@ -32,7 +32,6 @@ export default async function Page(props: {
       WHERE authuser.id = ${userId};
     `) as number;
 
-  
   return (
     <PlanPage
       data={record}

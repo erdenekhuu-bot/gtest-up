@@ -108,7 +108,7 @@ export async function FullUpdate(data: any) {
         role: item.role,
       };
     });
-
+    
     const team = data.testteam.map((item: any) => {
       return {
         employeeId:
@@ -551,30 +551,38 @@ export async function ConfirmDoc(data: any) {
 
 export async function ConfirmMember(data: any) {
   try {
+    console.log(data);
     await prisma.$transaction(async (tx) => {
       const confirmId = Number(data.confirmId);
 
       const employee = await tx.employee.findUnique({
         where: { id: data.employeeId },
       });
-      if (!employee) throw new Error("Employee not found");
 
       const paper = await tx.confirmPaper.findUnique({
         where: { id: confirmId },
       });
-      if (!paper) throw new Error("ConfirmPaper not found");
 
       await tx.confirmSub.create({
         data: {
-          confirmId: paper.id,
+       
           system: data.system,
           jobs: data.jobs,
           module: data.module,
           version: data.version,
           description: data.description,
           title: data.title,
+
+          paper: {
+            connect: { id: data.confirmId },
+          },
+
+          employee: {
+            connect: { id: data.employeeId },
+          },
         },
       });
+
       await tx.confirmPaper.update({
         where: { id: confirmId },
         data: {
@@ -582,7 +590,7 @@ export async function ConfirmMember(data: any) {
             employee: convertName(employee),
             rode: true,
           },
-          title: data.title ?? paper.title,
+          title: data.title ?? paper?.title,
         },
       });
     });
@@ -629,6 +637,7 @@ export async function UpdateMember(data: any) {
         await tx.confirmSub.create({
           data: {
             confirmId: paper.id,
+            employeeId: data.employeeId, // Add this required field
             system: data.system,
             jobs: data.jobs,
             module: data.module,

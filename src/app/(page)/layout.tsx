@@ -47,42 +47,48 @@ export default function RootPage({ children }: { children?: React.ReactNode }) {
   const supers = session?.user.employee.super.includes("REPORT");
 
   const menu: any = [
-    (department === "Програм хөгжүүлэлтийн хэлтэс" || supers || hasEdit) && {
-      key: "1",
-      icon: <PaperClipOutlined />,
-      label: "Баталгаажуулах хуудас",
-      onClick: () => router.push("/paper"),
-    },
-    hasEdit && {
-      key: "2",
-      icon: <SelectOutlined />,
-      label: "Удирдамж",
-      children: [
-        {
-          key: "20",
-          icon: <SelectOutlined />,
-          label: "Удирдамж үүсгэх",
-          onClick: () => router.push("/plan"),
+    manager === "cc573"
+      ? null
+      : (department === "Програм хөгжүүлэлтийн хэлтэс" ||
+          supers ||
+          hasEdit) && {
+          key: "1",
+          icon: <PaperClipOutlined />,
+          label: "Баталгаажуулах хуудас",
+          onClick: () => router.push("/paper"),
         },
-        {
-          key: "21",
+    manager === "cc573"
+      ? null
+      : hasEdit && {
+          key: "2",
           icon: <SelectOutlined />,
-          label: (
-            <Flex align="center" gap={10}>
-              Хуваалцсан удирдамж <Badge count={sharecount} size="small" />
-            </Flex>
-          ),
-          onClick: () => router.push("/share"),
+          label: "Удирдамж",
+          children: [
+            {
+              key: "20",
+              icon: <SelectOutlined />,
+              label: "Удирдамж үүсгэх",
+              onClick: () => router.push("/plan"),
+            },
+            {
+              key: "21",
+              icon: <SelectOutlined />,
+              label: (
+                <Flex align="center" gap={10}>
+                  Хуваалцсан удирдамж <Badge count={sharecount} size="small" />
+                </Flex>
+              ),
+              onClick: () => router.push("/share"),
+            },
+            {
+              key: "22",
+              icon: <SelectOutlined />,
+              label: "Хуваалцсан кейс",
+              onClick: () => router.push("/sharecase"),
+            },
+          ],
         },
-        {
-          key: "22",
-          icon: <SelectOutlined />,
-          label: "Хуваалцсан кейс",
-          onClick: () => router.push("/sharecase"),
-        },
-      ],
-    },
-    hasEdit && {
+    manager === "cc573" ? null : hasEdit && {
       key: "3",
       icon: <MailOutlined />,
       label: "Тайлан",

@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     });
     const record = await prisma.document.findMany({
       where: {
-        id: authUser.id,
+        id: authUser?.id,
       },
       include: {
         departmentEmployeeRole: {

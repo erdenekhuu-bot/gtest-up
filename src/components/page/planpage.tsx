@@ -125,9 +125,10 @@ export function PlanPage({ data, total, page, pageSize }: TablePagination) {
     hasEdit && {
       title: "Засах",
       dataIndex: "id",
-      render: (id: number) => {
+      render: (id: number, record:any) => {
+        const accessed = record.departmentRoles.every((item: any) => item.state === "ACCESS");
         return (
-          <Button type="primary" onClick={() => router.push("plan/" + id)}>
+          <Button type="primary" onClick={() => router.push("plan/" + id)} disabled={accessed}>
             Засах
           </Button>
         );
