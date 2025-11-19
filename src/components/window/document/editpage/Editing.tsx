@@ -45,6 +45,9 @@ export function EditPage({ document, id, steps }: any) {
   const { getCheckout, getDocumentId } = ZUSTAND();
   const reference = useRef<HTMLDivElement>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
+  const checkout = document.departmentEmployeeRole.some(
+    (item: any) => item.state === "ACCESS"
+  );
 
   const transformStyle = useMemo(
     () => ({
@@ -558,7 +561,9 @@ export function EditPage({ document, id, steps }: any) {
             >
               Батлах хуудас
             </Button>
-            {document.state !== "FORWARD" ? (
+            {checkout ? (
+              <Badge variant="viewing">Шалгагдаж байгаа</Badge>
+            ) : (
               <Button
                 size="large"
                 type="link"
@@ -566,11 +571,9 @@ export function EditPage({ document, id, steps }: any) {
               >
                 Засаад, хадгалах
               </Button>
-            ) : (
-              <Badge variant="viewing">Шалгагдаж байгаа</Badge>
             )}
 
-            {document.state !== "FORWARD" && (
+            {checkout ? null : (
               <Button
                 size="large"
                 type="primary"
