@@ -12,7 +12,6 @@ import { v4 as uuidv4 } from "uuid";
 import { UsedPhone } from "../window/report/UsedPhone";
 
 export function ReportMake({ id, data }: any) {
- 
   const [messageApi, contextHolder] = message.useMessage();
   const { data: session } = useSession();
 
@@ -43,61 +42,23 @@ export function ReportMake({ id, data }: any) {
       render: (endDate) => new Date(endDate).toLocaleString().split(" ")[0],
     },
   ];
-  const casecolumns: ColumnsType = [
-    {
-      title: "Ангилал",
-      dataIndex: "category",
-      key: "category",
-      render: (category) => category,
-    },
-    {
-      title: "Тестийн төрөл",
-      dataIndex: "types",
-      key: "types",
-      render: (types) => types,
-    },
-    {
-      title: "Тест хийх алхамууд",
-      dataIndex: "steps",
-      key: "steps",
-      render: (steps) => <div style={{ whiteSpace: "pre-wrap" }}>{steps}</div>,
-    },
-    {
-      title: "Үр дүн",
-      dataIndex: "result",
-      key: "result",
-      render: (result) => (
-        <div style={{ whiteSpace: "pre-wrap" }}>{result}</div>
-      ),
-    },
-    {
-      title: "Хариуцах нэгж",
-      dataIndex: "division",
-      key: "division",
-      render: (division) => (
-        <div style={{ whiteSpace: "pre-wrap" }}>{division}</div>
-      ),
-    },
-  ];
 
   const budgetcolumns: ColumnsType = [
     {
       title: "Ангилал",
       dataIndex: "productCategory",
       key: "productCategory",
-    
     },
     {
       title: "Төрөл",
       dataIndex: "product",
       key: "product",
-      
     },
     {
       title: "Тоо ширхэг",
       dataIndex: "amount",
       key: "amount",
-      render: (amount:number) => amount.toLocaleString("de-DE"),
+      render: (amount: number) => amount.toLocaleString("de-DE"),
     },
     {
       title: "Нэгж үнэ (₮)",
@@ -108,46 +69,46 @@ export function ReportMake({ id, data }: any) {
       title: "Нийт үнэ (₮)",
       dataIndex: "priceTotal",
       key: "priceTotal",
-      render: (priceTotal:number) => priceTotal.toLocaleString("de-DE"),
+      render: (priceTotal: number) => priceTotal.toLocaleString("de-DE"),
     },
-  ]
+  ];
 
-    const reporttesterror = data?.report?.issue.map((item: any) => ({
-      key: uuidv4(),
-      id: data.id,
-      list: item.list,
-      level: item.level,
-      exception: item.exception,
-      value: item.value
-    }));
+  const reporttesterror = data?.report?.issue.map((item: any) => ({
+    key: uuidv4(),
+    id: data.id,
+    list: item.list,
+    level: item.level,
+    exception: item.exception,
+    value: item.value,
+  }));
 
-    const usedphone = data?.report?.usedphone.map((item: any) => ({
-      key: uuidv4(),
-      id: data.id,
-      type: item.type,
-      phone: item.phone,
-      description: item.description,
-      serial: item.serial
-    }));
+  const usedphone = data?.report?.usedphone.map((item: any) => ({
+    key: uuidv4(),
+    id: data.id,
+    type: item.type,
+    phone: item.phone,
+    description: item.description,
+    serial: item.serial,
+  }));
 
   const [mainForm] = Form.useForm();
   const onFinish: FormProps["onFinish"] = async (values) => {
-    const fixed=(values.reporttesterror).map((item:any)=>{
-       return {
+    const fixed = values.reporttesterror.map((item: any) => {
+      return {
         list: item.list,
         level: item.level,
         exception: item.exception,
-        value: item.value
-       }
-    })
-    const usedphone=values.usedphone.map((item:any)=>{
+        value: item.value,
+      };
+    });
+    const usedphone = values.usedphone.map((item: any) => {
       return {
         type: item.type === "Урьдчилсан төлбөрт" ? "PERPAID" : "POSTPAID",
         phone: String(item.phone),
         description: item.description,
-        serial: item.serial
-      }
-    })
+        serial: item.serial,
+      };
+    });
     const requestData = {
       ...values,
       fixed,
@@ -155,45 +116,41 @@ export function ReportMake({ id, data }: any) {
       documentId: Number(id),
       authuserId: Number(session?.user.id),
     };
-   
-    
 
     const update = await Report(requestData);
-        if (update > 0) {
-          messageApi.success("Амжилттай засагдсан");
-        } else {
-          messageApi.error("Алдаа гарлаа");
-        }
+    if (update > 0) {
+      messageApi.success("Амжилттай засагдсан");
+    } else {
+      messageApi.error("Алдаа гарлаа");
+    }
   };
-
-  useEffect(()=>{
+  console.log(data);
+  useEffect(() => {
     mainForm.setFieldsValue({
-      reportname:data?.title,
+      reportname: data?.title,
       reportpurpose: data?.detail?.aim,
-      reportprocessing: data?.reportprocessing,
-      reportconclusion: data?.reportconclusion,
-      reportadvice: data?.reportadvice,
+      reportprocessing: data?.report?.reportprocessing,
+      reportconclusion: data?.report?.reportconclusion,
+      reportadvice: data?.report?.reportadvice,
       reporttesterror,
-      usedphone
-    })
-  },[data.report])
+      usedphone,
+    });
+  }, [data.report]);
   return (
     <Form className="p-6" form={mainForm} onFinish={onFinish}>
-       {contextHolder}
+      {contextHolder}
       <div className="flex justify-between text-xl">
         <b>"ЖИМОБАЙЛ" ХХК</b>
       </div>
       <div className="mt-8">
-        <Form.Item
-          name="reportname"
-        >
-          <Input size="middle"  readOnly/>
+        <Form.Item name="reportname">
+          <Input size="middle" readOnly />
         </Form.Item>
       </div>
       <b>ЗОРИЛГО</b>
       <div className="mt-4">
         <Form.Item name="reportpurpose">
-          <Input.TextArea rows={3} readOnly/>
+          <Input.TextArea rows={3} readOnly />
         </Form.Item>
       </div>
       <div className="my-4">
@@ -210,12 +167,12 @@ export function ReportMake({ id, data }: any) {
       <b>ТЕСТИЙН ЯВЦЫН ТОЙМ</b>
       <div className="mt-4">
         <Form.Item name="reportprocessing">
-          <Input.TextArea rows={5}/>
+          <Input.TextArea rows={5} />
         </Form.Item>
       </div>
       <div>
         <p className="my-4 font-bold">ТЕСТИЙН ҮЕИЙН АЛДААНЫ БҮРТГЭЛ</p>
-        <ReportTestError form={mainForm}/>
+        <ReportTestError form={mainForm} />
       </div>
       <div>
         <p className="my-4 font-bold">ТЕСТИЙН ҮЕИЙН ТӨСӨВ</p>
@@ -250,25 +207,18 @@ export function ReportMake({ id, data }: any) {
       <div className="mt-8">
         <p className="my-4 font-bold">ТЕСТИЙН ДҮГНЭЛТ</p>
         <Form.Item name="reportconclusion">
-          <Input.TextArea rows={5}/>
+          <Input.TextArea rows={5} />
         </Form.Item>
       </div>
       <b>ЗӨВЛӨГӨӨ</b>
       <div className="mt-8">
         <Form.Item name="reportadvice">
-          <Input.TextArea rows={5}/>
+          <Input.TextArea rows={5} />
         </Form.Item>
       </div>
-
-      {/* <Table
-        dataSource={data.testcase}
-        columns={casecolumns}
-        pagination={false}
-        bordered
-      /> */}
       <p className="mt-8 mb-4 font-bold text-lg">Ашигласан дугаарууд</p>
-      <UsedPhone form={mainForm}/>
-      
+      <UsedPhone form={mainForm} />
+
       <Flex justify="center" gap={20} style={{ marginTop: 40 }}>
         <Button size="large" type="primary" onClick={() => mainForm.submit()}>
           Засаад хадгалах

@@ -108,7 +108,7 @@ export async function FullUpdate(data: any) {
         role: item.role,
       };
     });
-    
+
     const team = data.testteam.map((item: any) => {
       return {
         employeeId:
@@ -394,14 +394,14 @@ export async function Report(datas: any) {
         data: {
           reportname: datas.reportname || "",
           reportpurpose: datas.reportpurpose || "",
-          reportprocessing: datas.reportprocessing,
+          reportprocessing: datas.reportprocessing || "",
           document: {
             connect: {
               id: Number(datas.documentId),
             },
           },
-          reportadvice: datas.reportadvice,
-          reportconclusion: datas.reportconclusion,
+          reportadvice: datas.reportadvice || "",
+          reportconclusion: datas.reportconclusion || "",
           issue: {
             createMany: {
               data: datas.fixed || [],
@@ -417,7 +417,6 @@ export async function Report(datas: any) {
     });
     return 1;
   } catch (error) {
-    console.error(error);
     return -1;
   }
 }
@@ -565,7 +564,6 @@ export async function ConfirmMember(data: any) {
 
       await tx.confirmSub.create({
         data: {
-       
           system: data.system,
           jobs: data.jobs,
           module: data.module,
