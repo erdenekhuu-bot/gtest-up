@@ -181,41 +181,50 @@ export const parseGermanNumber = (str: string): number => {
 
 export const mainquery = async (id: number, pageSize: number, page: number) => {
   const result = await prisma.$queryRaw`
-            SELECT json_build_object(
-                'id', doc.id,
-                'generate', doc.generate,
-                'title', doc.title,
-                'employee', emp.firstname,
-                'timeCreated', doc."timeCreated",
-                'state', doc.state,
-                'papers', COALESCE(
-                  json_agg(
-                    DISTINCT jsonb_build_object(
-                      'id', confirm.id
-                    )
-                  ) FILTER (WHERE confirm.id IS NOT NULL),
-                  '[]'::json
-                ),
-                'departmentRoles', COALESCE(
-                  json_agg(
-                    DISTINCT jsonb_build_object(
-                      'id', dep.id,
-                      'role', dep.role,
-                      'state', dep.state
-                    )
-                  ) FILTER (WHERE dep.id IS NOT NULL),
-                  '[]'::json
-                )
-              ) AS data
-            FROM public."Document" AS doc
-                LEFT JOIN public."AuthUser" AS authuser ON authuser.id = doc."authUserId"
-                LEFT JOIN public."Employee" AS emp ON emp."auth_user_id" = authuser.id
-                LEFT JOIN public."ConfirmPaper" AS confirm ON confirm."documentId" = doc.id
-                LEFT JOIN public."DepartmentEmployeeRole" AS dep ON dep."documentId" = doc.id
-            WHERE emp.id = ${id}
-            GROUP BY doc.id, emp.firstname, doc.generate, doc.title,doc.state
-            LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize};
-          `;
+  SELECT json_build_object(
+    'id', doc.id,
+    'generate', doc.generate,
+    'title', doc.title,
+    'employee', emp.firstname,
+    'timeCreated', doc."timeCreated",
+    'state', doc.state,
+    'papers', COALESCE(
+      json_agg(
+        DISTINCT jsonb_build_object(
+          'id', confirm.id
+        )
+      ) FILTER (WHERE confirm.id IS NOT NULL),
+      '[]'::json
+    ),
+    'share', COALESCE(
+      json_agg(
+        DISTINCT jsonb_build_object(
+          'documentId', shares."documentId"
+        )
+      ) FILTER (WHERE shares."documentId" IS NOT NULL),
+      '[]'::json
+    ),
+    'departmentRoles', COALESCE(
+      json_agg(
+        DISTINCT jsonb_build_object(
+          'id', dep.id,
+          'role', dep.role,
+          'state', dep.state
+        )
+      ) FILTER (WHERE dep.id IS NOT NULL),
+      '[]'::json
+    )
+  ) AS data
+  FROM public."Document" AS doc
+  LEFT JOIN public."AuthUser" AS authuser ON authuser.id = doc."authUserId"
+  LEFT JOIN public."Employee" AS emp ON emp."auth_user_id" = authuser.id
+  LEFT JOIN public."ConfirmPaper" AS confirm ON confirm."documentId" = doc.id
+  LEFT JOIN public."DepartmentEmployeeRole" AS dep ON dep."documentId" = doc.id
+  LEFT JOIN public."ShareGroup" AS shares ON shares."documentId" = doc.id
+  WHERE emp.id = ${id}
+  GROUP BY doc.id, emp.firstname, doc.generate, doc.title, doc.state, doc."timeCreated"
+  LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize};
+`;
   return result;
 };
 

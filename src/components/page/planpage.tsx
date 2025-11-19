@@ -67,23 +67,29 @@ export function PlanPage({ data, total, page, pageSize }: TablePagination) {
     (solopermission === "VIEWER" || solopermission === "REPORT") && {
       title: "Шалгах",
       dataIndex: "id",
-      render: (id: number) => (
-        <Button
-          type="primary"
-          onClick={() => {
-            router.push("plan/listplan/" + id);
-          }}
-        >
-          Шалгах
-        </Button>
-      ),
+      render: (id: number, record: any) => {
+        const accessed = record.departmentRoles.every(
+          (item: any) => item.state === "ACCESS"
+        );
+        return (
+          <Button
+            disabled={accessed}
+            type="primary"
+            onClick={() => {
+              router.push("plan/listplan/" + id);
+            }}
+          >
+            Шалгах
+          </Button>
+        );
+      },
     },
 
     hasEdit && {
       title: "Хуваалцах",
       dataIndex: "id",
       render: (id: number, record: any) => {
-        return record.state === "SHARED" ? (
+        return record.share.length > 0 ? (
           <Badge
             variant="secondary"
             className="hover:cursor-pointer"
@@ -125,10 +131,16 @@ export function PlanPage({ data, total, page, pageSize }: TablePagination) {
     hasEdit && {
       title: "Засах",
       dataIndex: "id",
-      render: (id: number, record:any) => {
-        const accessed = record.departmentRoles.every((item: any) => item.state === "ACCESS");
+      render: (id: number, record: any) => {
+        const accessed = record.departmentRoles.every(
+          (item: any) => item.state === "ACCESS"
+        );
         return (
-          <Button type="primary" onClick={() => router.push("plan/" + id)} disabled={accessed}>
+          <Button
+            type="primary"
+            onClick={() => router.push("plan/" + id)}
+            disabled={accessed}
+          >
             Засах
           </Button>
         );
