@@ -95,14 +95,6 @@ export function ViewPlanDetail({ document, steps }: any) {
     [scrollPosition]
   );
 
-  let sortedSteps = steps
-    .sort((a: any, b: any) => b.level - a.level)
-    .map((item: any, index: number) => ({
-      ...item,
-      sublevel: index + 1,
-    }))
-    .sort((a: any, b: any) => a.sublevel - b.sublevel);
-
   useEffect(() => {
     const handleScroll = () => {
       setScrollPosition(window.scrollY);

@@ -153,7 +153,7 @@ export default function Page() {
       budgetdata,
       testcase,
     };
-    
+
     const result = await CreateDocument(merge);
     if (result > 0) {
       messageApi.success("Амжилттай хадгалагдлаа!");

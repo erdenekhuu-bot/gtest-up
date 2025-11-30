@@ -99,6 +99,9 @@ export async function CreateDocument(data: any) {
 }
 export async function FullUpdate(data: any) {
   try {
+    const checkout = await prisma.departmentEmployeeRole.findMany({
+      where: { documentId: Number(data.documentId) },
+    });
     const result = data.departmentemployee.map((item: any) => {
       return {
         employeeId:
@@ -137,6 +140,16 @@ export async function FullUpdate(data: any) {
       .filter((item: any) => item !== null);
 
     const finalMerged = [...result, ...customrelation];
+    const mergedWithState = finalMerged.map((item) => {
+      const old = checkout.find(
+        (c) => c.employeeId === item.employeeId && c.role === item.role
+      );
+
+      return {
+        ...item,
+        state: old ? old.state : "DENY",
+      };
+    });
 
     await prisma.$transaction(async (tx) => {
       await tx.documentAttribute.deleteMany({
@@ -178,7 +191,7 @@ export async function FullUpdate(data: any) {
           },
           departmentEmployeeRole: {
             createMany: {
-              data: finalMerged,
+              data: mergedWithState,
             },
           },
           documentemployee: {

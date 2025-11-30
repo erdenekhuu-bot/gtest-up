@@ -1,14 +1,19 @@
 "use client";
 import { Table, Flex, Input, Button, message } from "antd";
-import { ZUSTAND } from "@/zustand";
-import { formatHumanReadable } from "@/util/usable";
+import { ZUSTAND } from "../../zustand";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import { formatHumanReadable } from "../../util/usable";
 import { ShareWindow } from "../window/sharewindow";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "../ui/badge";
 import { RejectCause } from "../window/reject/rejectcause";
 import { useSession } from "next-auth/react";
 
-export function PlanPage({ data, total, page, pageSize }: TablePagination) {
+export default function ClientPlan({
+  data,
+  total,
+  page,
+  pageSize,
+}: TablePagination) {
   const [messageApi, contextHolder] = message.useMessage();
   const { data: session } = useSession();
   const searchParams = useSearchParams();
@@ -23,7 +28,6 @@ export function PlanPage({ data, total, page, pageSize }: TablePagination) {
   const hasEdit = session?.user.employee.permission[0].kind.includes("EDIT");
   const solopermission = session?.user.employee.super;
   const router = useRouter();
-
   const generateSearch = (term: string) => {
     const params = new URLSearchParams(searchParams);
     if (term) {
@@ -155,7 +159,6 @@ export function PlanPage({ data, total, page, pageSize }: TablePagination) {
         formatHumanReadable(new Date(timeCreated).toISOString()),
     },
   ];
-
   return (
     <section>
       {contextHolder}

@@ -1,8 +1,8 @@
 import { prisma } from "@/util/prisma";
-import { PlanPage } from "@/components/page/planpage";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { mainquery, primequery } from "@/util/usable";
+import ClientPlan from "../../../components/client/ClientPlan";
 
 export default async function Page(props: {
   searchParams?: Promise<{
@@ -33,7 +33,7 @@ export default async function Page(props: {
     `) as number;
 
   return (
-    <PlanPage
+    <ClientPlan
       data={record}
       total={totalCount}
       page={page}

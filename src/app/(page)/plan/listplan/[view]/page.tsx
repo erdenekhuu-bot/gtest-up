@@ -1,5 +1,6 @@
 import { prisma } from "@/util/prisma";
 import { ViewPlanDetail } from "@/components/window/ViewPlanDetail";
+import ClientListPlan from "../../../../../components/client/ClientListPlan";
 
 export const dynamic = "force-dynamic";
 
@@ -135,5 +136,5 @@ export default async function Page({
       steps,
     };
   });
-  return <ViewPlanDetail document={record.data} steps={record.steps} />;
+  return <ClientListPlan data={record.data} steps={record.steps} />;
 }

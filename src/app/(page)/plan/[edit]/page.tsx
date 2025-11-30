@@ -1,7 +1,7 @@
 import { prisma } from "@/util/prisma";
-import { EditPage } from "@/components/window/document/editpage/Editing";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import ClientEdit from "../../../../components/client/ClientEdit";
 
 export const dynamic = "force-dynamic";
 
@@ -12,21 +12,9 @@ export default async function Page({
 }) {
   const { edit } = await params;
   const session = await getServerSession(authOptions);
-  const authuser = await prisma.authUser.findUnique({
-    where: {
-      id: Number(session?.user.id),
-    },
-    include: {
-      employee: {
-        include: {
-          department: true,
-        },
-      },
-    },
-  });
 
   const record = await prisma.$transaction(async (tx) => {
-    const data = await prisma.document.findUnique({
+    const data = await tx.document.findUnique({
       where: {
         id: Number(edit),
       },
@@ -98,7 +86,7 @@ export default async function Page({
       },
     });
 
-    const steps = await prisma.$queryRaw`
+    const steps = await tx.$queryRaw`
         SELECT json_agg(
             json_build_object(
               'documentId', dep."documentId",
@@ -156,5 +144,5 @@ export default async function Page({
     };
   });
 
-  return <EditPage document={record.data} id={edit} steps={record.steps} />;
+  return <ClientEdit document={record.data} steps={record.steps} />;
 }
