@@ -56,7 +56,7 @@ export default function ClientPlan({
     {
       title: "Төлөв",
       dataIndex: "departmentRoles",
-      render: (record: any) => {
+      render: (record: any, document: any) => {
         const accessed = record.every((item: any) => item.state === "ACCESS");
         const checkout = record.some((item: any) => item.state === "ACCESS");
         return accessed ? (
@@ -80,6 +80,7 @@ export default function ClientPlan({
             disabled={accessed}
             type="primary"
             onClick={() => {
+              getDocumentId(id);
               router.push("plan/listplan/" + id);
             }}
           >

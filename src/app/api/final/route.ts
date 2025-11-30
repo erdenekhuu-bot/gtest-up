@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
             id: Number(request.documentId),
           },
           data: {
-            state: Checking(request.reject),
+            state: "FORWARD",
           },
         }));
 
@@ -53,8 +53,9 @@ export async function POST(req: NextRequest) {
           documentId: Number(request.documentId),
         },
         data: {
-          state: MiddleCheck(request.check),
+          state: "ACCESS",
           rode: true,
+          endDate: new Date(),
         },
       });
       return updating;

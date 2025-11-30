@@ -1,15 +1,24 @@
 "use client";
-import { Button, Form, Input, Table, Flex, message } from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  Table,
+  Flex,
+  message,
+  Breadcrumb,
+  Layout,
+} from "antd";
 import type { FormProps } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { ReportTestError } from "../window/report/ReportTestError";
-import { ReportBudget } from "../window/report/ReportBudget";
 import { convertName } from "@/util/usable";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { Report } from "@/util/action";
 import { v4 as uuidv4 } from "uuid";
 import { UsedPhone } from "../window/report/UsedPhone";
+import { redirect } from "next/navigation";
 
 export function ReportMake({ id, data }: any) {
   const [messageApi, contextHolder] = message.useMessage();
@@ -93,7 +102,7 @@ export function ReportMake({ id, data }: any) {
 
   const [mainForm] = Form.useForm();
   const onFinish: FormProps["onFinish"] = async (values) => {
-    const fixed = values.reporttesterror.map((item: any) => {
+    const fixed = (values.reporttesterror || []).map((item: any) => {
       return {
         list: item.list,
         level: item.level,
@@ -101,7 +110,7 @@ export function ReportMake({ id, data }: any) {
         value: item.value,
       };
     });
-    const usedphone = values.usedphone.map((item: any) => {
+    const usedphone = (values.usedphone || []).map((item: any) => {
       return {
         type: item.type === "Урьдчилсан төлбөрт" ? "PERPAID" : "POSTPAID",
         phone: String(item.phone),
@@ -124,7 +133,7 @@ export function ReportMake({ id, data }: any) {
       messageApi.error("Алдаа гарлаа");
     }
   };
-  console.log(data);
+
   useEffect(() => {
     mainForm.setFieldsValue({
       reportname: data?.title,
@@ -137,93 +146,115 @@ export function ReportMake({ id, data }: any) {
     });
   }, [data.report]);
   return (
-    <Form className="p-6" form={mainForm} onFinish={onFinish}>
-      {contextHolder}
-      <div className="flex justify-between text-xl">
-        <b>"ЖИМОБАЙЛ" ХХК</b>
-      </div>
-      <div className="mt-8">
-        <Form.Item name="reportname">
-          <Input size="middle" readOnly />
-        </Form.Item>
-      </div>
-      <b>ЗОРИЛГО</b>
-      <div className="mt-4">
-        <Form.Item name="reportpurpose">
-          <Input.TextArea rows={3} readOnly />
-        </Form.Item>
-      </div>
-      <div className="my-4">
-        <p className="my-4 font-bold">
-          ТЕСТЭД БАГИЙН БҮРЭЛДЭХҮҮН, ТЕСТ ХИЙСЭН ХУВААРЬ
-        </p>
-        <Table
-          dataSource={data.documentemployee}
-          columns={columns}
-          pagination={false}
-          bordered
-        />
-      </div>
-      <b>ТЕСТИЙН ЯВЦЫН ТОЙМ</b>
-      <div className="mt-4">
-        <Form.Item name="reportprocessing">
-          <Input.TextArea rows={5} />
-        </Form.Item>
-      </div>
-      <div>
-        <p className="my-4 font-bold">ТЕСТИЙН ҮЕИЙН АЛДААНЫ БҮРТГЭЛ</p>
-        <ReportTestError form={mainForm} />
-      </div>
-      <div>
-        <p className="my-4 font-bold">ТЕСТИЙН ҮЕИЙН ТӨСӨВ</p>
-        <Table
-          dataSource={data.budget}
-          columns={budgetcolumns}
-          pagination={false}
-          summary={() => {
-            const result = data.budget || [];
-            const total = result.reduce((sum: any, row: any) => {
-              const numericValue = Number(
-                String(row.priceTotal).replace(/\./g, "")
+    <Layout.Content>
+      <Breadcrumb
+        style={{ margin: "16px 0" }}
+        items={[
+          {
+            title: (
+              <span
+                style={{
+                  cursor: "pointer",
+                }}
+                onClick={() => redirect("/testcase")}
+              >
+                Үндсэн хуудас руу буцах
+              </span>
+            ),
+          },
+          {
+            title: "Тайлангийн хуудас",
+          },
+        ]}
+      />
+      <Form className="p-6" form={mainForm} onFinish={onFinish}>
+        {contextHolder}
+        <div className="flex justify-between text-xl">
+          <b>"ЖИМОБАЙЛ" ХХК</b>
+        </div>
+        <div className="mt-8">
+          <Form.Item name="reportname">
+            <Input size="middle" readOnly />
+          </Form.Item>
+        </div>
+        <b>ЗОРИЛГО</b>
+        <div className="mt-4">
+          <Form.Item name="reportpurpose">
+            <Input.TextArea rows={3} readOnly />
+          </Form.Item>
+        </div>
+        <div className="my-4">
+          <p className="my-4 font-bold">
+            ТЕСТЭД БАГИЙН БҮРЭЛДЭХҮҮН, ТЕСТ ХИЙСЭН ХУВААРЬ
+          </p>
+          <Table
+            dataSource={data.documentemployee}
+            columns={columns}
+            pagination={false}
+            bordered
+          />
+        </div>
+        <b>ТЕСТИЙН ЯВЦЫН ТОЙМ</b>
+        <div className="mt-4">
+          <Form.Item name="reportprocessing">
+            <Input.TextArea rows={5} />
+          </Form.Item>
+        </div>
+        <div>
+          <p className="my-4 font-bold">ТЕСТИЙН ҮЕИЙН АЛДААНЫ БҮРТГЭЛ</p>
+          <ReportTestError form={mainForm} />
+        </div>
+        <div>
+          <p className="my-4 font-bold">ТЕСТИЙН ҮЕИЙН ТӨСӨВ</p>
+          <Table
+            dataSource={data.budget}
+            columns={budgetcolumns}
+            pagination={false}
+            summary={() => {
+              const result = data.budget || [];
+              const total = result.reduce((sum: any, row: any) => {
+                const numericValue = Number(
+                  String(row.priceTotal).replace(/\./g, "")
+                );
+                return sum + (isNaN(numericValue) ? 0 : numericValue);
+              }, 0);
+
+              return (
+                <Table.Summary.Row>
+                  <Table.Summary.Cell index={0} colSpan={4} align="right">
+                    Нийт
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={4}>
+                    {total.toLocaleString("de-DE")}
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={5} />
+                </Table.Summary.Row>
               );
-              return sum + (isNaN(numericValue) ? 0 : numericValue);
-            }, 0);
+            }}
+            bordered
+          />
+        </div>
+        <div className="mt-8">
+          <p className="my-4 font-bold">ТЕСТИЙН ДҮГНЭЛТ</p>
+          <Form.Item name="reportconclusion">
+            <Input.TextArea rows={5} />
+          </Form.Item>
+        </div>
+        <b>ЗӨВЛӨГӨӨ</b>
+        <div className="mt-8">
+          <Form.Item name="reportadvice">
+            <Input.TextArea rows={5} />
+          </Form.Item>
+        </div>
+        <p className="mt-8 mb-4 font-bold text-lg">Ашигласан дугаарууд</p>
+        <UsedPhone form={mainForm} />
 
-            return (
-              <Table.Summary.Row>
-                <Table.Summary.Cell index={0} colSpan={4} align="right">
-                  Нийт
-                </Table.Summary.Cell>
-                <Table.Summary.Cell index={4}>
-                  {total.toLocaleString("de-DE")}
-                </Table.Summary.Cell>
-                <Table.Summary.Cell index={5} />
-              </Table.Summary.Row>
-            );
-          }}
-          bordered
-        />
-      </div>
-      <div className="mt-8">
-        <p className="my-4 font-bold">ТЕСТИЙН ДҮГНЭЛТ</p>
-        <Form.Item name="reportconclusion">
-          <Input.TextArea rows={5} />
-        </Form.Item>
-      </div>
-      <b>ЗӨВЛӨГӨӨ</b>
-      <div className="mt-8">
-        <Form.Item name="reportadvice">
-          <Input.TextArea rows={5} />
-        </Form.Item>
-      </div>
-      <p className="mt-8 mb-4 font-bold text-lg">Ашигласан дугаарууд</p>
-      <UsedPhone form={mainForm} />
-
-      <Flex justify="center" gap={20} style={{ marginTop: 40 }}>
-        <Button size="large" type="primary" onClick={() => mainForm.submit()}>
-          Засаад хадгалах
-        </Button>
-      </Flex>
-    </Form>
+        <Flex justify="center" gap={20} style={{ marginTop: 40 }}>
+          <Button size="large" type="primary" onClick={() => mainForm.submit()}>
+            Засаад хадгалах
+          </Button>
+        </Flex>
+      </Form>
+    </Layout.Content>
   );
 }

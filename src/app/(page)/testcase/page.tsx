@@ -2,7 +2,7 @@ import { prisma } from "@/util/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { DocumentStateEnum } from "@prisma/client";
-import { TestCaseReportPage } from "@/components/page/reportpage";
+import ClientReport from "../../../components/client/ClientReport";
 
 export default async function Page(props: {
   searchParams?: Promise<{
@@ -19,18 +19,12 @@ export default async function Page(props: {
 
   const record = await prisma.document.findMany({
     where: {
-      AND: [
-        {
-          authUserId: Number(session?.user.id),
+      authUserId: Number(session?.user.id),
+      departmentEmployeeRole: {
+        every: {
+          state: DocumentStateEnum.ACCESS,
         },
-        {
-          departmentEmployeeRole: {
-            every: {
-              state: DocumentStateEnum.ACCESS,
-            },
-          },
-        },
-      ],
+      },
     },
     skip: (page - 1) * pageSize,
     take: pageSize,
@@ -56,7 +50,7 @@ export default async function Page(props: {
   const totalCount = record.length;
 
   return (
-    <TestCaseReportPage
+    <ClientReport
       data={record}
       total={totalCount}
       page={page}

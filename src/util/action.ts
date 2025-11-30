@@ -256,7 +256,6 @@ export async function ShareGR(data: any) {
         })),
         userEntry,
       ];
-      console.log(merge);
 
       const document = await tx.shareGroup.findFirst({
         where: {
@@ -311,7 +310,10 @@ export async function ShareRP(data: any) {
 
       const merge = [
         ...data.sharegroup.map((item: any) => ({
-          employeeId: item.employeeId.value,
+          employeeId:
+            typeof item.employeeId !== "number"
+              ? item.employeeId.value
+              : item.employeeId,
           reportId: item.reportId,
         })),
         userEntry,
@@ -744,14 +746,14 @@ export async function RejectAction(data: any) {
           description: data.values.description,
           employee: {
             employee: convertName(user?.employee),
-          } as Prisma.JsonObject,
+          },
         },
         create: {
           documentId: data.documentid,
           description: data.values.description,
           employee: {
             employee: convertName(user?.employee),
-          } as Prisma.JsonObject,
+          },
         },
       });
       await tx.document.update({
@@ -759,12 +761,13 @@ export async function RejectAction(data: any) {
           id: data.documentid,
         },
         data: {
-          state: "DENY",
+          rejection: { authUser: user.id },
         },
       });
     });
     return 1;
   } catch (error) {
+    console.error(error);
     return -1;
   }
 }

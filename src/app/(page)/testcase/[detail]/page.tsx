@@ -25,14 +25,6 @@ export default async function Page({
         },
       },
       budget: true,
-      testcase: {
-        orderBy: {
-          id: "asc",
-        },
-        include: {
-          testCaseImage: true,
-        },
-      },
       report: {
         include: {
           issue: true,

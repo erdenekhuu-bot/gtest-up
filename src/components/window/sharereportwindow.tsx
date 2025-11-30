@@ -1,5 +1,5 @@
 "use client";
-import { ZUSTAND } from "@/zustand";
+import { ZUSTAND } from "../../zustand";
 import { Modal, Form, Button, message, Table, Select } from "antd";
 import type { FormProps } from "antd";
 import Image from "next/image";
@@ -32,6 +32,7 @@ export function ShareReportWindow() {
       reportId: documentid,
       sharegroup,
     };
+    console.log(merge);
     const result = await ShareRP(merge);
     if (result > 0) {
       messageApi.success("Амжилттай хуваалцлаа!");
@@ -89,7 +90,7 @@ export function ShareReportWindow() {
   }, [search, fetchEmployees]);
 
   useEffect(() => {
-    detail(documentid);
+    checkout === 16 && detail(documentid);
   }, [documentid]);
   return (
     <Modal

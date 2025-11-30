@@ -1,19 +1,22 @@
 "use client";
-import React from "react";
 import { Table, Button } from "antd";
-import { useSearchParams, usePathname, useRouter } from "next/navigation";
-import { formatHumanReadable } from "@/util/usable";
-import { ShareReportWindow } from "@/components/window/sharereportwindow";
-import { ZUSTAND } from "@/zustand";
 import Image from "next/image";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import { formatHumanReadable } from "../../util/usable";
+import { ZUSTAND } from "../../zustand";
+import { ShareReportWindow } from "../window/sharereportwindow";
 
-export function TestCaseReportPage({ data, total, page, pageSize }: any) {
+export default function ClientReport({
+  data,
+  total,
+  page,
+  pageSize,
+}: TablePagination) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
-  const { getCheckout, getDocumentId } = ZUSTAND();
-
+  const { getDocumentId, getCheckout, checkout } = ZUSTAND();
   const generateSearch = (term: string) => {
     const params = new URLSearchParams(searchParams);
     if (term) {
@@ -31,7 +34,6 @@ export function TestCaseReportPage({ data, total, page, pageSize }: any) {
     params.set("pageSize", pagination.pageSize.toString());
     replace(`${pathname}?${params.toString()}`);
   };
-
   const columns = [
     {
       title: "Тоот",
@@ -69,7 +71,12 @@ export function TestCaseReportPage({ data, total, page, pageSize }: any) {
       title: "Кэйсүүд",
       dataIndex: "id",
       render: (id: number) => (
-        <Button type="link" onClick={() => router.push("testcase/make/" + id)}>
+        <Button
+          type="link"
+          onClick={() => {
+            router.push("testcase/make/" + id);
+          }}
+        >
           Кэйсүүд
         </Button>
       ),
@@ -77,17 +84,19 @@ export function TestCaseReportPage({ data, total, page, pageSize }: any) {
     {
       title: "Хуваалцах",
       dataIndex: "id",
-      render: (id: number, record: any) => (
-        <Button
-          type="dashed"
-          onClick={() => {
-            getDocumentId(record.report.id);
-            getCheckout(16);
-          }}
-        >
-          SHARE
-        </Button>
-      ),
+      render: (id: number, record: any) => {
+        return (
+          <Button
+            type="dashed"
+            onClick={() => {
+              getDocumentId(record?.report?.id);
+              getCheckout(16);
+            }}
+          >
+            SHARE
+          </Button>
+        );
+      },
     },
     {
       title: "PDF view",
@@ -106,7 +115,6 @@ export function TestCaseReportPage({ data, total, page, pageSize }: any) {
       },
     },
   ];
-
   return (
     <section>
       <Table

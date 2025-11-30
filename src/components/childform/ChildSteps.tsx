@@ -8,11 +8,13 @@ import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { Rejection } from "../window/reject/rejection";
+import { RejectCause } from "../window/reject/rejectcause";
 
-export function ChildSteps(record: any) {
+export function ChildSteps({ record, id }: any) {
   const { data: session } = useSession();
   const router = useRouter();
-  const { checkout, getCheckout, getDocumentId, getOTP } = ZUSTAND();
+  const { checkout, getCheckout, getDocumentId, getOTP, documentid } =
+    ZUSTAND();
   const [append, setAppend] = useState("");
   const [messageApi, contextHolder] = message.useMessage();
   const cancelOTP = () => {
@@ -39,7 +41,7 @@ export function ChildSteps(record: any) {
         otp: Number(append),
         reject: 2,
         check: 2,
-        // documentId: data.id,
+        documentId: Number(id),
       });
       if (response.data.success && session?.user?.id) {
         cancelOTP();
@@ -57,7 +59,6 @@ export function ChildSteps(record: any) {
         onClick={async () => {
           getCheckout(7);
           getOTP(Number(session?.user.id));
-          // await axios.put("/api/otp/sms", { id: Number(document.id) });
         }}
       >
         Зөвшөөрөх
@@ -66,7 +67,7 @@ export function ChildSteps(record: any) {
         size="large"
         type="link"
         onClick={() => {
-          // getDocumentId(document.id);
+          getDocumentId(Number(id));
           getCheckout(12);
         }}
       >
@@ -74,49 +75,71 @@ export function ChildSteps(record: any) {
       </Button>
     </Flex>
   );
+
+  const rejectcontent = (
+    <Flex gap={10}>
+      <Button
+        size="large"
+        onClick={async () => {
+          getDocumentId(Number(id));
+          getCheckout(13);
+        }}
+      >
+        Шалтгаан
+      </Button>
+      <Button
+        size="large"
+        onClick={async () => {
+          getCheckout(7);
+          getOTP(Number(session?.user.id));
+        }}
+      >
+        Зөвшөөрөх
+      </Button>
+    </Flex>
+  );
   return (
     <section>
       <Steps
         style={{ height: "100vh", zIndex: 10, overflow: "auto" }}
-        current={record.record[0].result.findIndex(
+        current={record[0].result.findIndex(
           (item: any) => item.state === "ACCESS"
         )}
         direction="vertical"
-        items={record.record[0].result.map((item: any, index: number) => ({
-          title: `${
-            item.state === "ACCESS" ? "Баталгаажсан" : "Хүлээгдэж байгаа"
-          }`,
-          description: (
-            <section key={index} className="text-[12px] mb-12">
-              <p className="opacity-50">{item.jobPosition}</p>
-              <p className="opacity-50">{convertName(item.employee)}</p>
-              <p className="opacity-50">
-                {new Date(item.startedDate).toLocaleString()}
-              </p>
-              <div className="mt-4">
-                {item.state === "ACCESS" ? (
-                  <Badge variant="info">Баталгаажсан</Badge>
-                ) : (
-                  // <Button
-                  //   type="primary"
-                  //   disabled={
-                  //     Number(session?.user.id) === item.authUser ? false : true
-                  //   }
-                  //   onClick={() => {
-                  //     getCheckout(7);
-                  //   }}
-                  // >
-                  //   Баталгаажуулах
-                  // </Button>
-                  <Popover content={content} title="">
-                    <Button type="primary">Баталгаажуулах</Button>
-                  </Popover>
-                )}
-              </div>
-            </section>
-          ),
-          status: item.state === "ACCESS" ? "process" : "wait",
-        }))}
+        items={record[0].result.map((item: any, index: number) => {
+          return {
+            title: `${
+              item.state === "ACCESS" ? "Баталгаажсан" : "Хүлээгдэж байгаа"
+            }`,
+            description: (
+              <section key={index} className="text-[12px] mb-12">
+                <p className="opacity-50">{item.jobPosition}</p>
+                <p className="opacity-50">{convertName(item.employee)}</p>
+                <p className="opacity-50">
+                  {new Date(item.startedDate).toLocaleString()}
+                </p>
+                <div className="mt-4">
+                  {item.state === "ACCESS" ? (
+                    <Badge variant="info">Баталгаажсан</Badge>
+                  ) : Number(session?.user.id) === item.authUser ? (
+                    <div>
+                      {item.rejection.authUser === Number(session?.user.id) ? (
+                        <Popover content={rejectcontent} title="">
+                          <Badge variant="destructive">Буцаасан</Badge>
+                        </Popover>
+                      ) : (
+                        <Popover content={content} title="">
+                          <Button type="primary">Баталгаажуулах</Button>
+                        </Popover>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+              </section>
+            ),
+            status: item.state === "ACCESS" ? "process" : "wait",
+          };
+        })}
       />
       <Modal
         title=""
@@ -164,6 +187,7 @@ export function ChildSteps(record: any) {
         </div>
       </Modal>
       <Rejection />
+      <RejectCause />
     </section>
   );
 }

@@ -1,5 +1,4 @@
 import { prisma } from "@/util/prisma";
-import { ViewPlanDetail } from "@/components/window/ViewPlanDetail";
 import ClientListPlan from "../../../../../components/client/ClientListPlan";
 
 export const dynamic = "force-dynamic";
@@ -90,10 +89,11 @@ export default async function Page({
                 'firstname', emp.firstname,
                 'lastname', emp.lastname
               ),
+              'rejection', doc.rejection,
               'jobPosition', job.name,
               'state', dep.state,
               'authUser', authUser.id,
-            'startedDate', dep.time_created,
+             'startedDate', dep."endDate",
               'permission_level_category', 
               CASE 
                   WHEN emp.firstname = 'Ууганбаяр' THEN 1
@@ -120,7 +120,7 @@ export default async function Page({
               dep.rode,
               dep.employee_id,
               dep.state,
-              dep.time_created
+              dep."endDate"
             FROM public."DepartmentEmployeeRole" AS dep
             WHERE dep."documentId" = ${Number(view)}
           ) AS dep
@@ -128,6 +128,7 @@ export default async function Page({
           LEFT JOIN public."JobPosition" AS job ON job.id = emp.job_position_id
           LEFT JOIN public."JobPositionGroup" AS jobgroup ON jobgroup.id = job."jobGroupId"
           LEFT JOIN public."AuthUser" AS authUser ON authUser.id = emp.auth_user_id
+          LEFT JOIN public."Document" AS doc ON dep."documentId"=doc.id
         WHERE dep."documentId" = ${Number(view)};
     `;
 

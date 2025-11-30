@@ -33,7 +33,7 @@ export function RejectCause() {
     >
       <Form form={mainForm}>
         <Form.Item name="employee">
-          <Input readOnly/>
+          <Input readOnly />
         </Form.Item>
         <Form.Item name="description">
           <Input.TextArea rows={10} maxLength={500} showCount readOnly />

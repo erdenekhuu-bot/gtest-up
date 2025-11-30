@@ -1,15 +1,6 @@
 "use client";
-import {
-  Form,
-  Input,
-  Table,
-  Flex,
-  Breadcrumb,
-  Layout,
-  message,
-  Button,
-} from "antd";
-import { useEffect, createContext, useState } from "react";
+import { Form, Input, Table, Flex, Breadcrumb, Layout } from "antd";
+import { useEffect, createContext } from "react";
 import { redirect } from "next/navigation";
 import {
   ReadDepartmentEmployeeRole,
@@ -64,6 +55,7 @@ export default function ClientListPlan({ data, steps }: any) {
         "",
     });
   }, [data.id]);
+
   return (
     <Layout>
       <Layout.Content style={{ background: "white" }}>
@@ -253,7 +245,7 @@ export default function ClientListPlan({ data, steps }: any) {
           overflow: "visible",
         }}
       >
-        <ChildSteps record={steps} />
+        <ChildSteps record={steps} id={data.id} />
       </Layout.Sider>
     </Layout>
   );
