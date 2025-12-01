@@ -20,11 +20,11 @@ import {
 } from "../../../../util/usable";
 import axios from "axios";
 import { useState, useCallback, useEffect } from "react";
-import { TestSchedule } from "../../../../components/window/creation/Schedule";
-import { TestRisk } from "../../../../components/window/creation/Risk";
-import { Addition } from "../../../../components/window/creation/Addition";
-import { TestBudget } from "../../../../components/window/creation/Budget";
-import { TestCase } from "../../../../components/window/creation/Testcast";
+import { TestSchedule } from "../../../../components/childform/ChildDocument";
+import { TestRisk } from "../../../../components/childform/ChildDocument";
+import { Addition } from "../../../../components/childform/ChildDocument";
+import { TestBudget } from "../../../../components/childform/ChildDocument";
+import { TestCase } from "../../../../components/childform/ChildDocument";
 import { ZUSTAND } from "../../../../zustand";
 import { useSession } from "next-auth/react";
 import { CreateDocument } from "../../../../util/action";
