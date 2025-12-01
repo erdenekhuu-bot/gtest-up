@@ -42,8 +42,6 @@ export default function Page() {
       }
     } catch (error) {
       console.error(error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -81,7 +79,7 @@ export default function Page() {
           },
         ]}
       />
-      <Table
+     <Table
         columns={[
           {
             title: "Кейсүүд",
@@ -115,26 +113,19 @@ export default function Page() {
           },
           {
             title: "Тест орчин",
-            dataIndex: "id",
-            render: (id: number) => (
-              <Button
-                type="dashed"
-                onClick={async () => {
-                  await axios.put("/api/document/testcase/duplicate", { id });
-                  fetchDetail(
-                    Number(params.id),
-                    pagination.current,
-                    pagination.pageSize
-                  );
-                }}
-              >
-                Үүсгэх
-              </Button>
-            ),
+            dataIndex: "environment",
+            render: (environment: string) => {
+              return (
+                <Badge
+                  variant={environment === "MAINENV" ? "destructive" : "viewing"}
+                >
+                  {environment === "MAINENV" ? "Бодит орчин" : "Тест орчин"}
+                </Badge>
+              );
+            },
           },
         ]}
         dataSource={data}
-        loading={loading}
         pagination={{
           current: pagination.current,
           pageSize: pagination.pageSize,

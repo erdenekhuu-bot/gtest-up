@@ -46,9 +46,9 @@ import {
   TableToolbar,
 } from "ckeditor5";
 import "ckeditor5/ckeditor5.css";
-import { UpdateCase } from "@/util/action";
 import { ZUSTAND } from "@/zustand";
 import { useState } from "react";
+import { UpdateCase, DuplicateTestCase } from "../../../util/action";
 
 export function TestCaseAction(record: any) {
   const [mainForm] = Form.useForm();
@@ -115,29 +115,46 @@ export function TestCaseAction(record: any) {
 
       <Flex justify="space-between">
         <p className="font-bold text-lg">{record.record?.types}</p>
-        <Form.Item name="testType">
-          <Select
-            showSearch
-            style={{ width: 200 }}
-            placeholder="Кэйсийн төлөв"
-            optionFilterProp="label"
-            filterSort={(optionA, optionB) =>
-              (optionA?.label ?? "")
-                .toLowerCase()
-                .localeCompare((optionB?.label ?? "").toLowerCase())
-            }
-            options={[
-              {
-                value: "ENDED",
-                label: "Дууссан",
-              },
-              {
-                value: "CREATED",
-                label: "Үүссэн",
-              },
-            ]}
-          />
-        </Form.Item>
+        <Flex gap={10}>
+          <Form.Item name="status">
+            <Button
+              type="primary"
+              onClick={async () => {
+                const response = await DuplicateTestCase(caseid);
+                if (response > 0) {
+                  messageApi.success("Амжилттай хадгалсан");
+                } else {
+                  messageApi.error("Алдаа гарлаа");
+                }
+              }}
+            >
+              Бодит орчны кейс үүсгэх
+            </Button>
+          </Form.Item>
+          <Form.Item name="testType">
+            <Select
+              showSearch
+              style={{ width: 200 }}
+              placeholder="Кэйсийн төлөв"
+              optionFilterProp="label"
+              filterSort={(optionA, optionB) =>
+                (optionA?.label ?? "")
+                  .toLowerCase()
+                  .localeCompare((optionB?.label ?? "").toLowerCase())
+              }
+              options={[
+                {
+                  value: "ENDED",
+                  label: "Дууссан",
+                },
+                {
+                  value: "CREATED",
+                  label: "Үүссэн",
+                },
+              ]}
+            />
+          </Form.Item>
+        </Flex>
       </Flex>
 
       <Divider />
