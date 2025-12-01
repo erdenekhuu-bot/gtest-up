@@ -123,7 +123,7 @@ export function ChildSteps({ record, id }: any) {
                     <Badge variant="info">Баталгаажсан</Badge>
                   ) : Number(session?.user.id) === item.authUser ? (
                     <div>
-                      {item.rejection.authUser === Number(session?.user.id) ? (
+                      {item.rejection?.authUser === Number(session?.user.id) ? (
                         <Popover content={rejectcontent} title="">
                           <Badge variant="destructive">Буцаасан</Badge>
                         </Popover>

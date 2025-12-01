@@ -71,13 +71,9 @@ export default function ClientPlan({
     (solopermission === "VIEWER" || solopermission === "REPORT") && {
       title: "Шалгах",
       dataIndex: "id",
-      render: (id: number, record: any) => {
-        const accessed = record.departmentRoles.every(
-          (item: any) => item.state === "ACCESS"
-        );
+      render: (id: number) => {
         return (
           <Button
-            disabled={accessed}
             type="primary"
             onClick={() => {
               getDocumentId(id);

@@ -32,7 +32,7 @@ export function ShareReportWindow() {
       reportId: documentid,
       sharegroup,
     };
-    console.log(merge);
+
     const result = await ShareRP(merge);
     if (result > 0) {
       messageApi.success("Амжилттай хуваалцлаа!");
