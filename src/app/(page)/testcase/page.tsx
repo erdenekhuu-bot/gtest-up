@@ -47,7 +47,15 @@ export default async function Page(props: {
       timeCreated: "asc",
     },
   });
-  const totalCount = record.length;
+  const totalCount = await prisma.document.count({
+    where: {
+      departmentEmployeeRole: {
+        every: {
+          state: DocumentStateEnum.ACCESS,
+        },
+      },
+    }
+  });
 
   return (
     <ClientReport

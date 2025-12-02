@@ -27,12 +27,13 @@ export function ShareReportWindow() {
         reportId: documentid,
       };
     });
+    
     const merge = {
       authuser: Number(session?.user.id),
       reportId: documentid,
       sharegroup,
     };
-
+    
     const result = await ShareRP(merge);
     if (result > 0) {
       messageApi.success("Амжилттай хуваалцлаа!");
@@ -90,7 +91,7 @@ export function ShareReportWindow() {
   }, [search, fetchEmployees]);
 
   useEffect(() => {
-    checkout === 16 && detail(documentid);
+    detail(documentid);
   }, [documentid]);
   return (
     <Modal

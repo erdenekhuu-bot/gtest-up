@@ -249,7 +249,7 @@ export async function ShareGR(data: any) {
         })),
         userEntry,
       ];
-      console.log(merge);
+    
 
       const document = await tx.shareGroup.findFirst({
         where: {
@@ -287,6 +287,7 @@ export async function ShareGR(data: any) {
 }
 
 export async function ShareRP(data: any) {
+  
   try {
     await prisma.$transaction(async (tx) => {
       const user = await tx.authUser.findUnique({
@@ -304,7 +305,10 @@ export async function ShareRP(data: any) {
 
       const merge = [
         ...data.sharegroup.map((item: any) => ({
-          employeeId: item.employeeId.value,
+          employeeId:
+            typeof item.employeeId !== "number"
+              ? item.employeeId.value
+              : item.employeeId,
           reportId: item.reportId,
         })),
         userEntry,
