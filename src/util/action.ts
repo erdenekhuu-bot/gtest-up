@@ -90,6 +90,7 @@ export async function CreateDocument(data: any) {
   }
 }
 export async function FullUpdate(data: any) {
+
   try {
      const checkout = await prisma.departmentEmployeeRole.findMany({
       where: { documentId: Number(data.id) },

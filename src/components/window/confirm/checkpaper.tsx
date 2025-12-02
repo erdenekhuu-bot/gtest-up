@@ -1,7 +1,6 @@
 "use client";
 import { Flex, Form, Input, Table } from "antd";
 import { useEffect } from "react";
-import { ActionDetail } from "../MemberPlanDetail";
 import { ReadDepartmentEmployee } from "../table/ReadDepartmentEmployee";
 import { ReadTestSchedule } from "../table/ReadTestSchedule";
 import { ReadTestRisk } from "../table/ReadTestRisk";
