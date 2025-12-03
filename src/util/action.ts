@@ -148,6 +148,7 @@ export async function FullUpdate(data: any) {
       return {
         ...item,
         state: old ? old.state : "DENY",
+        endDate: old ? old.endDate : new Date(),
       };
     });
 
