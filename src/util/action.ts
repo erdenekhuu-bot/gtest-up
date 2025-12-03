@@ -1,11 +1,7 @@
 "use server";
 import { prisma } from "@/util/prisma";
-import { filterDepartment, convertName } from "./usable";
-import * as v from "valibot";
+import { convertName } from "./usable";
 import { DocumentStateEnum } from "@prisma/client";
-import { DocumentSchema } from "@/lib/validation";
-import { SecondActionSchema } from "@/lib/validation";
-import { ThirdActionSchema } from "@/lib/validation";
 import { Prisma } from "@prisma/client";
 import { Checking, filterEmployee } from "./usable";
 
@@ -15,10 +11,6 @@ function stripId(arr: any[]): any[] {
 
 export async function CreateDocument(data: any) {
   try {
-    // const validate = v.safeParse(DocumentSchema, data);
-    // if (!validate.success) {
-    //   return 0;
-    // }
 
     const customrelation = data.testteam
       .map((item: any) => {
@@ -98,9 +90,10 @@ export async function CreateDocument(data: any) {
   }
 }
 export async function FullUpdate(data: any) {
+
   try {
-    const checkout = await prisma.departmentEmployeeRole.findMany({
-      where: { documentId: Number(data.documentId) },
+     const checkout = await prisma.departmentEmployeeRole.findMany({
+      where: { documentId: Number(data.id) },
     });
     const result = data.departmentemployee.map((item: any) => {
       return {
@@ -257,6 +250,7 @@ export async function ShareGR(data: any) {
         })),
         userEntry,
       ];
+    
 
       const document = await tx.shareGroup.findFirst({
         where: {
@@ -294,6 +288,7 @@ export async function ShareGR(data: any) {
 }
 
 export async function ShareRP(data: any) {
+  
   try {
     await prisma.$transaction(async (tx) => {
       const user = await tx.authUser.findUnique({
@@ -747,14 +742,14 @@ export async function RejectAction(data: any) {
           description: data.values.description,
           employee: {
             employee: convertName(user?.employee),
-          },
+          } as Prisma.JsonObject,
         },
         create: {
           documentId: data.documentid,
           description: data.values.description,
           employee: {
             employee: convertName(user?.employee),
-          },
+          } as Prisma.JsonObject,
         },
       });
       await tx.document.update({
@@ -762,13 +757,12 @@ export async function RejectAction(data: any) {
           id: data.documentid,
         },
         data: {
-          rejection: { authUser: user.id },
+          state: "DENY",
         },
       });
     });
     return 1;
   } catch (error) {
-    console.error(error);
     return -1;
   }
 }
@@ -857,4 +851,30 @@ export async function UpdateConfirmPaper(id: number) {
       check: true,
     },
   });
+}
+
+export async function DuplicateTestCase(id: number) {
+  try {
+    const clonerecord = await prisma.testCase.findUnique({
+      where: { id },
+    });
+
+    if (!clonerecord) {
+      return -1;
+    }
+
+    const { id: _, ...rest } = clonerecord;
+
+    await prisma.testCase.create({
+      data: {
+        ...rest,
+        environment: "MAINENV",
+      },
+    });
+
+    return 1;
+  } catch (error) {
+    console.error(error);
+    return -1;
+  }
 }

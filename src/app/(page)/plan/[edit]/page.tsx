@@ -1,6 +1,4 @@
 import { prisma } from "@/util/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import ClientEdit from "../../../../components/client/ClientEdit";
 
 export const dynamic = "force-dynamic";
@@ -11,8 +9,6 @@ export default async function Page({
   params: Promise<{ edit: string }>;
 }) {
   const { edit } = await params;
-  const session = await getServerSession(authOptions);
-
   const record = await prisma.$transaction(async (tx) => {
     const data = await tx.document.findUnique({
       where: {

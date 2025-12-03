@@ -112,6 +112,7 @@ export default function ClientEdit({ document, steps }: any) {
       };
     });
     const documentId = Number(document.id);
+    
     const merge = {
       ...values,
       riskdata,
@@ -121,7 +122,7 @@ export default function ClientEdit({ document, steps }: any) {
       bank,
       testteam,
       authuserId: Number(session?.user.id),
-      documentId,
+      id:documentId,
     };
     const update = await FullUpdate(merge);
     if (update > 0) {

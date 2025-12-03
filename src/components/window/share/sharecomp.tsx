@@ -52,7 +52,10 @@ export function ShareComp({ document, total, page, pageSize }: any) {
               return (
                 <Button
                   type="primary"
-                  onClick={() => router.push(`/share/${Number(document.id)}`)}
+                  onClick={() => {
+                    getDocumentId(Number(document.id));
+                    router.push(`/share/${Number(document.id)}`);
+                  }}
                 >
                   Төлөвлөгөө үзэх
                 </Button>
